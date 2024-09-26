@@ -1,0 +1,95 @@
+/*-- scss:defaults --*/
+// Base document colors
+$body-bg: #ffffff;
+$banner-bg: #f0e3ce;
+$grass-color-light: #f0e3ce;
+// $grass-color-light: rgb(207, 207, 207);
+$grass-color-black: #0a0a0a;
+$grass-color-dark-grey: #A0A0A0;
+$grass-color-light-grey: #CCCCCC;
+$grass-color-light-green: #EFF4E8;
+$grass-color-dark-green: #B8C6A5;
+$grass-color-soft-green: #9ED29C;
+$grass-color-primary:  #088B36;
+$primary: $grass-color-primary;
+
+$op-white:#fbfbfb;
+// https://www.color-hex.com/color-palette/36240
+$op-primary: #657e96;
+$op-secondary: #d07944;
+$op-tan: #f0e3ce;
+$op-brown: #a76a3a;
+$op-mustard: #d49441;
+$op-light-grey:rgb(207, 207, 207);
+
+// Revealjs theme colors
+$link-color: $grass-color-primary;
+$presentation-heading-color: $grass-color-primary;
+
+.highlight {
+    color: $grass-color-primary;
+    font-weight: bold;
+  }
+
+.circle-image-container {
+    position: relative;
+    // width: 100%;
+    height: auto;
+    display: inline-block;
+  }
+  
+  .circle-image {
+    border-radius: 50%;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    display: block;
+  }
+  
+  .circle-image-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 60%;
+    background: linear-gradient(to bottom, $op-white, $grass-color-soft-green);
+    opacity: 1;
+    z-index: -1;
+  }
+
+.quarto-title-banner {
+  background-color: $banner-bg !important;
+  color: $grass-color-black !important;
+  h1 {
+    color: $grass-color-black !important;
+  }
+}
+
+.reveal {
+    h3 {
+        color: $grass-color-black !important;
+    }
+    .columns {
+        .column {
+            background-color: rgba(251, 252, 250, 0.5) !important; 
+        }
+        
+    }
+    .quarto-title-block { 
+
+        .quarto-title-acknowledgements {
+        color: $grass-color-primary !important;
+        font-size: 0.6em;
+        }
+    }
+}
+
+.text-white {
+    color: $op-white !important;
+}
+
+.text-center {
+  text-align: center !important;
+}

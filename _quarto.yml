@@ -1,0 +1,35 @@
+project:
+  type: website
+  output-dir: docs
+website:
+  favicon: images/logos/grass-favicon-16x16.png
+  navbar:
+    title: "Learn GRASS GIS"
+    background: primary
+    search: true
+    logo: "images/logos/grass-favicon-white-32x32.png"
+    tools:
+      - icon: github
+        menu: 
+          - text: "Source Code"
+            href: "https://github.com/OSGeo/grass-tutorials"
+          - text: "Report an Issue"
+            href: "https://github.com/OSGeo/grass-tutorials/issues"
+  page-footer:
+    left: |
+      Supported by U.S. National Science Foundation
+      [![](/images/logos/NSF_Official_logo_Med_Res_600ppi.png){fig-alt="NSF" width=45px}](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2303651)
+    right:
+      - icon: twitter-x
+        href: https://x.com/grassgis
+        aria-label: GRASS GIS X
+      - icon: github
+        href: https://github.com/OSGeo/grass
+        aria-label: GRASS GIS on GitHub
+execute:
+  freeze: auto
+format:
+  html:
+    theme: [pandoc, theme.scss]
+    toc: true
+    toc-title: Table of Contents
