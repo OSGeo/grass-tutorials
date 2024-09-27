@@ -9,7 +9,7 @@ format:
     code-tools: true
     code-copy: true
     code-fold: false
-categories: [GRASS GIS, Python, R, Intermediate]
+categories: [Python, R, intermediate]
 engine: knitr
 execute:
   eval: false
