@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://OSGeo.github.io/grass-tutorials/content/tutorials/get_started/grass_gis_in_google_colab.html</loc>
+    <lastmod>2024-09-27T19:52:12.983Z</lastmod>
+  </url>
+  <url>
+    <loc>https://OSGeo.github.io/grass-tutorials/content/tutorials/get_started/fast_track_grass_and_R.html</loc>
+    <lastmod>2024-09-27T19:52:12.983Z</lastmod>
+  </url>
+  <url>
+    <loc>https://OSGeo.github.io/grass-tutorials/content/tutorials/get_started/fast_track.html</loc>
+    <lastmod>2024-09-27T19:52:12.983Z</lastmod>
+  </url>
+  <url>
+    <loc>https://OSGeo.github.io/grass-tutorials/index.html</loc>
+    <lastmod>2024-09-27T19:52:13.012Z</lastmod>
+  </url>
+  <url>
+    <loc>https://OSGeo.github.io/grass-tutorials/content/tutorials/get_started/JupyterOnWindows_OSGeo4W_Tutorial.html</loc>
+    <lastmod>2024-09-27T19:52:12.982Z</lastmod>
+  </url>
+  <url>
+    <loc>https://OSGeo.github.io/grass-tutorials/content/tutorials/get_started/fast_track_grass_and_python.html</loc>
+    <lastmod>2024-09-27T19:52:12.983Z</lastmod>
+  </url>
+</urlset>

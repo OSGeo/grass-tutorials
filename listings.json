@@ -1,0 +1,12 @@
+[
+  {
+    "listing": "/index.html",
+    "items": [
+      "/content/tutorials/get_started/JupyterOnWindows_OSGeo4W_Tutorial.html",
+      "/content/tutorials/get_started/grass_gis_in_google_colab.html",
+      "/content/tutorials/get_started/fast_track_grass_and_R.html",
+      "/content/tutorials/get_started/fast_track_grass_and_python.html",
+      "/content/tutorials/get_started/fast_track.html"
+    ]
+  }
+]
