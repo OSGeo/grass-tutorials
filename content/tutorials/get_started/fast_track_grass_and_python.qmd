@@ -54,7 +54,7 @@ For example:
 
 - To get info from a raster, script.raster.raster_info() is used: `gs.raster_info('dsm')`
 - To get info of a vector, script.vector.vector_info() is used: `gs.vector_info('roads')`
-- To list the raster in a location, script.core.list_grouped() is used: `gs.list_grouped(type=['raster'])`
+- To list the raster in a project, script.core.list_grouped() is used: `gs.list_grouped(type=['raster'])`
 - To obtain the computational region, script.core.region() is used: `gs.region()`
 - To run raster algebra with r.mapcalc, script.raster.mapcalc() is used: `gs.mapcalc()`
 

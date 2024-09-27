@@ -18,7 +18,7 @@ website:
   page-footer:
     left: |
       Partially supported by US NSF
-      [![](/images/logos/NSF_Official_logo_Med_Res_600ppi.png){fig-alt="NSF" width=45px}](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2303651)
+      [![](/images/logos/NSF_Official_logo_100x100.png){fig-alt="NSF" width=45px}](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2303651)
     center: Content is dual-licensed under [GFDL-1.2-or-later](https://www.gnu.org/licenses/fdl-1.2.html) and [CC-BY-SA-4.0](https://creativecommons.org/licenses/by-sa/4.0/)
     right:
       - icon: twitter-x

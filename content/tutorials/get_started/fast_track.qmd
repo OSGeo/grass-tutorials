@@ -96,7 +96,7 @@ likely have some data of your own that you want to process and analyse.
 Therefore, the third step is to create a new project and select its CRS by its
 name, EPSG code or take it from your input data. Let's see a simple way to 
 create a project in GRASS GUI. You can either click over "Create new project" 
-in the info bar or use ![](images/location-add.png) icon.
+in the info bar or use ![](images/project-add.png) icon.
 
 ![Create a new GRASS project](images/create_new_project_gui.png){width=75%}
 
