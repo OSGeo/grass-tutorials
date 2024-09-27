@@ -1,0 +1,175 @@
+---
+title: "Get started with GRASS in Jupyter Notebooks on Windows"
+author: "Caitlin Haedrich"
+date: 2024-06-15
+date-modified: today
+format:
+  html:
+    toc: true
+    code-tools: true
+    code-copy: true
+    code-fold: false
+categories: [Python, Windows, beginner]
+engine: jupyter
+execute:
+  eval: false
+jupyter: python3
+---
+
+
+The development of the Python package `grass.jupyter`, has streamlined the use 
+of GRASS GIS is Jupyter notebooks. In this tutorial we will demonstrate the 
+recommended way of running GRASS GIS in Jupyter Notebooks for Windows users.
+
+## Set Up
+
+On Windows, we'll use the OSGeo4W package manager to setup and update GRASS GIS,
+Jupyterlab and other dependencies. Follow the directions below to setup Jupyter 
+and GRASS in Windows.
+
+#### 1. Download the OSGeo4W Network Installer
+
+Download the OSGeo4W network install from [here](https://trac.osgeo.org/osgeo4w/). 
+Open it and select _"Advanced Install"_.
+
+#### 2. Install GRASS GIS, Jupyterlab and `grass.jupyter` dependencies
+
+Follow the prompts until you get to the _"Select Packages"_ window (the defaults
+are fine for most situations). Use the Search bar to find and select the 
+following packages for install (switching from "Skip" to the version number):
+
+* `grass`
+* `python3-jupyterlab`
+* `python3-ipywidgets`
+
+![Install GRASS with OSGeo4W installer](images/osgeo4w_install_grass.png){width=60%}
+
+#### 3. Go make a cup of tea
+
+It may take a minute to install... Click "Finish" and exit when it finishes.
+
+#### 4. Open the OSGeo4W Shell and install folium
+
+Launch the OSGeo4W Shell and install folium with:
+
+`pip install folium`
+
+#### 5. Launch Jupyter Lab
+
+We're ready to launch jupyterlab now: 
+
+`jupyter lab`
+
+
+This should launch Jupyter lab in your default web browser. Use the left side
+panel to navigate to the notebook you wish to run and you're ready to go!
+
+#### 6. Launching Jupyter Lab in the Future
+
+To launch Jupyter Lab in the future:
+
+1. Open the OSGeo4W Shell
+2. Launch jupyter lab with `jupyter lab`
+
+
+## Start GRASS within Jupyter
+
+Now, we're ready to code! Let's import the GRASS GIS Python packages and launch
+GRASS GIS. If you want to run this tutorial, please download and unzip the 
+North Carolina [sample dataset](https://grass.osgeo.org/sampledata/north_carolina/nc_spm_08_grass7.zip).
+
+```{python}
+# Import standard python packages
+import sys
+import subprocess
+
+# Ask GRASS GIS where its Python packages are and add them to the path
+grass_call = "grass83"
+sys.path.append(
+    subprocess.check_output([grass_call, "--config", "python_path"], text=True, shell=True).strip()
+)
+
+# Import the GRASS GIS python packages we need
+import grass.script as gs
+import grass.jupyter as gj
+
+# Launch a GRASS GIS session.
+gj.init("path/to/nc_spm_08_grass/user1");
+```
+
+## Using GRASS
+
+Now that we have GRASS GIS running in our notebook, let's try some basic 
+commands. 
+
+In this section, we will set the color table to the `elevation` raster map from
+the GRASS GIS sample project we downloaded and then display it.  
+
+```{python}
+# Set the computational region to the study area
+gs.parse_command("g.region", 
+                raster="elevation", 
+                flags='pg')
+
+# Set colors for elevation raster
+gs.run_command("r.colors", 
+              map="elevation", 
+              color="elevation")
+```
+
+```{python}
+# Create Map instance
+img = gj.Map()
+# Add a raster
+img.d_rast(map="elevation")
+# Add legend
+img.d_legend(raster="elevation", at=(55, 95, 80, 84), flags="b")
+# Display map
+img.show()
+```
+
+Now, we're up and running! Have a look at other tutorials for inspiration on 
+the avenues you can follow with GRASS tools combined with other Python packages. 
+
+## Troubleshooting
+
+Something not working? Here are some common stumbling blocks...
+
+* `FileNotFoundError`
+
+```{python}
+FileNotFoundError: [WinError 2] The system cannot find the file specified
+```
+
+Check the `shell` parameter in the `subprocess.check_output()`. On Windows, 
+this should be `shell=True`. On Mac and Linux operating systems, this should 
+be `shell=False`.
+
+* `CalledProcessError`
+
+```{python}
+CalledProcessError: Command '['grass83', '--config', 'python_path']' returned non-zero exit status 1.
+```
+
+Check which version of GRASS GIS you have installed. On Windows, the `grass_call`
+should be `grass` followed by the first two digits of the version you have 
+installed (for example, GRASS GIS 8.4 would be called with `grass84`). On Mac and 
+Linux, it should be just `grass`.
+
+* Errors from `gj.init()`
+
+This command takes several different configurations of the GRASS GIS project 
+and mapset location on your system. All the following are examples that work:
+
+```
+gj.init("path/to/grassdata", "project_name", "mapset_name")
+gj.init("path/to/project_name/mapset_name")
+gj.init("../project_name/mapset_name")
+```
+
+Also pay attention to the slash direction. Windows uses `\` in it's file 
+paths but the `\` character in strings is also for escaping characters (for
+example, putting `\n` in a string will print a new line). Therefore, you'll 
+need to either switch to forward slashes (`/`) or put double back-slashes 
+(`\\`).
+

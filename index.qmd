@@ -1,0 +1,12 @@
+---
+title: "Learn GRASS GIS"
+listing:
+    contents: 
+        - content/tutorials
+    sort: "date desc"
+    type: grid
+    categories: true
+    filter-ui: [title, categories]
+page-layout: full
+title-block-banner: false
+---
