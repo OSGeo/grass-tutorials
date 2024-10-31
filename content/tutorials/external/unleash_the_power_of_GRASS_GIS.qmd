@@ -1,0 +1,39 @@
+---
+title: "Unleash the power of GRASS GIS"
+author: "Anna Petrasova"
+date: 01/01/2023
+format: 
+  html:
+    toc: true
+    code-tools: true
+    code-copy: true
+    code-fold: false
+categories: [beginner, intermediate, GUI, Google Colab, Python, external]
+execute: 
+  eval: false
+---
+In this workshop, delivered at FOSS4G NA 2023, we explain and practice GRASS GIS concepts like computational region or mask and demonstrate them on examples of efficient raster, vector, and imagery processing. The workshop runs in a JupyterLab environment, introducing Python scripting for workflow automation. We also take advantage of the latest GRASS GIS Python features for Jupyter, including 2D, 3D, web map, and temporal visualizations. This workshop is suitable for both new and experienced GRASS GIS users. While you can run the workshop locally if desired, you can also use a cloud environment so no installation is required.
+
+Workshop instructions and material:\
+<https://github.com/ncsu-geoforall-lab/grass-gis-workshop-foss4gna-2023>
+
+![](images/jupyter_timeseries_viewshed.gif){.preview-image}
+
+# Similar workshops
+This workshop has been offered several times:
+
+* [workshop](https://github.com/ncsu-geoforall-lab/grass-gis-workshop-vanderbilt-2024) at Vanderbilt university (2024)
+* [workshop](https://github.com/ncsu-geoforall-lab/grass-gis-workshop-foss4g-2022) at FOSS4G 2022
+* [workshop](https://github.com/ncsu-geoforall-lab/grass-gis-workshop-FOSS4G-2021) at FOSS4G 2021
+
+* [workshop](https://grasswiki.osgeo.org/wiki/From_GRASS_GIS_novice_to_power_user_(workshop_at_FOSS4G_Boston_2017)) at FOSS4G 2017
+
+
+
+
+
+
+# Authors
+Anna Petrasova, NCSU Center for Geospatial Analytics\
+Caitlin Haedrich, NCSU Center for Geospatial Analytics\
+Vaclav Petras, NCSU Center for Geospatial Analytics

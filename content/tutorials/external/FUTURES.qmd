@@ -1,0 +1,23 @@
+---
+title: "Urban growth modeling with FUTURES"
+date: 01/01/2020
+author: Anna Petrasova
+format: 
+  html:
+    toc: true
+    code-tools: true
+    code-copy: true
+    code-fold: false
+categories: [advanced, Python, R, external]
+description: This workshop introduces GRASS GIS and FUTURES urban growth modeling framework
+execute: 
+  eval: false
+---
+
+This is material for US-IALE 2019 workshop FUTURES land-change modeling for evaluating innovative conservation scenarios held in Fort Collins, Colorado, 2019. This workshop introduces GRASS GIS and FUTURES urban growth modeling framework.
+
+<https://grasswiki.osgeo.org/wiki/FUTURES_land-change_modeling_for_evaluating_innovative_conservation_scenarios>
+
+See also [an older version](https://grasswiki.osgeo.org/wiki/Workshop_on_urban_growth_modeling_with_FUTURES) of this workshop delivered at US-IALE 2016.
+
+![](images/FUTURES_animation_tool.gif){.preview-image}

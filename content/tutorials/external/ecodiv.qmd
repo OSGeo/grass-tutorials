@@ -1,0 +1,21 @@
+---
+title: "Ecodiv.earth tutorials"
+date: 01/01/2024
+author: Paulo van Breugel
+format: 
+  html:
+    toc: true
+    code-tools: true
+    code-copy: true
+    code-fold: false
+categories: [beginner, intermediate, advanced, GUI, Python, R, external, ecology, statistics, visualization, biodiversity]
+description: GRASS tutorials on ecology and biogeography topics
+execute: 
+  eval: false
+---
+
+
+GRASS tutorials on ecology and biogeography topics by Paulo van Breugel:
+[https://ecodiv.earth/tutorials.html](https://ecodiv.earth/tutorials.html#category=grass%20gis)
+
+![](images/ecodiv.png){.preview-image}

@@ -1,0 +1,26 @@
+---
+title: "Tutoriales de GRASS GIS en grasswiki"
+lang: es
+date: 01/01/2017
+format: 
+  html:
+    toc: true
+    code-tools: true
+    code-copy: true
+    code-fold: false
+categories: [beginner, intermediate, external, Spanish]
+description: Tutoriales de GRASS GIS en grasswiki traducidos al español
+execute: 
+  eval: false
+---
+
+
+* [Visualizacion analitica de datos](https://grasswiki.osgeo.org/wiki/Analytical_data_visualizations_at_ICC_2017/es) (2017)
+* [Libera el poder de GRASS GIS](https://grasswiki.osgeo.org/wiki/Unleash_the_power_of_GRASS_GIS_at_US-IALE_2017/es) (2017)
+* [Procesamiento de datos LiDAR y de UAV](https://grasswiki.osgeo.org/wiki/Processing_lidar_and_UAV_point_clouds_in_GRASS_GIS_(workshop_at_FOSS4G_Boston_2017)/es) (2017)
+* [Procesamiento de series de tiempo con GRASS y R](https://grasswiki.osgeo.org/wiki/Temporal_data_processing/GRASS_R_raster_time_series_processing/es) (2017)
+
+![](images/Different_terrain_analyses_and_visualizations_in_multiple_Map_Displays.png){.preview-image}
+
+
+
