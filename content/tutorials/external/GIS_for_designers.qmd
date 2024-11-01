@@ -1,0 +1,21 @@
+---
+title: "GIS for Designers"
+author: "Brendan Harmon"
+date: 01/01/2021
+format: 
+  html:
+    toc: true
+    code-tools: true
+    code-copy: true
+    code-fold: false
+categories: [beginner, intermediate, GUI, Python, course, external]
+description: A course on GIS for landscape architects, urban planners, and other designers
+execute: 
+  eval: false
+---
+
+A guide to Geographic Information Systems for landscape architects, urban planners, and other designers. Topics include terrain modeling, hydrology, landscape ecology, and urban analytics.
+
+<https://baharmon.github.io/gis-for-designers>
+
+![](images/new-orleans-render-2.png){.preview-image}
