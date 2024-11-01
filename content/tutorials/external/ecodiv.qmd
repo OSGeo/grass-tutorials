@@ -14,7 +14,6 @@ execute:
   eval: false
 ---
 
-
 GRASS tutorials on ecology and biogeography topics by Paulo van Breugel:
 [https://ecodiv.earth/tutorials.html](https://ecodiv.earth/tutorials.html#category=grass%20gis)
 

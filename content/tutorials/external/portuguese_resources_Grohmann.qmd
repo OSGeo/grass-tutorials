@@ -15,7 +15,6 @@ execute:
   eval: false
 ---
 
-
 * [Curso - Introdução ao SIG com Software Livre (GRASS) (2021)](http://carlosgrohmann.com/downloads/sigcomsl_dados/aula_intro_grass_2021.pdf)
 
 * [Playlist de aulas sobre GRASS-GIS](https://www.youtube.com/playlist?list=PL9GztlLGb7RovKMMO2ohYdfxfILXjxwEy)
@@ -24,13 +23,6 @@ execute:
 
 * [Geoprocessamento com Software Livre: GRASS-GIS e QGIS (2012)](https://figshare.com/articles/Geoprocessamento_com_Software_Livre_GRASS_GIS_e_QGIS/1004167)
 
-
 * [Introdução à Análise Digital de Terreno com GRASS-GIS (2008)](https://figshare.com/articles/Introdu_o_An_lise_Digital_de_Terreno_com_GRASS_GIS/1004165)
 
-
 ![](images/grohmann_3D.png){.preview-image}
-
-
-
-
-

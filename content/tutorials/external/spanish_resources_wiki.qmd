@@ -21,6 +21,3 @@ execute:
 * [Procesamiento de series de tiempo con GRASS y R](https://grasswiki.osgeo.org/wiki/Temporal_data_processing/GRASS_R_raster_time_series_processing/es) (2017)
 
 ![](images/Different_terrain_analyses_and_visualizations_in_multiple_Map_Displays.png){.preview-image}
-
-
-
