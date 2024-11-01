@@ -9,7 +9,7 @@ format:
     code-tools: true
     code-copy: true
     code-fold: false
-categories: [beginner, intermediate, advanced, GUI, Python, external, Czech]
+categories: [beginner, intermediate, advanced, GUI, Python, external, Czech, course]
 execute: 
   eval: false
 ---

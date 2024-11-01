@@ -1,0 +1,33 @@
+---
+title: "GISMentors - Courses"
+author: "GISMentors"
+date: 01/01/2022
+format: 
+  html:
+    toc: true
+    code-tools: true
+    code-copy: true
+    code-fold: false
+categories: [beginner, intermediate, advanced, GUI, Python, course, external, R, ecology, time series]
+description: Advanced geospatial analysis with GRASS GIS
+execute: 
+  eval: false
+---
+
+# GRASS GIS Workshop in Jena 2022
+
+<https://training.gismentors.eu/grass-gis-workshop-jena/>
+
+Authors: Martin Landa
+
+# GRASS GIS IRSAE winter course 2018
+
+This 3-days intense workshop on GIS in Applied Ecology from 24.09.2018 to 27.09.2018 at the cosy Studenterhytta in Oslo has been offered by IRSAE members NINA and FEM.
+Topic of the course is Advanced Geospatial Analysis with an emphasis on handling of Earth Observation and Time Series data using Free and Open Source Software. Based on a set of 29 course units, final content for the 3 days event was tailored according to participants interest as well as prior knowledge and experience.
+The course was kindly supported by IRSAE.
+
+<https://training.gismentors.eu/grass-gis-irsae-winter-course-2018/>
+
+Authors: Martin Landa, Luca Delucchi, Stefan Blumentrath
+
+![](images/GISMentors_jena.png){.preview-image}
