@@ -1,0 +1,22 @@
+---
+title: "Processing lidar and UAV point clouds"
+date: 01/01/2017
+author: Anna Petrasova
+format: 
+  html:
+    toc: true
+    code-tools: true
+    code-copy: true
+    code-fold: false
+categories: [external, beginner, intermediate, lidar]
+execute: 
+  eval: false
+---
+
+This hands-on workshop, delivered at FOSS4G Boston 2017, showcases the tools in GRASS GIS for processing point clouds obtained by lidar or through processing of UAV imagery. It explores the properties of the point cloud, interpolate surfaces, and perform advanced terrain analyses to detect landforms and artifacts. The workshop will go through several terrain 2D and 3D visualization techniques to get more information out of the data and finish with vegetation analysis.
+
+Authors: Vaclav Petras, Anna Petrasova, and Helena Mitasova from North Carolina State University
+
+<https://grasswiki.osgeo.org/wiki/Processing_lidar_and_UAV_point_clouds_in_GRASS_GIS_(workshop_at_FOSS4G_Boston_2017)>
+
+![](images/lidar_workshop_Boston.png){.preview-image}

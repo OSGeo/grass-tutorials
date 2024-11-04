@@ -1,0 +1,20 @@
+---
+title: "NCSU Geospatial Modeling and Analysis Course"
+date: 01/01/2022
+author: Anna Petrasova
+format: 
+  html:
+    toc: true
+    code-tools: true
+    code-copy: true
+    code-fold: false
+categories: [course, external, beginner, intermediate]
+execute: 
+  eval: false
+---
+
+Geospatial Modeling and Analysis explains digital representation and analysis of geospatial phenomena and provides foundations in methods and algorithms used in GIS analysis. Special focus is on terrain modeling, geomorphometry, watershed analysis and introductory GIS-based modeling of landscape processes (water, sediment). The course includes analysis from lidar data, coastal change assessment and 3D visualization.
+
+<https://ncsu-geoforall-lab.github.io/geospatial-modeling-course/grass/>
+
+![](images/NCSU_582.png){.preview-image}
