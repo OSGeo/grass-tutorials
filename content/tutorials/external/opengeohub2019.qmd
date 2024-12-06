@@ -1,0 +1,34 @@
+---
+title: "OpenGeoHub 2019: GRASS GIS for environmental monitoring and disease ecology applications"
+date: 2019-09-01
+author: Verónica Andreo
+format: 
+  html:
+    toc: true
+    code-tools: true
+    code-copy: true
+    code-fold: false
+categories: [external, beginner, intermediate, R, ecology, rgrass, Python, time series]
+execute: 
+  eval: false
+---
+
+This is a series of tutorials on GRASS GIS for environmental modeling delivered at OpenGeoHub 2019.
+
+Authors: Verónica Andreo
+
+# Time series processing for environmental monitoring
+<https://github.com/veroandreo/grass_opengeohub2019/blob/master/pdf/tgrass_lst.pdf>
+
+
+In this tutorial we use a time series of monthly MODIS LST data to go through the creation of time series and registration of maps, perform different temporal algebra operations, aggregation, estimate anomalies and obtain zonal statistics for time series while exploring how to characterize Surface Urban Heat Islands.
+
+# Analyzing space-time satellite data for disease ecology 
+<https://github.com/veroandreo/grass_opengeohub2019/blob/master/pdf/tgrass_rstats_disease_ecology.pdf>
+
+In this tutorial we explore the combined use of GRASS GIS and R. We use a daily time series of LST to extract relevant environmental variables for a mosquito species that transmits West Nile virus in Northern Italy. Particularly, we estimate bioclimatic variables such as those from Worldclim, start, end and length of mosquito season, number of consecutive days with a certain LST value, number of potential mosquito generations, etc. We then import our vector and raster maps into R and proceed with the modeling and prediction.
+
+
+
+
+![](images/opengeohub2019.png){.preview-image}
