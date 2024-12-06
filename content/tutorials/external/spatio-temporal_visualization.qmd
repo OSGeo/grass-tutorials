@@ -1,0 +1,23 @@
+---
+title: "Spatio-temporal data handling and visualization"
+date: 2014-09-01
+author: Anna Petrasova
+format: 
+  html:
+    toc: true
+    code-tools: true
+    code-copy: true
+    code-fold: false
+categories: [external, intermediate, visualization, time series]
+description: This is a FOSS4G 2014 workshop on GRASS GIS time series data handling and visualization.
+execute: 
+  eval: false
+---
+
+This is a FOSS4G 2014 workshop on GRASS GIS time series data handling and visualization, featuring analysis and visualization of climate data, terrain time series and solar radiation modeling.
+
+<https://ncsu-geoforall-lab.github.io/grass-temporal-workshop/>
+
+Authors: Vaclav Petras, Anna Petrasova, Helena Mitasova, Markus Neteler
+
+![](images/NagsHead.gif){.preview-image}
