@@ -1,5 +1,5 @@
 ---
-title: "Get started with GRASS GIS"
+title: "Get started with GRASS GIS GUI"
 author: "Veronica Andreo"
 date: 2024-03-19
 date-modified: today
@@ -16,20 +16,18 @@ execute:
 
 
 In this notebook we will walk you through **5 simple steps** to get you started 
-with GRASS GIS.   
+with GRASS GIS using its graphical user interface (GUI).
+
+If you want to use Python or R, check out tutorials to get started with
+[GRASS GIS in Jupyter Notebooks](fast_track_grass_and_python.qmd) or [R](fast_track_grass_and_R.qmd).
 
 ## Step 1: Install the software
 
 GRASS GIS is available on Windows, Linux and macOS. The binaries for Windows and
 macOS can be found at <https://grass.osgeo.org/download/>.
+We recommend using the **current** release version.
 
-Which version to choose? We recommend the **current** release version, which at 
-the time of writing this post is **8.4**. 
-
-If you like testing the latest and greatest, you can go for the *preview* 
-version which is *updated daily* and reflects the latest state of the source 
-code. 
-
+GRASS GIS package [is available for many Linux distributions](https://grass.osgeo.org/download/linux/).
 Let's see an example of how to install GRASS GIS on **Linux/Ubuntu**:
 
 ```
@@ -38,22 +36,11 @@ sudo apt-get update
 sudo apt-get install grass grass-gui grass-dev
 ```
 
-On **Windows**, you can either select the 
-[**standalone installer**](https://grass.osgeo.org/download/windows/#standalone-installers) 
-which will bring GRASS GIS bundeled with all its dependencies or use the OSGeo 
-for Windows (OSGeo4W) 
-[**meta-installer**](https://grass.osgeo.org/download/windows/#OSGeo4W) 
-that will allow you to install many other geospatial software packages and will 
-resolve all dependencies for you. 
-
-![Install GRASS with OSGeo4W installer](images/osgeo4w_install_grass.png){width=60%}
-
 ## Step 2: Open GRASS GIS
 
-Just double click on the GRASS GIS ![](images/grass-32x32.png) icon or type `grass`
-in a terminal. In any case, you'll get both the terminal and the graphical user 
-interface (GUI). You can use GRASS tools in either. It's a matter of taste, 
-task on hand and habit, too.
+Just double click on the GRASS GIS ![](images/grass-32x32.png) icon.
+You will get the GUI and terminal. You can use GRASS tools in either.
+It's a matter of taste, task on hand and habit, too.
 
 ![GRASS Graphical User Interface and terminal](images/grass_gui_first_time_and_cli_combined.png){width=60%}
 
@@ -100,20 +87,6 @@ in the info bar or use ![](images/project-add.png) icon.
 
 ![Create a new GRASS project](images/create_new_project_gui.png){width=75%}
 
-Projects can also be created from command line when starting GRASS. This is 
-how we would create an UTM20S project, for example: 
-
-```
-grass -c EPSG:32720 /home/username/grassdata/utm20s
-```
-
-Alternatively, pass a georeferenced file which CRS will be used to create your
-project:
-
-```
-grass -c myraster.tif /home/username/grassdata/utm20s
-```
-
 ## Step 4: Import your data
 
 Once you have created your GRASS project, you'll notice it contains the 
@@ -147,14 +120,6 @@ automatically reprojected.
 Maps will be added to the layer tree and displayed automatically. 
 
 ![](images/raster_and_vector_imported.png){width=75%}
-
-We could execute the same tasks from either the "Console" tab or the terminal. 
-In that case, the commands to import a raster and a vector map would be:
-
-```
-r.import input=myraster.tif output=myraster
-v.import input=myvector.gpkg output=myvector
-```
 
 ## Step 5: Set the computational region
 
@@ -209,11 +174,8 @@ g.region -p raster=myraster
 There are several sources you can get help from:
 
 * [Manual pages online](https://grass.osgeo.org/grass-stable/manuals/full_index.html) 
-* [g.manual](https://grass.osgeo.org/grass-stable/manuals/g.manual.html): eg., 
-`g.manual r.info`
-* `--help` or `--h` flag in command line, eg., `r.info --h`
-* [Tutorials](https://grass.osgeo.org/learn/tutorials) on the website
-* Join the GRASS community [chat](https://app.element.io/#/room/#grassgis_community:gitter.im) or subscribe to the [mailing list](https://lists.osgeo.org/mailman/listinfo/grass-user).
+* Join the GRASS [community](https://grass.osgeo.org/support/community/).
+* Ask for commercial [support](https://grass.osgeo.org/support/community/).
 
 **You are ready! Enjoy!** {{< fa rocket >}}
 
