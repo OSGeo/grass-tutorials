@@ -61,14 +61,14 @@ with the colors of the zonal map classes:
 # Bash
 ```{bash}
 g.extension extension=r.boxplot
-r.boxplot -oc input=elevation zones=landclass96 output=r.boxplot.png
+r.boxplot -oc map=elevation zones=landclass96 output=r.boxplot.png
 ```
 
 # Python
 ```{python}
 gs.run_command("g.extension", extension="r.boxplot")
 gs.run_command("r.boxplot", 
-               input="elevation", 
+               map="elevation", 
                zones="landclass96", 
                raster_statistics="median,IQR", 
                output="r.boxplot.png",
@@ -77,6 +77,8 @@ gs.run_command("r.boxplot",
 :::
 
 ![](images/r.boxplot.png)
+
+For more examples of the different options available in this addon, see [this tutorial](https://ecodiv.earth/post/drawing-boxplots-of-raster-values/#r.boxplot).
 
 ### [r.series.boxplot](https://grass.osgeo.org/grass-stable/manuals/addons/r.series.boxplot.html)
 
@@ -155,15 +157,15 @@ also provides an option to group by categories in a second attribute column.
 # Bash
 
 ```{bash}
-g.extension extension=v.histogram
+g.extension extension=v.boxplot
 
-v.boxplot -o -r map=bridges column=WIDTH group_by=YEAR_BUILT where="YEAR_BUILT < '1920'" order=ascending plot_output=boxplot_bridges_width_per_year.png
+v.boxplot -r map=bridges column=WIDTH group_by=YEAR_BUILT where="YEAR_BUILT < '1920'" order=ascending output=boxplot_bridges_width_per_year.png
 ```
 
 # Python
 
 ```{python}
-gs.run_command("g.extension", extension="v.histogram")
+gs.run_command("g.extension", extension="v.boxplot")
 
 gs.run_command("v.boxplot",
               map="bridges", 
@@ -171,8 +173,8 @@ gs.run_command("v.boxplot",
               group_by="YEAR_BUILT", 
               where="YEAR_BUILT < '1920'", 
               order="ascending", 
-              plot_output="boxplot_bridges_width_per_year.png", 
-              flags="or")
+              output="boxplot_bridges_width_per_year.png", 
+              flags="r")
 ```
 :::
 
