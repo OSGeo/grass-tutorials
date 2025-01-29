@@ -1,5 +1,5 @@
 ---
-title: "Learn GRASS GIS"
+title: "Learn GRASS GIS <span style='font-size: 0.8em; color: gray;'>Open-Source GIS</span>"
 listing:
     contents: 
         - content/tutorials
