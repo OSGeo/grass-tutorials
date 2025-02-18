@@ -8,5 +8,7 @@ listing:
     categories: true
     filter-ui: [title, categories]
 page-layout: full
+description: |
+  Hands-on tutorials for learning [GRASS GIS](https://grass.osgeo.org), an open source computational engine for geospatial processing and analysis.
 title-block-banner: false
 ---
