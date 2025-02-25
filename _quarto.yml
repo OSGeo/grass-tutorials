@@ -10,7 +10,7 @@ website:
     logo: "images/logos/grass-favicon-white-32x32.png"
     tools:
       - icon: github
-        menu: 
+        menu:
           - text: "Source Code"
             href: "https://github.com/OSGeo/grass-tutorials"
           - text: "Report an Issue"
@@ -21,12 +21,24 @@ website:
       [![](/images/logos/NSF_Official_logo_100x100.png){fig-alt="NSF" width=45px}](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2303651)
     center: Content is dual-licensed under [GFDL-1.2-or-later](https://www.gnu.org/licenses/fdl-1.2.html) and [CC-BY-SA-4.0](https://creativecommons.org/licenses/by-sa/4.0/)
     right:
-      - icon: twitter-x
-        href: https://x.com/grassgis
-        aria-label: GRASS GIS X
       - icon: github
         href: https://github.com/OSGeo/grass
         aria-label: GRASS GIS on GitHub
+      - icon: chat-fill
+        href: https://github.com/OSGeo/grass
+        aria-label: GRASS GIS on Gitter
+      - icon: mastodon
+        href: https://fosstodon.org/@grassgis
+        aria-label: GRASS GIS on Mastodon
+      - icon: twitter-x
+        href: https://x.com/grassgis
+        aria-label: GRASS GIS X
+      - icon: facebook
+        href: https://www.facebook.com/groups/GRASS
+        aria-label: GRASS GIS on Facebook
+      - icon: youtube
+        href: https://www.youtube.com/@grass-gis
+        aria-label: GRASS GIS on YouTube
 execute:
   freeze: auto
 format:
