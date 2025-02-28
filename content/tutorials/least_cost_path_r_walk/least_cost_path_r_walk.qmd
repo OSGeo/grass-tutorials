@@ -11,7 +11,9 @@ format:
     code-copy: true
     code-fold: false
 page-layout: article
-categories: [intermediate, advanced, GUI, raster]
+categories: [intermediate, advanced, GUI, raster, least cost path]
+image: images/thumbnail.webp
+description: We will use *r.walk* and *r.path* to determine the best walking path to reach a destination.
 engine: jupyter
 execute: 
   eval: false
@@ -26,12 +28,20 @@ GRASS has sophisticated tools to model movement across terrain, including
 In this tutorial, we will use *r.walk* and *r.path* to determine the best
 walking path to reach a destination, such as a hospital.
 
-::: {.callout-note}
+::: {.callout-note title="Dataset"}
 This tutorial uses one of the standard GRASS demo data: flagstaff_arizona_usa.
 We will refer to place names in that data set, but it can be completed with
 any of the standard demo data sets for any region. We will use the
 *elevation* DEM, the *hospitals* vector points file (any other vector point
 file will serve), and the *landuse* raster map.
+:::
+
+::: {.callout-note title="Don't know how to get started?"}
+If you are not sure how to get started with GRASS using its garphical user interface
+or using Python, checkout the tutorials
+[Get started with GRASS & Python in Jupyter Notebooks](../get_started/fast_track_grass_and_python.qmd)
+and
+[Get started with GRASS GIS GUI](../get_started/fast_track.qmd)
 :::
 
 ## Cost Surfaces
@@ -55,7 +65,7 @@ generates a cumulative cost surface based on:
 :::
 
 ::: g-col-6
-![Cumulative cost surface](images/GRASS_movement_0.png)
+![Cumulative cost surface](images/GRASS_movement_0.webp)
 :::
 :::::
 
@@ -74,7 +84,7 @@ generates a cumulative cost surface based on:
 :::
 
 ::: g-col-6
-![DEM](images/GRASS_movement_1.png)
+![DEM](images/GRASS_movement_1.webp)
 :::
 :::::
 
@@ -114,11 +124,11 @@ and 0 in the expression field.
 :::
 
 ::: g-col-6
-![Raster map calculator](images/GRASS_movement_2.png)
+![Raster map calculator](images/GRASS_movement_2.webp)
 :::
 :::::
 
-#### Shell
+#### Command line
 
 ```{bash}
 g.region raster=elevation
@@ -164,13 +174,13 @@ Use the **Attribute Table Manager** for *hospitals*:
 :::
 
 ::: g-col-6
-![Attribute Table Manager for hospitals vector points map](images/GRASS_movement_3.png)  
+![Attribute Table Manager for hospitals vector points map](images/GRASS_movement_3.webp)  
 
-![Table row context menu](images/GRASS_movement_4.png){width="60%"}
+![Table row context menu](images/GRASS_movement_4.webp){width="60%"}
 :::
 :::::
 
-#### Shell
+#### Command line
 
 ```{bash}
 v.extract input=hospitals type=point where="FACILITY_N = 'FLAGSTAFF MEDICAL CENTER'" output=FMC
@@ -186,7 +196,7 @@ gs.run_command("v.extract", input="hospitals", type="point", where="FACILITY_N =
 
 Display FMC with a color and size to see it better
 
-![](images/GRASS_movement_5.png)
+![](images/GRASS_movement_5.webp)
 
 ### Compute cumulative cost surface
 
@@ -203,7 +213,7 @@ Enter the input and output parameters: **elevation**=*elevation*, **friction**=*
 :::
 
 ::: g-col-6
-![r.walk tool: select input maps](images/GRASS_movement_6.png)
+![r.walk tool: select input maps](images/GRASS_movement_6.webp)
 :::
 :::::
 
@@ -213,7 +223,7 @@ Enter the name of a directions map **outdir**=*FMC_directions* for creating a le
 :::
 
 ::: g-col-6
-![r.walk tool: outdir parameter](images/GRASS_movement_7.png)
+![r.walk tool: outdir parameter](images/GRASS_movement_7.webp)
 :::
 :::::
 
@@ -222,7 +232,7 @@ Enter the name of a directions map **outdir**=*FMC_directions* for creating a le
 Enter the start point (**start_points**=*FMC*).
 :::
 ::: g-col-6
-![r.walk tool: start_points parameter](images/GRASS_movement_8.png){fig-align="left" width="100%"}
+![r.walk tool: start_points parameter](images/GRASS_movement_8.webp){fig-align="left" width="100%"}
 :::
 ::::::
 
@@ -231,7 +241,7 @@ Enter the start point (**start_points**=*FMC*).
 Optional: control the spatial extent of cost surface.
 :::
 ::: g-col-6
-![r.walk tool: stop_points parameter](images/GRASS_movement_9.png)
+![r.walk tool: stop_points parameter](images/GRASS_movement_9.webp)
 :::
 :::::
 
@@ -240,7 +250,7 @@ Optional: control the spatial extent of cost surface.
 Optional: adjust movement parameter settings.
 :::
 ::: g-col-6
-![r.walk tool: walking parameters](images/GRASS_movement_10.png)
+![r.walk tool: walking parameters](images/GRASS_movement_10.webp)
 :::
 :::::
 
@@ -249,7 +259,7 @@ Optional: adjust movement parameter settings.
 Recommended: select *knight's move* for more accurate cost and direction.
 :::
 ::: g-col-6
-![r.walk tool: select *knight's move*](images/GRASS_movement_11.png)
+![r.walk tool: select *knight's move*](images/GRASS_movement_11.webp)
 :::
 :::::
 
@@ -258,7 +268,7 @@ Click the "copy" button to copy the GRASS command.
 You can save it in a text file for later reuse or to document your work.
 :::
 
-#### Shell
+#### Command line
 
 ```{bash}
 r.walk elevation=elevation friction=friction0 output=FMC_cost_seconds outdir=FMC_directions start_points=FMC -k
@@ -281,7 +291,7 @@ gs.run_command("r.walk",
 Each raster cell value in the cost surface is the time in
 seconds to walk from FMC to that cell given the terrain.
 
-![Displaying the cost surface over a shaded relief map using the [d.shade](https://grass.osgeo.org/grass-stable/manuals/d.shade.html) tool and a relief map of elevation made with [r.relief](https://grass.osgeo.org/grass-stable/manuals/d.shade.html).](images/GRASS_movement_12.png)
+![Displaying the cost surface over a shaded relief map using the [d.shade](https://grass.osgeo.org/grass-stable/manuals/d.shade.html) tool and a relief map of elevation made with [r.relief](https://grass.osgeo.org/grass-stable/manuals/d.shade.html).](images/GRASS_movement_12.webp)
 
 ### Movement across a cost surface
 
@@ -295,7 +305,7 @@ You can transform the walking time in seconds to hours by dividing
 the map by 3600 using the map calculator with expression `FMC_cost_seconds / 3600`.
 :::
 ::: g-col-6
-![](images/GRASS_movement_13.png)
+![](images/GRASS_movement_13.webp)
 :::
 ::::::
 
@@ -309,11 +319,11 @@ to show 0-2 hours and set the opacity of the cost surface to 50% to see
 the underlying terrain.
 :::
 ::: g-col-6
-![](images/GRASS_movement_15.png)
+![](images/GRASS_movement_15.webp)
 :::
 :::::
 
-#### Shell
+#### Command line
 
 ```{shell}
 r.mapcalc "FMC_cost_hours = FMC_cost_seconds / 3600"
@@ -327,7 +337,7 @@ gs.mapcalc("FMC_cost_hours = FMC_cost_seconds / 3600")
 
 :::
 
-![Shaded area represents terrain reached within a 2 hour walk from FMC](images/GRASS_movement_14.png)
+![Shaded area represents terrain reached within a 2 hour walk from FMC](images/GRASS_movement_14.webp)
 
 ### Least cost path
 
@@ -337,7 +347,7 @@ We can also plot a *least cost path* (LCP), which is the least costly
 Imagine a stranded hiker NE of Flagstaff who has to walk to FMC.
 What path would take the least time?  
 
-![Start and end point](images/GRASS_movement_16.png)
+![Start and end point](images/GRASS_movement_16.webp)
 
 To create a LCP in GRASS, we will use [r.path](https://grass.osgeo.org/grass-stable/manuals/r.path.html)
 (also under the Raster/Terrain analysis menu).
@@ -352,7 +362,7 @@ We need to use the directions map **input**=*FMC_directions*
 we made when we created the cost surface.
 :::
 ::: g-col-6
-![](images/GRASS_movement_17.png)
+![](images/GRASS_movement_17.webp)
 :::
 ::::::
 
@@ -362,7 +372,7 @@ The coordinates of the hiker **start_coordinates**=*477476,13914951*
 (we could also use a pre-defined vector point).
 :::
 ::: g-col-6
-![](images/GRASS_movement_18.png)
+![](images/GRASS_movement_18.webp)
 :::
 :::::
 
@@ -371,11 +381,11 @@ The coordinates of the hiker **start_coordinates**=*477476,13914951*
 And specify the name of the output LCP **vector_path**=*LCP_cumulative*.
 :::
 ::: g-col-6
-![](images/GRASS_movement_19.png)
+![](images/GRASS_movement_19.webp)
 :::
 :::::
 
-#### Shell
+#### Command line
 
 ```{shell}
 r.path input=FMC_directions format=auto vector_path=LCP_cumulative start_coordinates=477476,13914951
@@ -393,7 +403,7 @@ gs.run_command("r.path",
 
 :::
 
-![Resulting least cost path](images/GRASS_movement_20.png)
+![Resulting least cost path](images/GRASS_movement_20.webp)
 
 ## Adding a friction surface to movement costs
 
@@ -406,7 +416,7 @@ because of terrain.
 We can use the land use map (*landuse*) to create a friction surface
 of the amount of extra time it would take to walk through different kinds of land cover.  
 
-![Reclassification of *landuse* to show major land cover types](images/GRASS_movement_21.png)
+![Reclassification of *landuse* to show major land cover types](images/GRASS_movement_21.webp)
 
 ### Reclassification of landuse to friction
 
@@ -451,11 +461,11 @@ This creates a new friction map named *friction_landcover*.
 :::
 
 ::: g-col-6
-![](images/GRASS_movement_22.png)
+![](images/GRASS_movement_22.webp)
 :::
 :::::
 
-## Shell
+## Command line
 
 ```{shell}
 r.reclass input=landuse output=friction_landcover rules=- << EOF
@@ -488,7 +498,7 @@ gs.write_command("r.reclass",
 
 :::
 
-![The new friction surface map](images/GRASS_movement_23.png)
+![The new friction surface map](images/GRASS_movement_23.webp)
 
 ### Modifying a cost surface with a friction surface
 
@@ -499,9 +509,9 @@ and convert it from seconds to hours, as we did before:
 
 #### GUI
 
-See [Compute cumulative cost surface](#cost-surfaces)
+See [Compute cumulative cost surface section](#compute-cumulative-cost-surface)
 
-#### Shell
+#### Command line
 
 ```{bash}
 r.walk elevation=elevation friction=friction_landcover output=FMC_vegcost_seconds outdir=FMC_vegcost_directions start_points=FMC -k
@@ -523,7 +533,7 @@ gs.mapcalc("FMC_vegcost_hours = FMC_vegcost_seconds / 3600")
 
 :::
 
-![Cumulative cost surface with landcover friction](images/GRASS_movement_24.png)
+![Cumulative cost surface with landcover friction](images/GRASS_movement_24.webp)
 
 ### Least cost paths and friction
 
@@ -536,9 +546,9 @@ dense vegetation as well as terrain.
 
 #### GUI
 
-See Least cost path
+See [Least cost path section](#least-cost-path)
 
-#### Shell
+#### Command line
 
 ```{bash}
 r.path input=FMC_vegcost_directions format=auto vector_path=LCP_vegcost start_coordinates=477476,13914951
@@ -556,4 +566,10 @@ gs.run_command("r.path",
 
 :::
 
-![The original LCP with terrain only is shown by the blue line. The LCP with a landcover friction surface is shown by the heavier yellow line](images/GRASS_movement_25.png)
+![The original LCP with terrain only is shown by the blue line. The LCP with a landcover friction surface is shown by the heavier yellow line](images/GRASS_movement_25.webp)
+
+## Acknowledgement
+
+The development of this tutorial was funded by the U.S.
+[National Science Foundation (NSF)](https://www.nsf.gov/),
+award [2303651](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2303651).
