@@ -1,5 +1,5 @@
 ---
-title: "Get started with GRASS GIS GUI"
+title: "Get started with GRASS GUI"
 author: "Veronica Andreo"
 date: 2024-03-19
 date-modified: today
@@ -10,6 +10,7 @@ format:
     code-copy: true
     code-fold: false
 categories: [beginner, GUI]
+description: 5 simple steps to get you started with GRASS using its graphical user interface (GUI).
 execute: 
   eval: false
 ---

@@ -11,6 +11,7 @@ format:
     code-copy: true
     code-fold: false
 categories: [Python, Windows, beginner]
+description: Learn how to run GRASS in Jupyter Notebooks on Windows.
 engine: jupyter
 execute:
   eval: false

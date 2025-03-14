@@ -1,15 +1,32 @@
 ---
-title: "Learn GRASS GIS"
+title: "Learn GRASS"
 listing:
-    contents: 
+    - id: get-started
+      contents: content/tutorials/get_started
+      type: grid
+      grid-columns: 3
+      sort: "date desc"
+    - id: all
+      contents: 
         - content/tutorials    
         - content/tutorials/external/ecodiv.yml
-    sort: "date desc"
-    type: grid
-    categories: true
-    filter-ui: [title, categories]
+      sort: "date desc"
+      type: grid
+      categories: true
+      exclude:
+        title: "Get started *" 
+      filter-ui: [title, categories]
 page-layout: full
 description: |
-  Hands-on tutorials for learning [GRASS GIS](https://grass.osgeo.org), an open source computational engine for geospatial processing and analysis.
+  Hands-on tutorials for learning [GRASS](https://grass.osgeo.org), an open source computational engine for geospatial processing and analysis.
 title-block-banner: false
 ---
+
+## Get Started
+:::{#get-started}
+:::
+
+
+## All Tutorials
+:::{#all}
+:::

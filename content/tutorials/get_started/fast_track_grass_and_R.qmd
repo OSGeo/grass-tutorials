@@ -9,7 +9,8 @@ format:
     code-tools: true
     code-copy: true
     code-fold: false
-categories: [R, rgrass, intermediate] 
+categories: [R, rgrass, intermediate]
+description: Learn how to use GRASS and R to analyze geospatial data.
 engine: knitr
 execute: 
   eval: false

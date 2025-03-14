@@ -10,6 +10,7 @@ format:
     code-copy: true
     code-fold: false
 categories: [Python, Google Colab, beginner]
+description: Learn how to analyze geospatial data with Python in Google Colab.
 engine: jupyter
 execute: 
   eval: false

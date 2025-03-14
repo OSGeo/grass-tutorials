@@ -10,6 +10,7 @@ format:
     code-copy: true
     code-fold: false
 categories: [Python, beginner]
+description: Learn how to analyze geospatial data with Python in Jupyter Notebooks.
 engine: jupyter
 execute:
   eval: false
