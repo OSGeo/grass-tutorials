@@ -4,7 +4,7 @@ project:
 website:
   favicon: images/logos/grass-favicon-16x16.png
   navbar:
-    title: "Learn GRASS GIS"
+    title: "Learn GRASS"
     background: primary
     search: true
     logo: "images/logos/grass-favicon-white-32x32.png"
@@ -23,22 +23,22 @@ website:
     right:
       - icon: github
         href: https://github.com/OSGeo/grass
-        aria-label: GRASS GIS on GitHub
+        aria-label: GRASS on GitHub
       - icon: chat-fill
-        href: https://github.com/OSGeo/grass
-        aria-label: GRASS GIS on Gitter
+        href: https://discourse.osgeo.org/c/grass/62
+        aria-label: GRASS on Discourse
       - icon: mastodon
         href: https://fosstodon.org/@grassgis
-        aria-label: GRASS GIS on Mastodon
+        aria-label: GRASS on Mastodon
       - icon: twitter-x
         href: https://x.com/grassgis
-        aria-label: GRASS GIS X
+        aria-label: GRASS on X
       - icon: facebook
         href: https://www.facebook.com/groups/GRASS
-        aria-label: GRASS GIS on Facebook
+        aria-label: GRASS on Facebook
       - icon: youtube
         href: https://www.youtube.com/@grass-gis
-        aria-label: GRASS GIS on YouTube
+        aria-label: GRASS on YouTube
 execute:
   freeze: auto
 format:

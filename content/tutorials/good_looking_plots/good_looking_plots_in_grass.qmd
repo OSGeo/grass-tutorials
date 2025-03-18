@@ -1,5 +1,5 @@
 ---
-title: "Making plots with GRASS GIS"
+title: "Making plots with GRASS"
 author: "Veronica Andreo"
 date: 2024-04-25
 date-modified: today
@@ -16,15 +16,15 @@ execute:
   eval: false
 ---
 
-In previous tutorials we saw examples of how to convert GRASS GIS
+In previous tutorials we saw examples of how to convert GRASS
 raster and vector maps into Python and R objects to perform data 
 analysis and visualizations. 
-There are some GRASS GIS tools, mostly based in the well known 
+There are some GRASS tools, mostly based in the well known 
 [matplotlib](https://matplotlib.org/) Python library,
 that allow us to create plots for data visualization without the
 need to explicitly convert GRASS data. 
 Here are these plotting tools for raster, vector and time series
-data within GRASS GIS:
+data within GRASS:
 
 | Raster                                                                                        | Vector                                                                                  | Time series                                                                               |
 |-----------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
@@ -49,7 +49,7 @@ and quick testing of small changes and tweaks.
 
 ### [r.boxplot](https://grass.osgeo.org/grass-stable/manuals/addons/r.boxplot.html)
 
-`r.boxplot` is a GRASS GIS addon that allows us to make boxplots with our GRASS
+`r.boxplot` is a GRASS addon that allows us to make boxplots with our GRASS
 raster maps. It also allows to use a zonal map like a land cover classification 
 to draw boxplots of a certain variable per classes, i.e., land cover classes. 
 The tool then contemplates some nice features like the possibility to plot per 
@@ -256,7 +256,7 @@ gs.run_command("v.histogram",
 
 ### [g.gui.tplot](https://grass.osgeo.org/grass-stable/manuals/g.gui.tplot.html)
 
-`g.gui.tplot` is part of GRASS GIS core distribution and it allows to plot the 
+`g.gui.tplot` is part of GRASS core distribution and it allows to plot the 
 values of raster and vector time series. Users can pass coordinate pairs for the
 case of raster time series and ids plus attribute column in the case of vector
 time series. The module also supports to display the trend line based on a linear

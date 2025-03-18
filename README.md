@@ -1,8 +1,8 @@
-# Learn GRASS GIS
+# Learn GRASS
 
-Welcome to the Learn GRASS GIS repository that hosts a Quarto-powered website
-with a collection of tutorials and learning materials for [GRASS
-GIS](https://grass.osgeo.org), an open-source platform for geospatial analysis
+Welcome to the Learn GRASS repository that hosts a Quarto-powered website
+with a collection of tutorials and learning materials for [GRASS](https://grass.osgeo.org),
+an open-source platform for geospatial analysis
 and modeling. The tutorials cover a variety of topics and is designed to help
 users at different skill levels.
 
@@ -33,4 +33,4 @@ U.S. National Science Foundation [award 2303651](https://www.nsf.gov/awardsearch
 ## Contact
 
 For questions or suggestions, feel free to open an issue or reach out to the 
-maintainers through the [GRASS GIS community channels](https://grass.osgeo.org/community/).
+maintainers through the [GRASS community channels](https://grass.osgeo.org/community/).

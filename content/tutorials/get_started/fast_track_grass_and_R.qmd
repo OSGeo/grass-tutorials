@@ -18,13 +18,13 @@ execute:
 
 The [**rgrass**](https://cran.r-project.org/web/packages/rgrass/index.html) 
 package allows us to interact with GRASS tools (and data) serving as an
-interface between GRASS GIS and R.
+interface between GRASS and R.
 The *rgrass* package source code can be
 found at: <https://github.com/OSGeo/rgrass>. In this fast track tutorial,
-we will learn how to use GRASS GIS from R.
+we will learn how to use GRASS from R.
 
 ::: {.callout-note title="Setup"}
-To run this tutorial locally you should have GRASS GIS 8.4+, 
+To run this tutorial locally you should have GRASS 8.4+, 
 [R](https://www.r-project.org/) and, optionally, 
 [RStudio](https://posit.co/download/rstudio-desktop/) installed. 
 You will also need to install *rgrass*, *terra* and *mapview*
@@ -49,7 +49,7 @@ coercion, see: <https://osgeo.github.io/rgrass/>.
 
 ## Basic usage: Choose your own adventure
 
-If you are a regular R user that needs to use GRASS GIS functionality 
+If you are a regular R user that needs to use GRASS functionality 
 **because, well, you know it rocks**, rgrass has your back. For example,
 maybe you struggle with large raster datasets in R or you need some specific 
 tool, like watershed delineation for a large high resolution DEM. We will show 
@@ -63,7 +63,7 @@ you can start a GRASS session in your project from R or RStudio.
 
 Let's see the general **basic steps** and then dive into the details:
 
-1.  Make sure GRASS GIS is installed.
+1.  Make sure GRASS is installed.
 2.  Open R (or RStudio)
 3.  Load `rgrass` library with `library(rgrass)`
 4.  Start a GRASS session with `initGRASS()`
@@ -80,7 +80,7 @@ See *terra* vignettes with further explanations and examples:
 <https://rspatial.github.io/terra/>.
 :::
 
-### A. Use GRASS GIS tools within your R spatial workflows
+### A. Use GRASS tools within your R spatial workflows
 
 We start R or Rstudio and load the `rgrass` library. It will tell us that GRASS 
 is not running, but we know that already... and that's about to change in a 
@@ -112,11 +112,11 @@ r <- rast(f)
 plot(r)
 ```
 
-Now, we will start GRASS GIS in a temporary folder. By specifying `SG = r`,
+Now, we will start GRASS in a temporary folder. By specifying `SG = r`,
 the GRASS project is internally created with raster `r`'s object CRS (BTW,
 you can check that with `crs(r)`), extent and resolution.
 These latter define the GRASS computational region that will affect all raster
-processing, i.e., all new raster maps generated within GRASS GIS will have the
+processing, i.e., all new raster maps generated within GRASS will have the
 same extent and resolution of the map provided. 
 If you wish to change the computational region later on, you can use the 
 `g.region` GRASS tool with `execGRASS("g.region --h")`.
@@ -127,7 +127,7 @@ be useful in case we have several GRASS versions on our system. If not provided,
 operating system.
 
 ```{r}
-# Start GRASS GIS from R
+# Start GRASS from R
 initGRASS(home = tempdir(),
           SG = r, 
           override = TRUE)
@@ -187,7 +187,7 @@ plot(grass_maps)
 writeRaster(grass_maps, "grass_maps.tif", overwrite=TRUE)
 ```
 
-Alternatively, we can use GRASS GIS exporting tools like 
+Alternatively, we can use GRASS exporting tools like 
 [r.out.gdal](https://grass.osgeo.org/grass-stable/manuals/r.out.gdal.html) 
 and [v.out.ogr](https://grass.osgeo.org/grass-stable/manuals/v.out.ogr.html), 
 to directly save our outputs into common raster or vector formats, respectively.
@@ -197,10 +197,10 @@ execGRASS("r.out.gdal", input="slope", output="slope.tif", format="GTiff", flags
 ```
 
 
-### B. Use R tools within GRASS GIS workflows
+### B. Use R tools within GRASS workflows
 
 Let's see an example for the case when we do our geospatial data processing 
-within GRASS GIS and hence have all the spatial data organized within GRASS projects
+within GRASS and hence have all the spatial data organized within GRASS projects
 but we need to run some statistical analysis, modelling, prediction 
 or visualization in R.
 
@@ -208,15 +208,15 @@ or visualization in R.
 library(rgrass)
 ```
 
-We start GRASS GIS from within R or RStudio using the `initGRASS()` function. 
-Since we want to start GRASS GIS in a specific project and mapset, we need to
+We start GRASS from within R or RStudio using the `initGRASS()` function. 
+Since we want to start GRASS in a specific project and mapset, we need to
 specify them.
 
 ```{r}
 #| label: grass_init
 #| message: false
 
-# Start GRASS GIS from R
+# Start GRASS from R
 initGRASS(gisDbase = path.expand("~/grassdata/"),
           location = "nc_basic_spm_grass7",
           mapset = "PERMANENT",
@@ -263,7 +263,7 @@ for (i in to_import) {
 maplist
 ```
 
-Remember that raster objects will always be exported from GRASS GIS following the 
+Remember that raster objects will always be exported from GRASS following the 
 *computational region settings*. So, bear that in mind when reading into R which 
 will hold them in memory. Vectors however will be exported in their full extent.
 
@@ -326,7 +326,7 @@ result <- app(rstack$landuse, fun=function(x){ x[x < 4] <- NA; return(x)} )
 plot(result)
 ```
 
-To use this new raster in GRASS GIS, for example as an input to a GRASS tool, we need to call `write_RAST` function:
+To use this new raster in GRASS, for example as an input to a GRASS tool, we need to call `write_RAST` function:
 ```{r}
 #| warning: false
 write_RAST(result, "result_from_R", overwrite = TRUE)
@@ -343,10 +343,10 @@ involves calling R from the GRASS terminal. In this way, *rgrass* will read all
 GRASS session environmental variables, and you won't need to use 
 `initGRASS()`. It goes more or less like this:
 
-1. Open GRASS GIS
+1. Open GRASS
 2. Type `R` or `rstudio &` in the GRASS terminal
 3. Load `rgrass` library with `library(rgrass)`
-4. Use `read_VECT()`, `read_RAST()` to read data from GRASS GIS into R
+4. Use `read_VECT()`, `read_RAST()` to read data from GRASS into R
 5. Do your analysis or plotting in R
 6. Write data (back) to GRASS database with `write_VECT()` and `write_RAST()`
 7. Quit R `quit()` and get back to GRASS terminal.

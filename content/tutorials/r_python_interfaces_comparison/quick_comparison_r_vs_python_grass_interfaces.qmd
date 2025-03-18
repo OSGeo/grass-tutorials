@@ -18,7 +18,7 @@ execute:
 ![](images/R_Python_compare.png){.preview-image width=50%}
 
 In this short tutorial we will highlight the similarities of R and Python GRASS interfaces
-in order to streamline the use of GRASS GIS within R and Python communities.
+in order to streamline the use of GRASS within R and Python communities.
 As you may know, there's
 an R package called [rgrass](https://github.com/OSGeo/rgrass/) that provides
 basic functionality to read and write data from and into GRASS database as well
@@ -32,7 +32,7 @@ with rgrass.
 
 There are some parallelisms between the
 **rgrass** and **grass.script**/**grass.jupyter** packages, i.e.,
-R and Python interfaces to GRASS GIS.
+R and Python interfaces to GRASS.
 Let's review them and go through some examples.
 
 
@@ -53,7 +53,7 @@ Let's review them and go through some examples.
 Let's see how usage examples would look like.
 
 1. **Load the library**: We need to
-load the libraries that allow us to interface with GRASS GIS
+load the libraries that allow us to interface with GRASS
 functionality and (optionally) data. For the Python case, we first need to add
 the GRASS python package path to our system's path.
 
@@ -241,7 +241,7 @@ gs.run_command("v.in.ogr", input="schools.geojson", output="schools2")
 :::
 
 
-6. **Close GRASS GIS session**: In general, just closing R or Rstudio, as well
+6. **Close GRASS session**: In general, just closing R or Rstudio, as well
 as shutting down Jupyter notebook, will clean up and close the GRASS session
 properly. Sometimes, however, especially if the user changed mapset within the
 workflow, it is better to clean up explicitly before closing.

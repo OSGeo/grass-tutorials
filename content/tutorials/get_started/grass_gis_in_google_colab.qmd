@@ -1,5 +1,5 @@
 ---
-title: "Get started with GRASS GIS in Google Colab"
+title: "Get started with GRASS in Google Colab"
 author: "Veronica Andreo"
 date: 2024-04-12
 date-modified: today
@@ -36,19 +36,19 @@ See Colab's FAQ for more details: <https://research.google.com/colaboratory/faq.
 and follow the Google Colab blog in Medium at <https://medium.com/google-colab>.
 :::
 
-# Why GRASS GIS in Colab?
+# Why GRASS in Colab?
 
 Since Colab offers Jupyter notebooks in a Linux environment 
-**it is really easy to install or even compile GRASS GIS there**. 
+**it is really easy to install or even compile GRASS there**. 
 Also, because of the integration with Google Drive, it is a great resource to 
 run our workflows in the cloud and export the results or keep our GRASS 
 projects and code there. This clearly facilitates teaching workshops or courses
 since attendants do not need to install or download anything on their own 
 machines. 
 
-There are a couple of things to consider when working with GRASS GIS within
+There are a couple of things to consider when working with GRASS within
 Colab though. Users will need to 
-*install GRASS GIS every time they start a new working session or notebook*. 
+*install GRASS every time they start a new working session or notebook*. 
 Furthermore, whatever files users download within Colab 
 *will last only during the current session*. 
 If the runtime gets disconnected because of inactivity, downloaded data and
@@ -57,7 +57,7 @@ If users instead, mount their own Google drive, download data and create their
 GRASS projects there, those will be preserved even if the runtime is 
 disconnected or the session closed.
 
-# Install GRASS GIS in Colab
+# Install GRASS in Colab
 
 Start at <https://colab.research.google.com/> and create a new notebook. Let's first print system description to know where are we:
 
@@ -67,7 +67,7 @@ Start at <https://colab.research.google.com/> and create a new notebook. Let's f
 
 At the time of writing this tutorial, Colab has Linux 
 [Ubuntu 22.04.3 LTS](https://medium.com/google-colab/colab-updated-to-ubuntu-22-04-lts-709a91555b3c). 
-So we add the ppa:ubuntugis repository, update and install GRASS GIS. It might 
+So we add the ppa:ubuntugis repository, update and install GRASS. It might 
 take a couple of minutes according to the resources available.
 
 ```{python}
@@ -77,7 +77,7 @@ take a couple of minutes according to the resources available.
 print("INSTALLATION COMPLETE")
 ```
 
-Check that GRASS GIS is installed by asking which version is there. 
+Check that GRASS is installed by asking which version is there. 
 
 ```{python}
 !grass --config version
@@ -91,14 +91,14 @@ Let's add the GRASS python packages to PATH to be able to import the
 import sys
 import subprocess
 
-# Ask GRASS GIS where its Python packages are to be able to run it from the notebook
+# Ask GRASS where its Python packages are to be able to run it from the notebook
 sys.path.append(
     subprocess.check_output(["grass", "--config", "python_path"], text=True).strip()
 )
 ```
 
 ```{python}
-# Import the GRASS GIS packages
+# Import the GRASS packages
 import grass.script as gs
 import grass.jupyter as gj
 ```
@@ -137,15 +137,15 @@ You should see *nc_spm_08_grass7* sample dataset, which is a GRASS project.
 
 # Start GRASS in Colab
 
-We have GRASS GIS installed and a sample project to play around, so we are ready
-to start GRASS GIS within the North Carolina project.
+We have GRASS installed and a sample project to play around, so we are ready
+to start GRASS within the North Carolina project.
 
 ```{python}
 # Start GRASS in default project mapset
 session = gj.init("nc_spm_08_grass7")
 ```
 
-Let's show the current GRASS GIS settings and check if the session actually
+Let's show the current GRASS settings and check if the session actually
 works:
 
 ```{python}
@@ -208,11 +208,11 @@ Let's, for example, create a project with the EPSG code option:
 gs.create_project("/content/drive/MyDrive/grassdata/latlong_wgs84", epsg="4326")
 ```
 
-# Start GRASS GIS in an existing project
+# Start GRASS in an existing project
 
-Either if you just created the project and want to start GRASS GIS there or if 
+Either if you just created the project and want to start GRASS there or if 
 you already have your GRASS projects in GDrive, you just need to start GRASS 
-wherever the project is, as shown above, given that GRASS GIS has been 
+wherever the project is, as shown above, given that GRASS has been 
 installed in the Colab session and libraries imported.
 
 **Cool, ah?! Enjoy!** {{< fa rocket >}}

@@ -17,19 +17,19 @@ execute:
 
 
 In this notebook we will walk you through **5 simple steps** to get you started 
-with GRASS GIS using its graphical user interface (GUI).
+with GRASS using its graphical user interface (GUI).
 
 If you want to use Python or R, check out tutorials to get started with
-[GRASS GIS in Jupyter Notebooks](fast_track_grass_and_python.qmd) or [R](fast_track_grass_and_R.qmd).
+[GRASS in Jupyter Notebooks](fast_track_grass_and_python.qmd) or [R](fast_track_grass_and_R.qmd).
 
 ## Step 1: Install the software
 
-GRASS GIS is available on Windows, Linux and macOS. The binaries for Windows and
+GRASS is available on Windows, Linux and macOS. The binaries for Windows and
 macOS can be found at <https://grass.osgeo.org/download/>.
 We recommend using the **current** release version.
 
-GRASS GIS package [is available for many Linux distributions](https://grass.osgeo.org/download/linux/).
-Let's see an example of how to install GRASS GIS on **Linux/Ubuntu**:
+GRASS package [is available for many Linux distributions](https://grass.osgeo.org/download/linux/).
+Let's see an example of how to install GRASS on **Linux/Ubuntu**:
 
 ```
 sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable
@@ -37,9 +37,9 @@ sudo apt-get update
 sudo apt-get install grass grass-gui grass-dev
 ```
 
-## Step 2: Open GRASS GIS
+## Step 2: Open GRASS
 
-Just double click on the GRASS GIS ![](images/grass-32x32.png) icon.
+Just double click on the GRASS ![](images/grass-32x32.png) icon.
 You will get the GUI and terminal. You can use GRASS tools in either.
 It's a matter of taste, task on hand and habit, too.
 
@@ -57,14 +57,14 @@ the **history of executed commands** in case you want to re-run a task and a
 simple **Python console** where you can use the GRASS Python API. 
 
 ::: {.callout-note}
-See this example of the GRASS GIS single window GUI with multiple map displays:
+See this example of the GRASS single window GUI with multiple map displays:
 
 ![](images/grass_gui_multiple_map_displays.png){.preview-image width=50%}
 :::
 
 ## Step 3: Create a project
 
-When you open GRASS GIS for the first time, a new directory is created in your
+When you open GRASS for the first time, a new directory is created in your
 home folder. This directory is called **grassdata** by default and stores all 
 your GRASS projects. GRASS **projects** are simply folders storing your 
 geospatial data with common coordinate reference system (CRS), ensuring 
@@ -79,7 +79,7 @@ Within the grassdata directory you will see a sample project called
 *world_latlong_wgs84* which contains the PERMANENT mapset, with a sample vector 
 layer. 
 While there are other [sample data sets](https://grass.osgeo.org/download/data/) 
-that you could download to play around with GRASS GIS and test it, you most 
+that you could download to play around with GRASS and test it, you most 
 likely have some data of your own that you want to process and analyse.
 Therefore, the third step is to create a new project and select its CRS by its
 name, EPSG code or take it from your input data. Let's see a simple way to 

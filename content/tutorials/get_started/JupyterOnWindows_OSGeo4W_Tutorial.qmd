@@ -20,12 +20,12 @@ jupyter: python3
 
 
 The development of the Python package `grass.jupyter`, has streamlined the use 
-of GRASS GIS is Jupyter notebooks. In this tutorial we will demonstrate the 
-recommended way of running GRASS GIS in Jupyter Notebooks for Windows users.
+of GRASS is Jupyter notebooks. In this tutorial we will demonstrate the 
+recommended way of running GRASS in Jupyter Notebooks for Windows users.
 
 ## Set Up
 
-On Windows, we'll use the OSGeo4W package manager to setup and update GRASS GIS,
+On Windows, we'll use the OSGeo4W package manager to setup and update GRASS,
 Jupyterlab and other dependencies. Follow the directions below to setup Jupyter 
 and GRASS in Windows.
 
@@ -34,7 +34,7 @@ and GRASS in Windows.
 Download the OSGeo4W network install from [here](https://trac.osgeo.org/osgeo4w/). 
 Open it and select _"Advanced Install"_.
 
-#### 2. Install GRASS GIS, Jupyterlab and `grass.jupyter` dependencies
+#### 2. Install GRASS, Jupyterlab and `grass.jupyter` dependencies
 
 Follow the prompts until you get to the _"Select Packages"_ window (the defaults
 are fine for most situations). Use the Search bar to find and select the 
@@ -76,8 +76,8 @@ To launch Jupyter Lab in the future:
 
 ## Start GRASS within Jupyter
 
-Now, we're ready to code! Let's import the GRASS GIS Python packages and launch
-GRASS GIS. If you want to run this tutorial, please download and unzip the 
+Now, we're ready to code! Let's import the GRASS Python packages and launch
+GRASS. If you want to run this tutorial, please download and unzip the 
 North Carolina [sample dataset](https://grass.osgeo.org/sampledata/north_carolina/nc_spm_08_grass7.zip).
 
 ```{python}
@@ -85,27 +85,27 @@ North Carolina [sample dataset](https://grass.osgeo.org/sampledata/north_carolin
 import sys
 import subprocess
 
-# Ask GRASS GIS where its Python packages are and add them to the path
+# Ask GRASS where its Python packages are and add them to the path
 grass_call = "grass83"
 sys.path.append(
     subprocess.check_output([grass_call, "--config", "python_path"], text=True, shell=True).strip()
 )
 
-# Import the GRASS GIS python packages we need
+# Import the GRASS python packages we need
 import grass.script as gs
 import grass.jupyter as gj
 
-# Launch a GRASS GIS session.
+# Launch a GRASS session.
 gj.init("path/to/nc_spm_08_grass/user1");
 ```
 
 ## Using GRASS
 
-Now that we have GRASS GIS running in our notebook, let's try some basic 
+Now that we have GRASS running in our notebook, let's try some basic 
 commands. 
 
 In this section, we will set the color table to the `elevation` raster map from
-the GRASS GIS sample project we downloaded and then display it.  
+the GRASS sample project we downloaded and then display it.  
 
 ```{python}
 # Set the computational region to the study area
@@ -153,14 +153,14 @@ be `shell=False`.
 CalledProcessError: Command '['grass83', '--config', 'python_path']' returned non-zero exit status 1.
 ```
 
-Check which version of GRASS GIS you have installed. On Windows, the `grass_call`
+Check which version of GRASS you have installed. On Windows, the `grass_call`
 should be `grass` followed by the first two digits of the version you have 
-installed (for example, GRASS GIS 8.4 would be called with `grass84`). On Mac and 
+installed (for example, GRASS 8.4 would be called with `grass84`). On Mac and 
 Linux, it should be just `grass`.
 
 * Errors from `gj.init()`
 
-This command takes several different configurations of the GRASS GIS project 
+This command takes several different configurations of the GRASS project 
 and mapset location on your system. All the following are examples that work:
 
 ```
