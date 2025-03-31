@@ -213,11 +213,12 @@ We can also mount our drive directly from the Colab interface as shown below:
 
 ![](images/colab_mount_gdrive.png){.preview-image}
 
-Once the GDrive is mounted, we can create a new project and start GRASS there:
+Once the GDrive is mounted, we can create a new project and start GRASS there.
+To stay organized, GRASS projects are often saved under `grassdata` folder.
 
 ```{python}
-gs.create_project("/content/drive/MyDrive/nc_sentinel", epsg="32617")
-gs.init("/content/drive/MyDrive/nc_sentinel")
+gs.create_project("/content/drive/MyDrive/grassdata/nc_sentinel", epsg="32617")
+gs.init("/content/drive/MyDrive/grassdata/nc_sentinel")
 ```
 
 Importantly, we can then process and analyse our data so that our data
