@@ -37,6 +37,7 @@ If you are not sure how to get started with GRASS using its graphical user inter
 
 ::::: grid
 ::: g-col-6
+
 -   A **cost surface** is a raster in which each cell represents the “cost” or difficulty to move across landscape.
 
 -   A **cumulative cost surface** shows the total accumulated cost of moving from a starting point to a location. Cumulative cost surfaces are also used to find a **least cost path** between a location and the starting point.
@@ -50,10 +51,12 @@ If you are not sure how to get started with GRASS using its graphical user inter
 :::::
 
 # Modeling movement with a cumulative cost surface
+
 ## Overview
 
 ::::: grid
 ::: g-col-6
+
 1.  Start with a **DEM of elevation** for topography to determine movement costs.
 
 2.  Create a **friction map** with a value of 0 (or other vallues for additional movement costs).
@@ -79,10 +82,12 @@ If you are not sure how to get started with GRASS using its graphical user inter
 -   Create the *friction0* map with 0 in every cell.
 
 :::::: {.panel-tabset group="language"}
+
 #### GUI
 
 ::::: grid
 ::: g-col-6
+
 1.  Add the *elevation* raster to the Layer Manager.
 
 2.  Right click *elevation* in Layer Manager.
@@ -135,6 +140,7 @@ gs.mapcalc("friction0 = 0")
 -   We’ll make a start point from the Flagstaff Medical Center, found in the *hospitals* vector points file.
 
 :::::: {.panel-tabset group="language"}
+
 #### GUI
 
 ::::: grid
@@ -183,12 +189,14 @@ gs.run_command("v.extract", input="hospitals", type="point", where="FACILITY_N =
 ## Generate the cumulative cost surface {#generate-cumulative-cost-surface}
 
 ::::::::::::: {.panel-tabset group="language"}
+
 #### GUI
 
 -   Use the *r.walk* tool from the **Raster/Terrain Analysis** menu
 
 ::::: grid
 ::: g-col-6
+
 1.  Enter the **elevation map** ( *elevation* ), **friction map** ( *friction0* ), and **name of the cost surface** to create (FMC_cost_seconds)
 
 ![](img_movement/GRASS_movement_6.webp){fig-align="left" width="100%"}
@@ -271,10 +279,12 @@ Tip: You can display the cumulative cost surface over a shaded relief map in the
 -   You can transform the walking time in seconds to hours by dividing the map by 3600 using the map calculator
 
 :::::: {.panel-tabset group="language"}
+
 #### GUI
 
 ::::: grid
 ::: g-col-6
+
 1.  Open the map calculator.
 
 2.  Enter the name of the new map of walking time in hours: *FMC_cost_hours*.
@@ -306,6 +316,7 @@ gs.mapcalc("FMC_cost_hours = FMC_cost_seconds / 3600")
 
 ::::: grid
 ::: g-col-6
+
 -   We can query or filter this hourly cumulative cost surface to areas of equivalent walking time.
 
 -   For example, in the **layer manager** we can used the *d.rast* tool to show the area within a 2 hour walk of FMC and then set the opacity of the cost surface to 50% to see the underlying terrain\
@@ -319,6 +330,7 @@ gs.mapcalc("FMC_cost_hours = FMC_cost_seconds / 3600")
 ![Shaded area represents terrain reached within a 2 hour walk from FMC](img_movement/GRASS_movement_14.webp)
 
 # Least cost paths {#least-cost-path}
+
 ## Overview
 
 -   We can also plot a **least cost path** (LCP), which is the least costly (shortest time) route between any point on the cumulative cost surface and FMC.
@@ -334,10 +346,12 @@ gs.mapcalc("FMC_cost_hours = FMC_cost_seconds / 3600")
 To create a LCP in GRASS, we will use [r.path](https://grass.osgeo.org/grass-stable/manuals/r.path.html) (also under the Raster/Terrain analysis menu).
 
 :::::::: {.panel-tabset group="language"}
+
 #### GUI
 
 ::::: grid
 ::: g-col-6
+
 1.  Input the **directions map** (*FMC_directions*) we also made when we created the cumulative cost surface.\
     ![](img_movement/GRASS_movement_17.webp)
 :::
@@ -381,6 +395,7 @@ gs.run_command("r.path",
 ![](img_movement/GRASS_movement_20.webp)
 
 # Adding a friction map to movement costs
+
 ## Overview
 
 -   A **friction map** can be used to incorporate other factors than just terrain into creating a cumulative cost surface and modeling movement
@@ -410,12 +425,14 @@ We might then estimate that it would take an additional
 We can create this friction map by reclassifying the *landuse* map using [*r.reclass*](https://grass.osgeo.org/grass-stable/manuals/r.reclass.html) to assign new friction values to the existing land cover categories.  
 
 :::::: {.panel-tabset group="language"}
+
 ## GUI
 
 The [*r.reclass*](https://grass.osgeo.org/grass-stable/manuals/r.reclass.html) tool is found under the Raster/Change category… menu.
 
 ::::: grid
 ::: g-col-6
+
 1.  Enter *landuse* for the raster to be reclassified
 
 2.  Enter *friction_reclassified* for the output reclassified map
@@ -432,6 +449,7 @@ The [*r.reclass*](https://grass.osgeo.org/grass-stable/manuals/r.reclass.html) t
 :::
 
 ::: g-col-6
+
 -   This creates a new friction map named *friction_landcover*
 
 ![](img_movement/GRASS_movement_22.webp)
@@ -477,10 +495,11 @@ gs.write_command("r.reclass",
 We can now create a new cumulative cost surface using this new friction map and convert it from seconds to hours, as we did before:
 
 ::: {.panel-tabset group="language"}
+
 #### GUI
 
 1. Follow the procedures in the [Generate the cumulative cost surface
-section](#generate-cumulative-cost-surface) and substitute the new *friction_landcover* map for the *friction0* map used previously. 
+section](#generate-cumulative-cost-surface) and substitute the new *friction_landcover* map for the *friction0* map used previously.
 
 2. Convert the cumulative cost surface to hours instead of seconds following the procedures in the [Movement across a cumulative cost surface section]({#movement-across-cost-surface})
 
@@ -505,7 +524,6 @@ gs.mapcalc("FMC_vegcost_hours = FMC_vegcost_seconds / 3600")
 ```
 :::
 
-
 ![cumulative cost surface with additional friction from land cover](img_movement/GRASS_movement_24.webp)
 
 ## Least cost paths and friction
@@ -513,11 +531,12 @@ gs.mapcalc("FMC_vegcost_hours = FMC_vegcost_seconds / 3600")
 -   We can create a new LCP from the stranded hiker to FMC over terrain where land cover also affects the cost of movement
 
 ::: {.panel-tabset group="language"}
+
 #### GUI
 
-1. Follow the procedures in the [Least cost path section](#least-cost-path), substituting the new direction map made along with the cumulative cost surface with land cover friction map. 
+1. Follow the procedures in the [Least cost path section](#least-cost-path), substituting the new direction map made along with the cumulative cost surface with land cover friction map.
 
-2. Give this new LCP the name *LCP_vegcost* to distinguish from the previous LCP. 
+2. Give this new LCP the name *LCP_vegcost* to distinguish from the previous LCP.
 
 #### Command line
 
@@ -535,7 +554,6 @@ gs.run_command("r.path",
                start_coordinates=[477476, 13914951])
 ```
 :::
-
 
 -   It takes more time to reach FMC if the hiker has to navigate dense vegetation as well as terrain.
 
