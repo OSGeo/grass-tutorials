@@ -59,7 +59,7 @@ If you are not sure how to get started with GRASS using its graphical user inter
 
 1.  Start with a **DEM of elevation** for topography to determine movement costs.
 
-2.  Create a **friction map** with a value of 0 (or other vallues for additional movement costs).
+2.  Create a **friction map** with a value of 0 (or other values for additional movement costs).
 
 3.  Select **start point(s)**.
 
