@@ -560,4 +560,3 @@ gs.run_command("r.path",
 ![comparing LCP with terrain only and with land cover friction](img_movement/GRASS_movement_25.webp)
 ::::::
 
-#### *© Michael Barton & Anna Petrosova 2025*
