@@ -75,7 +75,7 @@ If you are not sure how to get started with GRASS using its graphical user inter
 
 ## Friction map
 
--   The GRASS [*map calculator*](https://grass.osgeo.org/grass-stable/manuals/r.mapcalc.html) lets you create a map, alter a map or combine maps using **map algebra**. The map calculator can be used from a GUI or as a command.
+-   The GRASS [map calculator](https://grass.osgeo.org/grass-stable/manuals/r.mapcalc.html) lets you create a map, alter a map, or combine maps using **map algebra**. The map calculator can be used from the GUI or as a command.
 
 -   Before you make a friction map, make sure the [**computational region**](https://grass.osgeo.org/grass-stable/manuals/g.region.html) matches the elevation map.
 
