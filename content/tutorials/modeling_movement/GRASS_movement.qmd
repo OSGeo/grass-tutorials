@@ -428,7 +428,7 @@ We can create this friction map by reclassifying the *landuse* map using [*r.rec
 
 ## GUI
 
-The [*r.reclass*](https://grass.osgeo.org/grass-stable/manuals/r.reclass.html) tool is found under the Raster/Change category… menu.
+The [r.reclass](https://grass.osgeo.org/grass-stable/manuals/r.reclass.html) tool is found under the Raster/Change category… menu.
 
 ::::: grid
 ::: g-col-6
