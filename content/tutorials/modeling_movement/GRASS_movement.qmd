@@ -271,7 +271,7 @@ gs.run_command("r.walk",
 ![](img_movement/GRASS_movement_12.webp)
 
 ::: {.callout-note title="Tip"}
-Tip: You can display the cumulative cost surface over a shaded relief map in the **layer manager** using the [*d.shade*](https://grass.osgeo.org/grass-stable/manuals/d.shade.html) tool and a relief map of *elevation* made with [*r.relief*](https://grass.osgeo.org/grass-stable/manuals/d.shade.html).
+Tip: You can display the cumulative cost surface over a shaded relief map in the **layer manager** using the [d.shade](https://grass.osgeo.org/grass-stable/manuals/d.shade.html) tool and a relief map of *elevation* made with [r.relief](https://grass.osgeo.org/grass-stable/manuals/d.shade.html).
 :::
 
 ## Movement across a cumulative cost surface {#movement-across-cost-surface}
