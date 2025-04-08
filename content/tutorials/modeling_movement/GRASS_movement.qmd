@@ -17,6 +17,11 @@ engine: jupyter
 execute: 
   eval: false
 Jupyter: python3
+copyright: 
+  holder: Michael Barton & Anna Petrasova
+  year: 2025
+funding: "Creation of this tutorial was supported in part by US National Science Foundation grant FAIN 2303651."
+
 ---
 
 GRASS has sophisticated tools to model movement across terrain, including [r.cost](https://grass.osgeo.org/grass-stable/manuals/r.cost.html), [r.walk](https://grass.osgeo.org/grass-stable/manuals/r.walk.html), [r.drain](https://grass.osgeo.org/grass-stable/manuals/r.drain.html), and [r.path](https://grass.osgeo.org/grass-stable/manuals/r.path.html). In this tutorial, we will use ***r.walk*** and ***r.path*** to determine the best walking path to reach a destination, like a hospital.
@@ -558,5 +563,4 @@ gs.run_command("r.path",
 -   In the map below, terrain colored by land cover, the original LCP with terrain only is shown by the blue line. The LCP with a land cover friction map is shown by the heavier yellow line
 
 ![comparing LCP with terrain only and with land cover friction](img_movement/GRASS_movement_25.webp)
-::::::
 
