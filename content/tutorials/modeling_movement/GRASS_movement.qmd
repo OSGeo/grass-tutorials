@@ -1,6 +1,6 @@
 ---
 title: "Modeling Movement in GRASS"
-author: "Michael Barton & Anna Petrosova"
+author: "Michael Barton & Anna Petrasova"
 date: 2025-02-10
 date-modified: today
 format: 
