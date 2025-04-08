@@ -42,7 +42,7 @@ If you are not sure how to get started with GRASS using its graphical user inter
 
 -   A **cumulative cost surface** shows the total accumulated cost of moving from a starting point to a location. Cumulative cost surfaces are also used to find a **least cost path** between a location and the starting point.
 
--   GRASS [***r.walk***](https://grass.osgeo.org/grass-stable/manuals/r.walk.html) generates a cumulative cost surface using Naismith's rule for walking times where each cell has the value in **seconds** of the time it takes to walk from the start point to that cell.
+-   GRASS [r.walk](https://grass.osgeo.org/grass-stable/manuals/r.walk.html) tool generates a cumulative cost surface using Naismith's rule for walking times where each cell has the value in **seconds** of the time it takes to walk from the start point to that cell.
 :::
 
 ::: g-col-6
