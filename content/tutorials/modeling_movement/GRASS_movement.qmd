@@ -17,8 +17,6 @@ engine: jupyter
 execute: 
   eval: false
 Jupyter: python3
-
-# © Michael Barton & Anna Petrosova 2025
 ---
 
 GRASS has sophisticated tools to model movement across terrain, including [r.cost](https://grass.osgeo.org/grass-stable/manuals/r.cost.html), [r.walk](https://grass.osgeo.org/grass-stable/manuals/r.walk.html), [r.drain](https://grass.osgeo.org/grass-stable/manuals/r.drain.html), and [r.path](https://grass.osgeo.org/grass-stable/manuals/r.path.html). In this tutorial, we will use ***r.walk*** and ***r.path*** to determine the best walking path to reach a destination, like a hospital.
