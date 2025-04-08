@@ -387,7 +387,7 @@ print(np.average(elev))
 ```{python}
 # Plot elev histogram
 sns.set_style('darkgrid')
-sns.histplot(data=elev.ravel(), labkde=True)
+sns.histplot(data=elev.ravel(), kde=True)
 ```
 
 Let's modify our array and write it back into GRASS. For this, we create a

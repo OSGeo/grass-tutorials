@@ -14,6 +14,16 @@ execute:
   eval: false
 ---
 
+## FUTURES Introduction Using Jupyter Notebook
+
+This is a Jupyter Notebook introducing FUTURES urban model in GRASS
+using Python interface. [The repository](https://github.com/ncsu-landscape-dynamics/futures-model-intro-notebook) is intended to be used with
+Binder, but the notebook can be used anywhere once the dependencies are met.
+
+[![](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ncsu-landscape-dynamics/futures-model-intro-notebook/main?urlpath=lab/tree/futures_triangle.ipynb)
+
+## US-IALE 2019 workshop
+
 This is material for US-IALE 2019 workshop FUTURES land-change modeling for evaluating innovative conservation scenarios held in Fort Collins, Colorado, 2019. This workshop introduces GRASS GIS and FUTURES urban growth modeling framework.
 
 <https://grasswiki.osgeo.org/wiki/FUTURES_land-change_modeling_for_evaluating_innovative_conservation_scenarios>
