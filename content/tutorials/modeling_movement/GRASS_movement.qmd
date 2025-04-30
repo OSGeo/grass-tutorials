@@ -13,10 +13,9 @@ format:
 page-layout: article
 categories: [intermediate, advanced, GUI, raster, cost surface, least cost path]
 description: Generating a cumulative cost surface and least cost path with *r.walk* and *r.path* to model movement by walking across a landscape.
-engine: jupyter
+image: img_movement/thumbnail.webp
 execute: 
   eval: false
-Jupyter: python3
 copyright: 
   holder: Michael Barton & Anna Petrasova
   year: 2025
