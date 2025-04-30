@@ -26,8 +26,8 @@ jobs:
       - name: Check if rendering succeeded
         run: |
           # Ensure the site folder is created
-          if [ ! -d "_site" ]; then
-            echo "Rendering failed: _site folder does not exist."
+          if [ ! -d "docs" ]; then
+            echo "Rendering failed: docs folder does not exist."
             exit 1
           fi
 
@@ -35,4 +35,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: rendered-site
-          path: _site/
+          path: docs/
