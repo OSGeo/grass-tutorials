@@ -1,0 +1,38 @@
+name: Quarto PR Check
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          version: "1.6.42"
+
+      - name: Render Quarto Project
+        uses: quarto-dev/quarto-actions/render@v2
+
+      - name: Check if rendering succeeded
+        run: |
+          # Ensure the site folder is created
+          if [ ! -d "_site" ]; then
+            echo "Rendering failed: _site folder does not exist."
+            exit 1
+          fi
+
+      - name: Upload static files as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: rendered-site
+          path: _site/
