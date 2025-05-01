@@ -12,7 +12,7 @@ format:
     code-copy: true
     code-fold: false
 categories: [statistics, matplotlib, beginner]
-engine: knitr
+engine: jupyter
 execute: 
   eval: false
 ---
