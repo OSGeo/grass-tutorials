@@ -4,6 +4,7 @@ author: "Veronica Andreo"
 date: 2024-04-01
 date-modified: today
 format:
+  ipynb: default
   html:
     toc: true
     code-tools: true

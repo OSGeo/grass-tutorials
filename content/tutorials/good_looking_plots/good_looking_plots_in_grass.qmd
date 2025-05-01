@@ -4,7 +4,8 @@ author: "Veronica Andreo"
 date: 2024-04-25
 date-modified: today
 image: images/making_plots.png
-format: 
+format:
+  ipynb: default
   html:
     toc: true
     code-tools: true

@@ -3,7 +3,8 @@ title: "Get started with GRASS & R: the rgrass package"
 author: "Veronica Andreo"
 date: 2024-03-29
 date-modified: today
-format: 
+format:
+  ipynb: default
   html:
     toc: true
     code-tools: true

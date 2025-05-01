@@ -3,7 +3,8 @@ title: "Get started with GRASS in Google Colab"
 author: "Veronica Andreo"
 date: 2024-04-12
 date-modified: today
-format: 
+format:
+  ipynb: default
   html:
     toc: true
     code-tools: true
