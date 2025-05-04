@@ -13,11 +13,12 @@ format:
 page-layout: article
 categories: [intermediate, advanced, GUI, imagery, remote sensing]
 description: Analysis and visualization of multi-band satellite imagery using image fusion, environmental indexes, and dimensionality reduction with principle components analysis.
-engine: jupyter
 execute: 
   eval: false
-Jupyter: python3
-editor: visual
+copyright: 
+  holder: Michael Barton
+  year: 2025
+funding: "Creation of this tutorial was supported in part by US National Science Foundation grant FAIN 2303651."
 
 # © Michael Barton 2025
 ---
@@ -38,7 +39,7 @@ editor: visual
 :::::
 
 ::: {.callout-note title="Dataset"}
-This tutorial uses one of the standard GRASS demo data for Flagstaff, Arizona, USA: ***flagstaff_arizona_usa***. We will refer to maps in that data set, but it can be completed with any of the standard demo data sets for any region.
+This tutorial uses one of the standard GRASS sample data sets for Flagstaff, Arizona, USA: ***flagstaff_arizona_usa***. We will refer to place names in that data set, but it can be completed with any of the [standard sample data sets](https://grass.osgeo.org/download/data/) for any region--for example, the [North Carolina data set](https://grass.osgeo.org/sampledata/north_carolina/nc_spm_08_grass7.zip).
 
 We will use a set of images from the **LandSat 8 satellite** and the *elevation* DEM raster map. However, this tutorial can also be used with other multi-band imagery, such as Sentinel or Terra/ASTER. With other satellite imagery than LandSat 8, the band numbers may differ from those described in this tutorial.
 :::
@@ -149,7 +150,7 @@ In this tutorial, we will use LandSat 8 bands 2-7
 
 -   The range of grey shades can be remapped across the cell values, so that they fully span a black to white continuum.
 
--   This can be done in [*r.colors*](https://grass.osgeo.org/grass-stable/manuals/r.colors.html) by “equalizing” the color histogram of the cells.
+-   This can be done in [r.colors](https://grass.osgeo.org/grass-stable/manuals/r.colors.html) by “equalizing” the color histogram of the cells.
 :::
 
 ::: g-col-6
@@ -157,7 +158,7 @@ In this tutorial, we will use LandSat 8 bands 2-7
 :::
 :::::
 
-## Histogram equalization with [*r.colors*](https://grass.osgeo.org/grass-stable/manuals/r.colors.html) in GRASS
+## Histogram equalization with [r.colors](https://grass.osgeo.org/grass-stable/manuals/r.colors.html) in GRASS
 
 -   Using *r.colors* for histogram equalization will enhance the visibility of the image but will not change its cell values
 
@@ -336,7 +337,7 @@ $$
 NDVI = \frac{NIR - red}{NIR + red}
 $$
 
--   While you could create a map of NDVI using the *map calculator*, it can also be generated automatically from the GRASS [*i.vi*](https://grass.osgeo.org/grass-stable/manuals/i.vi.html) module, along with many other vegetation indexes.
+-   While you could create a map of NDVI using the *map calculator*, it can also be generated automatically from the GRASS [i.vi](https://grass.osgeo.org/grass-stable/manuals/i.vi.html) module, along with many other vegetation indexes.
 
 ::: {.callout-note title="Tip"}
 When generating any new map, like NDVI, remember to first make sure that the **region** is set to match the LandSat images
@@ -361,7 +362,7 @@ When generating any new map, like NDVI, remember to first make sure that the **r
 
 ### Compute NDVI raster
 
-1.  Select the [*i.vi*](https://grass.osgeo.org/grass-stable/manuals/i.vi.html) tool from **Imagery/Satellite image products/vegetation indices** menu.
+1.  Select the [i.vi](https://grass.osgeo.org/grass-stable/manuals/i.vi.html) tool from **Imagery/Satellite image products/vegetation indices** menu.
 
 2.  Choose **NDVI** for the index to calculate
 
@@ -389,7 +390,7 @@ When generating any new map, like NDVI, remember to first make sure that the **r
 
 1.  Set the region to match the LandSat images
 
-2.  Use the [*i.vi*](https://grass.osgeo.org/grass-stable/manuals/i.vi.html) tool to create a map of NDVI values.
+2.  Use the [i.vi](https://grass.osgeo.org/grass-stable/manuals/i.vi.html) tool to create a map of NDVI values.
 
 ```{python}
 g.region raster=landsat8_2024_B2
@@ -401,7 +402,7 @@ i.vi output=Flagstaff_NDVI viname=ndvi red=landsat8_2024_B4 nir=landsat8_2024_B5
 
 1.  Set the region to match the LandSat images
 
-2.  Use the [*i.vi*](https://grass.osgeo.org/grass-stable/manuals/i.vi.html) tool to create a map of NDVI values.
+2.  Use the [i.vi](https://grass.osgeo.org/grass-stable/manuals/i.vi.html) tool to create a map of NDVI values.
 
 ```{python}
 gs.run_command("g.region", raster="landsat8_2024_B2")
@@ -596,7 +597,7 @@ Statistical details of PCA output appear in the console or terminal.
 
 ## Generating a topographic relief map
 
-A relief map can be made from the *elevation* DEM using the [*r.relief*](https://grass.osgeo.org/grass-stable/manuals/r.relief.html) tool from the **Raster/Terrain analysis/Compute shaded relief** menu
+A relief map can be made from the *elevation* DEM using the [r.relief](https://grass.osgeo.org/grass-stable/manuals/r.relief.html) tool from the **Raster/Terrain analysis/Compute shaded relief** menu
 
 :::::: {.panel-tabset group="language"}
 
@@ -644,7 +645,7 @@ gs.run_command("r.relief",
 
 ### Generating an RGB color map from image fusion
 
-Use the [*r.composite*](https://grass.osgeo.org/grass-stable/manuals/r.composite.html) tool from the **Raster/Manage colors/Create RGB** menu to create a new RGB map from the fusion of 3 PCA component maps
+Use the [r.composite](https://grass.osgeo.org/grass-stable/manuals/r.composite.html) tool from the **Raster/Manage colors/Create RGB** menu to create a new RGB map from the fusion of 3 PCA component maps
 
 :::::: {.panel-tabset group="language"}
 
@@ -689,7 +690,7 @@ gs.run_command("r.composite",
 
 ## Combining relief and a color image fusion map
 
-A topographic relief map and an RGB image fusion map can be combined with the [*d.shade tool*](https://grass.osgeo.org/grass-stable/manuals/d.shade.html) in the layer manager or by using the [*r.shade*](https://grass.osgeo.org/grass-stable/manuals/r.shade.html) tool from the **/Raster/Terrain analysis/Apply shade to raster** menu.
+A topographic relief map and an RGB image fusion map can be combined with the [d.shade tool](https://grass.osgeo.org/grass-stable/manuals/d.shade.html) in the layer manager or by using the [r.shade](https://grass.osgeo.org/grass-stable/manuals/r.shade.html) tool from the **/Raster/Terrain analysis/Apply shade to raster** menu.
 
 :::::: {.panel-tabset group="language"}
 
@@ -787,5 +788,3 @@ GRASS has many more features and tools for working with remote sensing data.
 -   For **3D geophysics** (e.g., electrical tomography or ground penetrating radar), GRASS offers a unique suite of true **3D voxel analysis tools with n-dimensional visualization in NVIZ**.
 
 These and other tools make GRASS a rich and powerful geoprocessing environment for many remote sensing applications.
-
-#### *© Michael Barton 2025*
