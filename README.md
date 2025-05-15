@@ -16,6 +16,8 @@ explained in the [GitHub
 guide](https://github.com/OSGeo/grass/blob/main/doc/development/github_guide.md)
 written for OSGeo/grass repository, so just adjust it for this repository.
 
+See [CONTRIBUTING.md](CONTRIBUTING.md) for more details.
+
 ## License
 
 The content in this repository is dual-licensed under the
