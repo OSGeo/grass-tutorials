@@ -65,9 +65,11 @@ gs.run_command("g.region", raster="elevation")
 
 Display notes:
 
+``` markdown
 ::: {.callout-note title="Setup"}  
 To run this tutorial locally ...  
 :::
+```
 
 ## YAML metadata example
 
@@ -120,8 +122,11 @@ You can either specify it in the YAML header (`thumbnail: image.webp`) or add `{
 
 Check your markdown with a [linter](https://dlaa.me/markdownlint/) and fix as many issues as you can. This will help keeping the tutorials consistent.
 
-Follow the [GitHub guide](https://grass.osgeo.org/grass-devel/manuals/github_guide.html) to submit your tutorial.
-Once you sumbmit a PR, the CI pipeline will build your tutorial, so you and a reviewer can check if everything is ok. Once a reviewer approves, your PR will be merged.
+Follow the [GitHub guide](https://grass.osgeo.org/grass-devel/manuals/github_guide.html)
+(adapt it to this repo) to submit your tutorial.
+Once you sumbmit a PR, the CI pipeline will build your
+tutorial, so you and a reviewer can check if everything is ok.
+When a reviewer approves, your PR will be merged soon.
 
 ---
 Thanks for helping us build better educational resources for the GRASS community!
