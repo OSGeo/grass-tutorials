@@ -100,7 +100,7 @@ jupyter: python3
 
 Notes:
 
-- Use appropriate categories (tags), include whether the tutorial is *beginner*, *intermediate*, or *advanced*.
+- Use appropriate categories (tags), include whether the tutorial is for *beginner*, *intermediate*, or *advanced* users.
 
 - Use `eval: false` so that Quarto doesn't run the code during building of the website.
 
@@ -108,7 +108,7 @@ Notes:
 
 ## Images
 
-Beatiful images and graphics make tutorials stand out!
+Beautiful images and graphics make tutorials stand out!
 Make sure the images have *sufficient resolution*.
 At the same time, their size should not be too big to load quickly, try to keep it under 200 KB or so. We recommend using *webp* format.
 
@@ -129,6 +129,7 @@ Check your markdown with a [linter](https://dlaa.me/markdownlint/) and fix as ma
 
 Follow the [GitHub guide](https://grass.osgeo.org/grass-devel/manuals/github_guide.html)
 (adapt it to this repo) to submit your tutorial.
+You should **only commit the .qmd file and images**. 
 Once you sumbmit a PR, the CI pipeline will build your
 tutorial, so you and a reviewer can check if everything is ok.
 When a reviewer approves, your PR will be merged soon.
