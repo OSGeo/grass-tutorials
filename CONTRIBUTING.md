@@ -98,8 +98,13 @@ jupyter: python3
 
 ````
 
-Use `eval: false` so that Quarto doesn't run the code during building of the website.
-Specifying format `ipynb: default` will create a Jupyter notebook during the build process and link it from the tutorial page.
+Notes:
+
+- Use appropriate categories (tags), include whether the tutorial is *beginner*, *intermediate*, or *advanced*.
+
+- Use `eval: false` so that Quarto doesn't run the code during building of the website.
+
+- Specifying format `ipynb: default` will create a Jupyter notebook during the build process and link it from the tutorial page.
 
 ## Images
 
