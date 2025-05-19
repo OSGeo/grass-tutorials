@@ -31,27 +31,28 @@ website:
       - icon: opencollective
         href: https://opencollective.com/grass/contribute
         aria-label: GRASS on Open Collective
-      - text: "{{< fa brands gitter >}}"
-        href: https://gitter.im/grassgis/community
-        aria-label: GRASS on Gitter
-      - text: "{{< fa brands mastodon >}}"
-        href: https://fosstodon.org/@grassgis
-        aria-label: GRASS on Mastodon
+      - text: "{{< fa brands github >}}"
+        href: https://github.com/OSGeo/grass
+        aria-label: GRASS on GitHub
       - text: "{{< fa brands discourse >}}"
         href: https://discourse.osgeo.org/c/grass/62
         aria-label: GRASS on Discourse
+      - text: "{{< fa brands gitter >}}"
+        href: https://gitter.im/grassgis/community
+        aria-label: GRASS on Gitter
       - text: "{{< fa brands linkedin >}}"
         href: "https://linkedin.com/company/grass-gis"
         aria-label: GRASS on LinkedIn
+      - text: "{{< fa brands mastodon >}}"
+        href: https://fosstodon.org/@grassgis
+        aria-label: GRASS on Mastodon
       - text: "{{< fa brands x-twitter >}}"
         href: https://x.com/grassgis
         aria-label: GRASS on X
       - text: "{{< fa brands youtube >}}"
         href: https://www.youtube.com/@grass-gis
         aria-label: GRASS on YouTube
-      - text: "{{< fa brands github >}}"
-        href: https://github.com/OSGeo/grass
-        aria-label: GRASS on GitHub
+
 
   margin-header	: |
     [{{< fa heart >}} Support GRASS]({{< var grass.support >}}){.btn .btn-outline-support .btn role="button" align="center"}
