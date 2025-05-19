@@ -16,15 +16,15 @@ execute:
 
 # Školení GRASS GIS pro začátečníky
 
-V tomto kurzu Vás naučíme zvládat základní techniky práce v systému GRASS, práci s rastrovými a vektorovými geodaty, provádět běžné GIS analýzy a jejich automatizaci pomocí grafického modeleru. Školení je zaměřeno na verzi GRASS 7.8.
+V tomto kurzu Vás naučíme zvládat základní techniky práce v systému GRASS, práci s rastrovými a vektorovými geodaty, provádět běžné GIS analýzy a jejich automatizaci pomocí grafického modeleru.
 
-<https://training.gismentors.eu/grass-gis-zacatecnik/>
+<https://gismentors.github.io/grass-gis-zacatecnik/>
 
 # Školení GRASS GIS pro pokročilé
 
 GRASS GIS jako komplexní nástroj pro řešení nejnáročnějších GIS analýz. Tento kurz je určen všem, kteří potřebují provádět pokročilé GIS analýzy s využitím široké škály nástrojů systému GRASS včetně automatizace úloh prostřednictvím uživatelských Python skriptů.
 
-<https://training.gismentors.eu/grass-gis-pokrocily/>
+<https://gismentors.github.io/grass-gis-pokrocily/>
 
 ![](images/wxgui-map-query.png){.preview-image}
 

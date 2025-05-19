@@ -14,9 +14,13 @@ execute:
   eval: false
 ---
 
-# GRASS GIS Workshop in Jena 2022
+# GRASS GIS Workshop in Jena
 
-<https://training.gismentors.eu/grass-gis-workshop-jena/>
+A course taught at the University of Jena: Automated Earth Observation Processing Work Flows with GRASS GIS and WPS
+
+The idea of this course is to teach about spatio-temporal data processing with focus on satellite data including automated processing workflows provided as web services. Sample dataset used in this course includes LiDAR Data and Earth Observation Time Series. Automated workflows with open source GRASS GIS software and Python programming language.
+
+<https://gismentors.github.io/grass-gis-workshop-jena/>
 
 Authors: Martin Landa
 
@@ -26,7 +30,7 @@ This 3-days intense workshop on GIS in Applied Ecology from 24.09.2018 to 27.09.
 Topic of the course is Advanced Geospatial Analysis with an emphasis on handling of Earth Observation and Time Series data using Free and Open Source Software. Based on a set of 29 course units, final content for the 3 days event was tailored according to participants interest as well as prior knowledge and experience.
 The course was kindly supported by IRSAE.
 
-<https://training.gismentors.eu/grass-gis-irsae-winter-course-2018/>
+<https://gismentors.github.io/grass-gis-irsae-winter-course-2018/>
 
 Authors: Martin Landa, Luca Delucchi, Stefan Blumentrath
 
