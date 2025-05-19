@@ -22,7 +22,7 @@ V tomto kurzu Vás naučíme zvládat základní techniky práce v systému GRAS
 
 # Školení GRASS pro pokročilé
 
-GRASS GIS jako komplexní nástroj pro řešení nejnáročnějších GIS analýz. Tento kurz je určen všem, kteří potřebují provádět pokročilé GIS analýzy s využitím široké škály nástrojů systému GRASS včetně automatizace úloh prostřednictvím uživatelských Python skriptů.
+GRASS jako komplexní nástroj pro řešení nejnáročnějších GIS analýz. Tento kurz je určen všem, kteří potřebují provádět pokročilé GIS analýzy s využitím široké škály nástrojů systému GRASS včetně automatizace úloh prostřednictvím uživatelských Python skriptů.
 
 <https://gismentors.github.io/grass-gis-pokrocily/>
 
