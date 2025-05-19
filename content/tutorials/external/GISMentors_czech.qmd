@@ -14,7 +14,7 @@ execute:
   eval: false
 ---
 
-# Školení GRASS GIS pro začátečníky
+# Školení GRASS pro začátečníky
 
 V tomto kurzu Vás naučíme zvládat základní techniky práce v systému GRASS, práci s rastrovými a vektorovými geodaty, provádět běžné GIS analýzy a jejich automatizaci pomocí grafického modeleru.
 
