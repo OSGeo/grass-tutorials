@@ -16,7 +16,7 @@ execute:
 
 # GRASS Workshop in Jena
 
-A course taught at the University of Jena: Automated Earth Observation Processing Work Flows with GRASS GIS and WPS
+A course taught at the University of Jena: Automated Earth Observation Processing Work Flows with GRASS and WPS
 
 The idea of this course is to teach about spatio-temporal data processing with a focus on satellite data, including automated processing workflows provided as web services. The sample dataset used includes LiDAR data and Earth Observation time series. Workflows are automated with the open source GRASS software and Python programming language.
 
