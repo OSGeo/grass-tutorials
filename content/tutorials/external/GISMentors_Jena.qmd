@@ -14,7 +14,7 @@ execute:
   eval: false
 ---
 
-# GRASS GIS Workshop in Jena
+# GRASS Workshop in Jena
 
 A course taught at the University of Jena: Automated Earth Observation Processing Work Flows with GRASS GIS and WPS
 
