@@ -58,7 +58,7 @@ website:
     [{{< fa heart >}} Support GRASS]({{< var grass.support >}}){.btn .btn-outline-support .btn role="button" align="center"}
 
 execute:
-  freeze: auto
+  freeze: false
 format:
   html:
     theme: [pandoc, brand, theme.scss]
