@@ -26,6 +26,6 @@ in Google Colab, so no local software installation is required.
 Special acknowledgements to Markus Neteler and Maris Nartiss who were part of an earlier
 edition of this workshop and also prepared the Sentinel-2 dataset 🙌
 
-![](images/EOandGRASSGIS.png){.preview-image}
+![](images/EOandGRASSGIS.png){width=40% fig-align="center" .preview-image}
 
 
