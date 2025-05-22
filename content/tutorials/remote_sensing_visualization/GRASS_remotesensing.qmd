@@ -1,7 +1,7 @@
 ---
-title: "Remote Sensing With GRASS"
+title: "Introduction to Remote Sensing With GRASS"
 author: "Michael Barton"
-date: 2025-02-14
+date: 2025-05-21
 date-modified: today
 format: 
   html:
@@ -11,8 +11,9 @@ format:
     code-copy: true
     code-fold: false
 page-layout: article
-categories: [intermediate, advanced, GUI, imagery, remote sensing]
+categories: [intermediate user, advanced user, GUI, imagery, remote sensing, visualization]
 description: Analysis and visualization of multi-band satellite imagery using image fusion, environmental indexes, and dimensionality reduction with principle components analysis.
+image: img_remotesensing/thumbnail.webp
 execute: 
   eval: false
 copyright: 
@@ -26,11 +27,11 @@ funding: "Creation of this tutorial was supported in part by US National Science
 ::::: grid
 ::: g-col-4
 
--   GRASS has many tools for processing and visualizing remote sensing imagery. This tutorial only scratches the surface of GRASS's extensive capacity for image processing.
+GRASS has many tools for processing and visualizing remote sensing imagery. This tutorial only scratches the surface of GRASS's extensive capacity for image processing.
 
--   Hopefully, it will give you some sense of the potential for analysis and visualization of remote sensing imagery in GRASS and the potential to combine remote sensing analysis with raster and vector GIS processing.
+Hopefully, it will give you some sense of the potential for analysis and visualization of remote sensing imagery in GRASS and the potential to combine remote sensing analysis with raster and vector GIS processing.
 
--   We will start with a quick overview of multi-band satellite imagery.
+We will start with a quick overview of multi-band satellite imagery.
 :::
 
 ::: g-col-8
@@ -58,7 +59,7 @@ If you are not sure how to get started with GRASS using its graphical user inter
 
 :::::: grid
 ::: g-col-4
-![Space-based platforms (satellites)](img_remotesensing/remotesensing_3.webp){style="width: 100%"}
+![Space-based platforms (NASA 2015)](img_remotesensing/remotesensing_3.webp){style="width: 100%"}
 :::
 
 ::: g-col-4
@@ -98,9 +99,7 @@ This tutorial will use space-based remote sensing platforms.
 ::::: grid
 ::: g-col-4
 
--   GRASS has many tools for combining and analyzing single and multi-band imagery.
-
--   In this tutorial, we will explore a few of these analytical tools using images of the Flagstaff region from the **LandSat 8** satellite.
+GRASS has many tools for combining and analyzing single and multi-band imagery. In this tutorial, we will explore a few of these analytical tools using images of the Flagstaff region from the **LandSat 8** satellite.
 :::
 
 ::: g-col-8
@@ -158,9 +157,9 @@ In this tutorial, we will use LandSat 8 bands 2-7
 :::
 :::::
 
-## Histogram equalization with [r.colors](https://grass.osgeo.org/grass-stable/manuals/r.colors.html) in GRASS
+## Histogram equalization in GRASS
 
--   Using *r.colors* for histogram equalization will enhance the visibility of the image but will not change its cell values
+Using [r.colors](https://grass.osgeo.org/grass-stable/manuals/r.colors.html) for histogram equalization will enhance the visibility of the image but will not change its cell values
 
 ::::::::: {.panel-tabset group="language"}
 
@@ -711,7 +710,7 @@ A topographic relief map and an RGB image fusion map can be combined with the [d
 :::
 
 ::: g-col-6
-![](img_remotesensing/layer_manager_shaded_relief.webp) ![](img_remotesensing/d_shade.webp)
+![](img_remotesensing/layer_manager_shaded_relief.webp) ![](img_remotesensing/d_shade.webp)  
 :::
 :::::
 
@@ -761,30 +760,30 @@ gs.run_command("r.shade",
 
 GRASS has many more features and tools for working with remote sensing data.
 
--   For **satellite imagery**, there are tools under the Imagery menu and in GRASS addons for
+-   For **satellite imagery**, there are tools under the [Imagery menu](https://grass.osgeo.org/grass-stable/manuals/imageryintro.html) and in [GRASS addons](https://grass.osgeo.org/grass-stable/manuals/addons/) for
 
-    -   Image correction and calibration
+    -   Image [correction and calibration](https://grass.osgeo.org/grass-stable/manuals/imageryintro.html#radiometric-corrections)
 
-    -   Image rectification
+    -   Image [georectification](https://grass.osgeo.org/grass-stable/manuals/imageryintro.html#geocoding-of-imagery-data))
 
-    -   Machine learning algorithms for **unsurpervised and supervised image classification** and **feature detection**
+    -   Machine learning algorithms for [unsurpervised and supervised image classification](https://grass.osgeo.org/grass-stable/manuals/imageryintro.html#image-classification) and [feature detection](https://grass.osgeo.org/grass-stable/manuals/addons/r.learn.ml2.html)
 
-    -   Statistical analysis and visualizations
+    -   [Statistical analysis](https://grass.osgeo.org/grass-stable/manuals/rasterintro.html#raster-map-statistics) and visualization demonstrated in this tutorial.
 
--   Satellite **time series** can be transformed into **time cubes** for analysis with GRASS's unique **temporal GIS** tools
+-   Satellite **time series** can be transformed into **time cubes** for analysis with GRASS's unique [Temporal GIS](https://grass.osgeo.org/grass-stable/manuals/temporalintro.html) tools
 
--   For **aerial photography**, there are tools for
+-   For **aerial photography**, there are Imagery tools for
 
-    -   Georectification
+    -   [Georectification](https://grass.osgeo.org/grass-stable/manuals/imageryintro.html#geocoding-of-imagery-data)
 
-    -   3D rectification and scanning distortion for correction for **orthophotography**
+    -   3D rectification and scanning distortion for correction for [orthophotography](https://grass.osgeo.org/grass-stable/manuals/i.ortho.photo.html)
 
-    -   Image enhancement
+    -   Image enhancement, including [neighborhood](https://grass.osgeo.org/grass-stable/manuals/r.neighbors.html), [convolving](https://grass.osgeo.org/grass-stable/manuals/r.mfilter.html), [edge detection](https://grass.osgeo.org/grass-stable/manuals/i.zc.html), and [fast fourier transform](https://grass.osgeo.org/grass-stable/manuals/i.fft.html) filters. 
 
--   GRASS has an extensive suite of raster and vector tools for processing and visualizing **LiDAR data** (raster and vector import and processing)
+-   GRASS has an extensive suite of raster and vector tools for processing and visualizing [LiDAR data](https://grass.osgeo.org/grass-stable/manuals/vectorintro.html#lidar-data-processing), as well raster and vector import and processing of LiDAR data. 
 
--   There are multiple methods for **interpolation** of data points from **geophysical survey**.
+-   There are multiple methods for [interpolation](https://grass.osgeo.org/grass-stable/manuals/rasterintro.html#raster-map-operations) of data points from **geophysical survey**.
 
--   For **3D geophysics** (e.g., electrical tomography or ground penetrating radar), GRASS offers a unique suite of true **3D voxel analysis tools with n-dimensional visualization in NVIZ**.
+-   For **3D geophysics** (e.g., electrical tomography or ground penetrating radar), GRASS offers a unique suite of true [3D voxel analysis tools](https://grass.osgeo.org/grass-stable/manuals/raster3dintro.html) with n-dimensional visualization in [NVIZ](https://grass.osgeo.org/grass-stable/manuals/wxGUI.nviz.html).
 
 These and other tools make GRASS a rich and powerful geoprocessing environment for many remote sensing applications.
