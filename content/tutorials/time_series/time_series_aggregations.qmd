@@ -397,7 +397,7 @@ bio_map.show()
 
 Let's assume a certain insect species can only survive where winter mean 
 temperatures are above 5 degrees. How would you determine suitable areas?
-We'll see that in the [upcoming tutorial](time_series_accumulations.qmd),
+We'll see that in the [upcoming tutorial](time_series_algebra.qmd),
 stay tuned!
 
 ::: {.callout-tip}
