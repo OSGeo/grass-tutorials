@@ -103,7 +103,7 @@ import grass.jupyter as gj
 Now we are ready to start a GRASS session in the downloaded project:
 
 ```{python}
-path_to_project = "eu_laea/italy_LST_daily"
+path_to_project = "italy_eu_laea/italy_LST_daily"
 
 # Start the GRASS Session
 session = gj.init(path_to_project)
