@@ -30,7 +30,7 @@ as explained in the [first](time_series_management_and_visualization.qmd)
 time series tutorial.
 :::
 
-There are two main tools to do time series aggregations in GRASS GIS:
+There are two main tools to do time series aggregations in GRASS:
 [t.rast.aggregate](https://grass.osgeo.org/grass-stable/manuals/t.rast.aggregate.html)
 and [t.rast.series](https://grass.osgeo.org/grass-stable/manuals/t.rast.series.html).
 We'll demonstrate their usage in the upcoming sections.
@@ -53,7 +53,7 @@ import grass.jupyter as gj
 
 path_to_project = "eu_laea/italy_LST_daily"
 
-# Start the GRASS GIS Session
+# Start the GRASS session
 session = gj.init(path_to_project);
 ```
 
