@@ -11,8 +11,8 @@ format:
     code-tools: true
     code-copy: true
     code-fold: false
-categories: [time series, raster, basic, Python]
-description: Introductory tutorial to raster time series creation, management and visualization in GRASS.
+categories: [time series, raster, intermediate, Python]
+description: Introductory tutorial on raster time series creation, management and visualization in GRASS.
 engine: jupyter
 execute:
   eval: false
