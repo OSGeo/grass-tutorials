@@ -62,10 +62,10 @@ scheme. In this way, we have:
 ::: {.callout-note title="Setup"}
 To run this tutorial locally or in Google Colab, you should install
 GRASS GIS 8.4+, and download the 
-[daily MODIS LST project](https://zenodo.org/records/3564515).
-This project contains average daily MODIS LST data reconstructed by
-[mundialis GmbH & Co. KG](https://www.mundialis.de/en/) based on
-Metz et al (2017).
+[daily MODIS LST project](https://zenodo.org/records/13750928).
+This project contains average daily MODIS LST (Land Surface Temperature)
+data reconstructed by [mundialis GmbH & Co. KG](https://www.mundialis.de/en/)
+based on Metz et al (2017).
 
 Follow the [Fast track to GRASS](../get_started/fast_track.qmd) and
 [GRASS in Colab](../get_started/grass_gis_in_google_colab.qmd) tutorials to
