@@ -3,6 +3,7 @@ title: "Get started with GRASS & Python in Jupyter Notebooks"
 author: "Veronica Andreo"
 date: 2024-03-25
 date-modified: today
+lightbox: true
 format:
   ipynb: default
   html:

@@ -4,6 +4,7 @@ author: "Caitlin Haedrich"
 date: 2024-06-15
 image: images/getting_started_grass_jupyternotebook.png
 date-modified: today
+lightbox: true
 format:
   html:
     toc: true

@@ -3,6 +3,7 @@ title: "Get started with GRASS GUI"
 author: "Veronica Andreo"
 date: 2024-03-19
 date-modified: today
+lightbox: true
 format: 
   html:
     toc: true
@@ -43,7 +44,7 @@ Just double click on the GRASS ![](images/grass-32x32.png) icon.
 You will get the GUI and terminal. You can use GRASS tools in either.
 It's a matter of taste, task on hand and habit, too.
 
-![GRASS Graphical User Interface and terminal](images/grass_gui_first_time_and_cli_combined.png){width=60%  fig-align="center" .lightbox}
+![GRASS Graphical User Interface and terminal](images/grass_gui_first_time_and_cli_combined.png){width=60%  fig-align="center"}
 
 GRASS GUI has a single window layout by default, but it is also possible to 
 minimize and/or dock/undock the panels. On the right, you can find the **data** 
@@ -59,7 +60,7 @@ simple **Python console** where you can use the GRASS Python API.
 ::: {.callout-note}
 See this example of the GRASS single window GUI with multiple map displays:
 
-![](images/grass_gui_multiple_map_displays.png){.preview-image width=50% .lightbox}
+![](images/grass_gui_multiple_map_displays.png){.preview-image width=50%}
 :::
 
 ## Step 3: Create a project
@@ -86,7 +87,7 @@ name, EPSG code or take it from your input data. Let's see a simple way to
 create a project in GRASS GUI. You can either click over "Create new project" 
 in the info bar or use ![](images/project-add.png) icon.
 
-![Create a new GRASS project](images/create_new_project_gui.png){width=75% .lightbox}
+![Create a new GRASS project](images/create_new_project_gui.png){width=75%}
 
 ## Step 4: Import your data
 
@@ -111,16 +112,16 @@ scenes that can be found
 Note that we can import all files within a directory if we specify the 
 extension of such files, `jp2` in this case.
 
-![](images/import_raster.png){width=50% .lightbox}
+![](images/import_raster.png){width=50%}
 
 In another example, we import a GeoPackage with different CRS. Data will be
 automatically reprojected.
 
-![](images/import_vector_with_reprojection.png){width=55% .lightbox}
+![](images/import_vector_with_reprojection.png){width=55%}
 
 Maps will be added to the layer tree and displayed automatically. 
 
-![](images/raster_and_vector_imported.png){width=75% .lightbox}
+![](images/raster_and_vector_imported.png){width=75%}
 
 ## Step 5: Set the computational region
 
@@ -139,7 +140,7 @@ smaller computational region allows you to test your algorithms and parameter
 values without the need to clip input maps, so once you are happy with the 
 result, you can run the process for the whole raster extent.  
 
-![](images/region.png){width=60% .lightbox}
+![](images/region.png){width=60%}
 
 The computational region can be changed interactively from the map display 
 by selecting a region with your mouse, or using the `g.region` tool both 
@@ -147,22 +148,22 @@ from the GUI and command line.
 
 * Interactive:
 
-![](images/set_region_interactively.png){width=65% .lightbox}
+![](images/set_region_interactively.png){width=65%}
 
 * Using `g.region` from the contextual menu after right click on a layer:
 
-![](images/grass_gui_set_region_contextual_menu.png){width=70% .lightbox}
+![](images/grass_gui_set_region_contextual_menu.png){width=70%}
 
 * Using `g.region` from the main menu in the GUI:
 
-![](images/set_region_gui.png){width=70% .lightbox}
+![](images/set_region_gui.png){width=70%}
 
 Note how commands are formed when you select options in the GUI. If you use 
 the <Copy> button, you can then paste these in a text file and set the basis 
 of your protocol, which can then be generalized into a script or even your own
 GRASS tool.
 
-![](images/region_set.png){width=60% .lightbox}
+![](images/region_set.png){width=60%}
 
 * From the console tab or in the terminal:
 
