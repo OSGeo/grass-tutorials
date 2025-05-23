@@ -4,6 +4,7 @@ author: "Veronica Andreo"
 date: 2024-07-23
 date-modified: today
 image: images/timeline_plot_lst_monthly_and_seasonal.png
+lightbox: true
 format:
   ipynb: default
   html:
@@ -89,7 +90,7 @@ all maps that are temporally within an aggregation interval.
 ::: {.callout-note title="Temporal topology"}
 **Temporal topology** refers to the temporal relations among time intervals or instances in different time series. They are mostly useful when sampling one STRDS with another (see [t.sample](https://grass.osgeo.org/grass-stable/manuals/t.sample.html) manual). Some examples of temporal relations are *start, equal, during, contain, overlap,* etc. See below a graphic representation of relations and sampling taken from Gebbert and Pebesma (2014). Note that A1 starts in S1, B3 is during S3, B4 equals S4, B1 overlaps S1.
 
-![](images/temporal_sampling_and_relations.png)
+![Temporal sampling and relations](images/temporal_sampling_and_relations.png){width=60%}
 :::
 
 ### Monthly and seasonal averages
