@@ -44,7 +44,7 @@ following packages for install (switching from "Skip" to the version number):
 * `python3-jupyterlab`
 * `python3-ipywidgets`
 
-![Install GRASS with OSGeo4W installer](images/osgeo4w_install_grass.png){width=60% .lightbox}
+![Install GRASS with OSGeo4W installer](images/osgeo4w_install_grass.png){.lightbox width=60%}
 
 #### 3. Go make a cup of tea
 
