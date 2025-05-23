@@ -125,12 +125,9 @@ You can either specify it in the YAML header (`thumbnail: image.webp`) or add `{
 
 ## External tutorials
 
-If you have your own website or blog where you regularly post your GRASS courses, workshops or tutorials, 
-you can have those listed as external tutorials. If your website is fully dedicated to GRASS tutorials, 
-then you can create a `.qmd` file within the `content/tutorials/external` folder. 
-
-If you want to have several external tutorials listed, you may want to create a `.yml` file
-within the `content/tutorials/external` folder. See an example below:
+If you want to have your GRASS external tutorials listed, you can create a `.yml` file
+within the `content/tutorials/external` folder with the tutorial(s) you want to include.
+See an example below:
 
 ``` yaml
 - title: Species distribution modeling using Maxent in GRASS GIS
@@ -149,8 +146,17 @@ within the `content/tutorials/external` folder. See an example below:
   categories: ['biogeography', 'MCDA', 'ecology', 'intermediate']
 ```
 
-In this latter case, you need to add the `.yml` file to `index.qmd` in the root directory.
-Note that in both cases, you need to also include an image that will be used as thumbnail. 
+Then, you need to add the path to your `.yml` file in the header of the
+`index.qmd` file in the root directory.
+
+``` yaml
+contents: 
+  - content/tutorials    
+  - content/tutorials/external/your_tutorials.yml
+```
+
+Do not forget to also include the image that will be used as thumbnail within
+`content/tutorials/external/images`. 
 
 ## Submitting your contribution
 
