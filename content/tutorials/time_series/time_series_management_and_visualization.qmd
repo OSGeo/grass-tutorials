@@ -11,8 +11,8 @@ format:
     code-tools: true
     code-copy: true
     code-fold: false
-categories: [time series, raster, basic, Python]
-description: Introductory tutorial to raster time series creation, management and visualization in GRASS.
+categories: [time series, raster, intermediate, Python]
+description: Introductory tutorial on raster time series creation, management and visualization in GRASS.
 engine: jupyter
 execute:
   eval: false
@@ -61,11 +61,11 @@ scheme. In this way, we have:
 
 ::: {.callout-note title="Setup"}
 To run this tutorial locally or in Google Colab, you should install
-GRASS GIS 8.4+, and download the 
-[daily MODIS LST project](https://zenodo.org/records/3564515).
-This project contains average daily MODIS LST data reconstructed by
-[mundialis GmbH & Co. KG](https://www.mundialis.de/en/) based on
-Metz et al (2017).
+GRASS 8.4+, and download the 
+[daily MODIS LST project](https://zenodo.org/doi/10.5281/zenodo.3564514).
+This project contains average daily MODIS LST (Land Surface Temperature)
+data reconstructed by [mundialis GmbH & Co. KG](https://www.mundialis.de/en/)
+based on Metz et al (2017).
 
 Follow the [Fast track to GRASS](../get_started/fast_track.qmd) and
 [GRASS in Colab](../get_started/grass_gis_in_google_colab.qmd) tutorials to
@@ -103,7 +103,7 @@ import grass.jupyter as gj
 Now we are ready to start a GRASS session in the downloaded project:
 
 ```{python}
-path_to_project = "eu_laea/italy_LST_daily"
+path_to_project = "italy_eu_laea/italy_LST_daily"
 
 # Start the GRASS Session
 session = gj.init(path_to_project)
