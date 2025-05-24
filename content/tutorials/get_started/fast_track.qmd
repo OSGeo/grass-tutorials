@@ -3,6 +3,7 @@ title: "Get started with GRASS GUI"
 author: "Veronica Andreo"
 date: 2024-03-19
 date-modified: today
+lightbox: true
 format: 
   html:
     toc: true
@@ -43,7 +44,7 @@ Just double click on the GRASS ![](images/grass-32x32.png) icon.
 You will get the GUI and terminal. You can use GRASS tools in either.
 It's a matter of taste, task on hand and habit, too.
 
-![GRASS Graphical User Interface and terminal](images/grass_gui_first_time_and_cli_combined.png){width=60%}
+![GRASS Graphical User Interface and terminal](images/grass_gui_first_time_and_cli_combined.png){width=60%  fig-align="center"}
 
 GRASS GUI has a single window layout by default, but it is also possible to 
 minimize and/or dock/undock the panels. On the right, you can find the **data** 

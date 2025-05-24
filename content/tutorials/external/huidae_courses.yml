@@ -1,0 +1,14 @@
+- title: Deforestation study using GRASS
+  path: https://workshop.isnew.info/grass-deforestation/
+  author: Huidae Cho
+  image: content/tutorials/external/images/deforestation_tutorial.png
+  date: "2022-03-25"
+  description: Estimate the forest change rate and learn some GRASS basic concepts.
+  categories: ['bash', 'Python', 'beginner']
+- title: Physically-based hydrologic modeling using GRASS r.topmodel
+  path: https://workshop.isnew.info/nsf-pose-2025-r.topmodel/
+  author: Huidae Cho
+  image: content/tutorials/external/images/subwatersheds-streams-watershed.png
+  date: "2025-01-31"
+  description: Workshop introducing the r.topmodel tool for hydrologic modeling.
+  categories: ['bash', 'R', 'intermediate', 'hydrology']

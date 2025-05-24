@@ -123,6 +123,41 @@ You can either specify it in the YAML header (`thumbnail: image.webp`) or add `{
 ![Slope map](slope.webp){.preview-image}
 ```
 
+## External tutorials
+
+If you want to have your GRASS external tutorials listed, you can create a `.yml` file
+within the `content/tutorials/external` folder with the tutorial(s) you want to include.
+See an example below:
+
+``` yaml
+- title: Species distribution modeling using Maxent in GRASS GIS
+  path: https://ecodiv.earth/TutorialsNotes/sdmingrassgis/
+  author: Paulo van Breugel
+  image: content/tutorials/external/images/sdm_in_grass_tutorialbanner.png
+  date: "2025-02-12"
+  description: Species distribution models to predict the current and future distribution of the Almond-eyed Ringlet.
+  categories: ['biogeography', 'ecology', 'intermediate', 'advanced']
+- title: Density distribution map of white-tailed deer
+  path: https://ecodiv.earth/TutorialsNotes/deerdensities/index.html
+  author: Paulo van Breugel
+  image: content/tutorials/external/images/deer-density-tile.png
+  date: "2025-01-10"
+  description: Habitat suitability map for the white-tailed deer using spatial multicriteria analysis and spatial disaggregation in GRASS.
+  categories: ['biogeography', 'MCDA', 'ecology', 'intermediate']
+```
+
+Then, you need to add the path to your `.yml` file in the header of the
+`index.qmd` file in the root directory.
+
+``` yaml
+contents: 
+  - content/tutorials    
+  - content/tutorials/external/your_tutorials.yml
+```
+
+Do not forget to also include the image that will be used as thumbnail within
+`content/tutorials/external/images`. 
+
 ## Submitting your contribution
 
 Check your markdown with a [linter](https://dlaa.me/markdownlint/) and fix as many issues as you can. This will help keeping the tutorials consistent.

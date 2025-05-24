@@ -1,0 +1,29 @@
+---
+title: "GRASS for Remote Sensing data processing with Jupyter Notebooks"
+date: 2024-12-02
+author: Veronica Andreo
+format: 
+  html:
+    toc: true
+    code-tools: true
+    code-copy: true
+    code-fold: false
+categories: [advanced, Python, Google Colab, remote sensing, external]
+description: Workshop taught at FOSS4G 2022 and 2024 demonstrating the use of GRASS tools for Remote Sensing data processing analysis in Jupyter notebooks within Google Colab.
+execute: 
+  eval: false
+---
+
+The workshop showcases GRASS tools for satellite imagery processing and analysis,
+covering workflows from data acquisition to supervised classification and visualization. 
+It is all contained in a Jupyter Notebook using GRASS Python interface and can be run
+in Google Colab, so no local software installation is required.
+
+<https://github.com/veroandreo/foss4g2024_grass4rs>
+
+Special acknowledgements to Markus Neteler and Maris Nartiss who were part of an earlier
+edition of this workshop and also prepared the Sentinel-2 dataset 🙌
+
+![](images/EOandGRASSGIS.png){.preview-image width=40% fig-align="center"}
+
+

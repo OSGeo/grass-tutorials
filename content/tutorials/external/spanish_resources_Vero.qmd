@@ -1,7 +1,7 @@
 ---
 title: "Teledetección, OBIA y series de tiempo"
 lang: es
-date: 01/01/2021
+date: 2023-09-15
 author: Verónica Andreo
 format: 
   html:
@@ -9,7 +9,7 @@ format:
     code-tools: true
     code-copy: true
     code-fold: false
-categories: [beginner, intermediate, external, Spanish]
+categories: [beginner, intermediate, external, remote sensing, time series, Spanish]
 description: Curso de postgrado sobre procesamiento y análisis de datos satelitales y series temporales con GRASS.
 execute: 
   eval: false
