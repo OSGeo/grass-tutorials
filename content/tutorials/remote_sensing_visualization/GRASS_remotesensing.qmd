@@ -1,8 +1,10 @@
 ---
-title: "Introduction to Remote Sensing With GRASS"
+title: "Introduction to Remote Sensing with GRASS"
 author: "Michael Barton"
 date: 2025-05-21
 date-modified: today
+image: img_remotesensing/thumbnail.webp
+lightbox: true
 format: 
   html:
     embed-resources: true
@@ -13,7 +15,6 @@ format:
 page-layout: article
 categories: [intermediate user, advanced user, GUI, imagery, remote sensing, visualization]
 description: Analysis and visualization of multi-band satellite imagery using image fusion, environmental indexes, and dimensionality reduction with principle components analysis.
-image: img_remotesensing/thumbnail.webp
 execute: 
   eval: false
 copyright: 
@@ -35,14 +36,14 @@ We will start with a quick overview of multi-band satellite imagery.
 :::
 
 ::: g-col-8
-![LandSat 8 OLI image of the Flagstaff, AZ region. RGB image fusion of bands 3, 4, & 5](img_remotesensing/remotesensing_0.webp)
+![Landsat 8 OLI image of the Flagstaff, AZ region. RGB image fusion of bands 3, 4, & 5](img_remotesensing/remotesensing_0.webp)
 :::
 :::::
 
 ::: {.callout-note title="Dataset"}
 This tutorial uses one of the standard GRASS sample data sets for Flagstaff, Arizona, USA: ***flagstaff_arizona_usa***. We will refer to place names in that data set, but it can be completed with any of the [standard sample data sets](https://grass.osgeo.org/download/data/) for any region--for example, the [North Carolina data set](https://grass.osgeo.org/sampledata/north_carolina/nc_spm_08_grass7.zip).
 
-We will use a set of images from the **LandSat 8 satellite** and the *elevation* DEM raster map. However, this tutorial can also be used with other multi-band imagery, such as Sentinel or Terra/ASTER. With other satellite imagery than LandSat 8, the band numbers may differ from those described in this tutorial.
+We will use a set of images from the **Landsat 8 satellite** and the *elevation* DEM raster map. However, this tutorial can also be used with other multi-band imagery, such as Sentinel or Terra/ASTER. With other satellite imagery than Landsat 8, the band numbers may differ from those described in this tutorial.
 :::
 
 ::: {.callout-note title="GRASS environment"}
@@ -56,6 +57,9 @@ If you are not sure how to get started with GRASS using its graphical user inter
 # Remote sensing basics
 
 ## Many Forms of Remote Sensing
+
+There are many forms of remote sensing. This tutorial will focus on
+space-based remote sensing platforms.
 
 :::::: grid
 ::: g-col-4
@@ -71,7 +75,6 @@ If you are not sure how to get started with GRASS using its graphical user inter
 :::
 ::::::
 
-This tutorial will use space-based remote sensing platforms.
 
 ## Space-based platforms
 
@@ -96,22 +99,14 @@ This tutorial will use space-based remote sensing platforms.
 
 # Visualization of multi-band remote sensing imagery in GRASS
 
-::::: grid
-::: g-col-4
+GRASS has many tools for combining and analyzing single and multi-band imagery. In this tutorial, we will explore a few of these analytical tools using images of the Flagstaff region from the **Landsat 8** satellite.
 
-GRASS has many tools for combining and analyzing single and multi-band imagery. In this tutorial, we will explore a few of these analytical tools using images of the Flagstaff region from the **LandSat 8** satellite.
-:::
+![*Landsat 8 image by Robert Simmon, USGS and NASA 2013*](img_remotesensing/remotesensing_6.webp){width="80%"}
 
-::: g-col-8
-![*LandSat 8 image by Robert Simmon, USGS and NASA 2013*](img_remotesensing/remotesensing_6.webp)
-
-![EM reaching Earth’s surface and LandSat sensor bands. *Image by L. Rocchio and J. Barsi, NASA*](img_remotesensing/remotesensing_7.webp)
-:::
-:::::
 
 ## Landsat bands to analyze
 
-The following LandSat 8 bands are provided with the Flagstaff data set:
+The following Landsat 8 bands are provided with the Flagstaff data set:
 
 -   *landsat8_2024_B1* : high frequency visible blue for cirrus clouds\
 -   *landsat8_2024_B2* : visible blue\
@@ -121,7 +116,7 @@ The following LandSat 8 bands are provided with the Flagstaff data set:
 -   *landsat8_2024_B6* : mid infrared (higher freq)\
 -   *landsat8_2024_B7* : mid infrared (lower freq)
 
-In this tutorial, we will use LandSat 8 bands 2-7
+In this tutorial, we will use Landsat 8 bands 2-7.
 
 ## Visualize individual Landsat bands
 
@@ -144,22 +139,16 @@ In this tutorial, we will use LandSat 8 bands 2-7
 
 ## Histogram equalization
 
-::::: grid
-::: g-col-6
 
--   The range of grey shades can be remapped across the cell values, so that they fully span a black to white continuum.
+The range of grey shades can be remapped across the cell values, so that they fully span a black to white continuum.
+This can be done in [r.colors](https://grass.osgeo.org/grass-stable/manuals/r.colors.html) by “equalizing” the color histogram of the cells.
 
--   This can be done in [r.colors](https://grass.osgeo.org/grass-stable/manuals/r.colors.html) by “equalizing” the color histogram of the cells.
-:::
+![Distribution of pixel values after histogram equalization](img_remotesensing/landsat_b5eq_histogram.webp){width="70%"}
 
-::: g-col-6
-![Distribution of pixel values after histogram equalization](img_remotesensing/landsat_b5eq_histogram.webp)
-:::
-:::::
 
-## Histogram equalization in GRASS
+### Histogram equalization in GRASS
 
-Using [r.colors](https://grass.osgeo.org/grass-stable/manuals/r.colors.html) for histogram equalization will enhance the visibility of the image but will not change its cell values
+Using [r.colors](https://grass.osgeo.org/grass-stable/manuals/r.colors.html) for histogram equalization will enhance the visibility of the image but will not change its cell values.
 
 ::::::::: {.panel-tabset group="language"}
 
@@ -170,7 +159,7 @@ Using [r.colors](https://grass.osgeo.org/grass-stable/manuals/r.colors.html) for
 
 1.  Select *r.colors* from the **Raster/Manage colors** menu
 
-2.  Enter a LandSat image in the **Name of the raster map(s)** text box
+2.  Enter a Landsat image in the **Name of the raster map(s)** text box
 :::
 
 ::: g-col-6
@@ -186,7 +175,7 @@ Using [r.colors](https://grass.osgeo.org/grass-stable/manuals/r.colors.html) for
 
 5.  Press **Run**
 
-6.  Do the same for each of the LandSat bands.
+6.  Do the same for each of the Landsat bands.
 :::
 
 ::: g-col-6
@@ -237,7 +226,7 @@ gs.run_command("r.colors",
 
 :::::::::
 
-All examples described in the rest of this tutorial are done with histogram stretched images
+All examples described in the rest of this tutorial are done with histogram stretched images.
 
 ::: {.callout-note title="Tip"}
 Histogram each image **separately** instead of doing all of them together as a group because each image has a different distribution of pixel/cell values to stretch.
@@ -245,21 +234,18 @@ Histogram each image **separately** instead of doing all of them together as a g
 
 ------------------------------------------------------------------------
 
-![Landsat band 5 after histogram equalization](img_remotesensing/remotesensing_13.webp)
+![Landsat band 5 after histogram equalization](img_remotesensing/remotesensing_13.webp){width="60%"}
 
 # Image fusion
 
-## Color image fusion of LandSat bands
+## Color image fusion of Landsat bands
 
--   Each LandSat image has cell values representing the reflectance intensity in a particular range of EM frequencies (i.e., multiple image bands). When visualized as a raster, a single LandSat band appears as variable, single color (e.g., grey-scale) map.
+Each Landsat image has cell values representing the reflectance intensity in a particular range of EM frequencies (i.e., multiple image bands). When visualized as a raster, a single Landsat band appears as variable, single color (e.g., grey-scale) map.
 
--   **Image fusion** refers ways of combining multiple bands in order to visualize them as a full color image.
+**Image fusion** refers ways of combining multiple bands in order to visualize them as a full color image. Most simply, this involves defining 3 image bands as the red, green, and blue channels of a **multicolor RGB image.**.
+The resulting color visualization displays areas with similar combinations of reflectance across the 3 selected bands (e.g., vegetation, water, or highways) as having the same color and differing from areas with different combinations of reflectance.
 
--   Most simply, this involves defining 3 image bands as the red, green, and blue channels of a **multicolor RGB image.**.
-
--   The resulting color visualization displays areas with similar combinations of reflectance across the 3 selected bands (e.g., vegetation, water, or highways) as having the same color and differing from areas with different combinations of reflectance.
-
--   This can be easily done in GRASS using the *d.rgb* tool in the layer manager.
+This can be easily done in GRASS using the [d.rgb](https://grass.osgeo.org/grass-stable/manuals/d.rgb.html) tool in the layer manager.
 
 ## Image fusion in the layer manager {#image-fusion-layermgr}
 
@@ -276,7 +262,7 @@ Histogram each image **separately** instead of doing all of them together as a g
 
 ::::: grid
 ::: g-col-6
-2.  Select LandSat bands to define as the red, green, and blue channels of a multicolor image.
+2.  Select Landsat bands to define as the red, green, and blue channels of a multicolor image.
 
 3.  For a "natural color" image fusion, try:
 
@@ -292,7 +278,7 @@ Histogram each image **separately** instead of doing all of them together as a g
 :::
 :::::
 
-![Natural color image from fusion of LandSat bands 4, 3, & 2](img_remotesensing/remotesensing_20.webp)
+![Natural color image from fusion of Landsat bands 4, 3, & 2](img_remotesensing/remotesensing_20.webp){width="60%"}
 
 ## Image fusion: other band combinations
 
@@ -322,33 +308,31 @@ Try some other combinations to highlight different features.
 
 # Environmental indices
 
-## Environmental information from mathatical combinations of remote sensing bands
+## Environmental information from mathematical combinations of remote sensing bands
 
--   Because different materials—including different vegetation, soils, and water—reflect, absorb, and emit EM in different frequencies, many kinds of environmental information can be derived with different band combinations.
+Because different materials—including different vegetation, soils, and water—reflect, absorb, and emit EM in different frequencies, many kinds of environmental information can be derived with different band combinations.
 
--   GRASS can generate a large number of environmental indices with its extensive suite of imagery tools (See the **Imagery** menu), as well as with the raster *map calculator*.
+GRASS can generate a large number of environmental indices with its extensive suite of imagery tools (See the **Imagery** menu), as well as with the raster *map calculator*. Additional remote sensing image product tools are available as GRASS addon extensions.
 
--   Additional remote sensing image product tools are available as GRASS addon extensions.
-
--   A commonly used environmental index is **NDVI** : the normalized difference vegetation index. NDVI is an index of plant growth and health. is computed from bands sensing near infrared EM (NIR) and visible red light EM.
+A commonly used environmental index is **NDVI** : the normalized difference vegetation index. NDVI is an index of plant growth and health. It is computed from bands sensing near infrared (NIR) and visible red light.
 
 $$
 NDVI = \frac{NIR - red}{NIR + red}
 $$
 
--   While you could create a map of NDVI using the *map calculator*, it can also be generated automatically from the GRASS [i.vi](https://grass.osgeo.org/grass-stable/manuals/i.vi.html) module, along with many other vegetation indexes.
+While you could create a map of NDVI using the *map calculator*, it can also be generated automatically from the GRASS [i.vi](https://grass.osgeo.org/grass-stable/manuals/i.vi.html) module, along with many other vegetation indexes.
 
 ::: {.callout-note title="Tip"}
 When generating any new map, like NDVI, remember to first make sure that the **region** is set to match the LandSat images
 :::
 
-## NDVI example: normalized difference vegetation index
+### NDVI example: normalized difference vegetation index
 
 ::::::::: {.panel-tabset group="language"}
 
 #### GUI
 
-### Set the region to match the LandSat images**
+##### Set the region to match the Landsat images**
 
 1.  Add one of the LandSat images raster to the **Layer Manager**.
 
@@ -359,7 +343,7 @@ When generating any new map, like NDVI, remember to first make sure that the **r
 ::::: grid
 ::: g-col-6
 
-### Compute NDVI raster
+##### Compute NDVI raster
 
 1.  Select the [i.vi](https://grass.osgeo.org/grass-stable/manuals/i.vi.html) tool from **Imagery/Satellite image products/vegetation indices** menu.
 
@@ -387,7 +371,7 @@ When generating any new map, like NDVI, remember to first make sure that the **r
 
 #### Command line
 
-1.  Set the region to match the LandSat images
+1.  Set the region to match the Landsat images
 
 2.  Use the [i.vi](https://grass.osgeo.org/grass-stable/manuals/i.vi.html) tool to create a map of NDVI values.
 
@@ -399,7 +383,7 @@ i.vi output=Flagstaff_NDVI viname=ndvi red=landsat8_2024_B4 nir=landsat8_2024_B5
 
 #### Python
 
-1.  Set the region to match the LandSat images
+1.  Set the region to match the Landsat images
 
 2.  Use the [i.vi](https://grass.osgeo.org/grass-stable/manuals/i.vi.html) tool to create a map of NDVI values.
 
@@ -416,15 +400,13 @@ gs.run_command("i.vi",
 
 :::::::::
 
-![NDVI map shading a relief map of DEM topography](img_remotesensing/remotesensing_25.webp)
+![NDVI map shading a relief map of DEM topography](img_remotesensing/remotesensing_25.webp){width="60%"}
 
 # Combining information from many imagery bands
 
--   We can visualize 3 bands at a time with RGB color image. But how can we use information from all 6 LandSat bands at the same time?
+We can visualize 3 bands at a time with RGB color image. But how can we use information from all 6 Landsat bands at the same time? This requires using multivariate statistics for “dimensionality reduction”. GRASS has multiple analytical tools for dimensionality reduction.
 
--   This requires using multivariate statistics for “dimensionality reduction”. GRASS has multiple analytical tools for dimensionality reduction.
-
--   Here, we will explore **principle components analysis** (PCA). PCA mathematically combines the original variables (the LandSat bands) to create new “component” variables that capture majority of variation in original LandSat bands.
+Here, we will explore **principal components analysis** (PCA). PCA mathematically combines the original variables (the Landsat bands) to create new “component” variables that capture majority of variation in original Landsat bands.
 
 ## PCA of multiband images with GRASS
 
@@ -437,13 +419,13 @@ gs.run_command("i.vi",
 
 1.  Open the principal components analysis (PCA) module, *i.pca*, found under the **Imagery/Transform images** menu.
 
-2.  Enter **names of images for LandSat bands 2-7**
+2.  Enter **names of images for Landsat bands 2-7**
 
 3.  Provide an **output base name**. A number, representing the computed PCA component maps will be appended to this output base name.
 
-4.  There are other options but the defaults OK for now.
+4.  There are other options but the default is OK for now.
 
-5.  Press run
+5.  Press run.
 :::
 
 ::: g-col-6
@@ -461,7 +443,7 @@ i.pca input=landsat8_2024_B2,landsat8_2024_B3,landsat8_2024_B4, landsat8_2024_B5
 
 #### Python
 
-1.  Create a friction map with a value of 0 in all cells that matches the extent and resolution of the elevation map
+1.  Perform a PCA and output the results to the console/terminal and as PCA component maps
 
 ```{python}
 gs.run_command("i.pca", 
@@ -471,24 +453,25 @@ gs.run_command("i.pca",
 
 ::::::
 
-## Working with PCA results
+### Working with PCA results
 
-Statistical details of PCA output appear in the console or terminal.
+Statistical details of PCA output appear in the console or terminal as shown below. Each line of the output represents a PCA component. 
 
-[**Eigen values (vectors) \[% importance\]**]{style="color:#38761d"}
+The list of values in parentheses is the *eigenvector* of each PCA component, with the 6 values indicating the contribution of each of Landsat images 2-7 to the component. Larger positive or negative numbers indicate greater contributions of a band to the component. For example, Landsat band 4 has the largest contribution to PCA component 1, while band 6 has the largest contribution to component 2.
 
-> [PC1 14640530.56 ( 0.4461, 0.4915, 0.5480, 0.4167, 0.1994, 0.2136) \[58.03%\]]{style="color:#38761d"}\
-> [PC2 8850161.06 ( 0.2240, 0.1951, 0.1050, 0.0543,-0.7001,-0.6385) \[35.08%\]]{style="color:#38761d"}\
-> [PC3 1502032.84 ( 0.2335, 0.1528, 0.2947,-0.8794,-0.1102, 0.2231) \[ 5.95%\]]{style="color:#38761d"}\
-> [PC4 108422.28 ( 0.4370,-0.8041, 0.3529, 0.0416, 0.1120,-0.1536) \[ 0.43%\]]{style="color:#38761d"}\
-> [PC5 94291.01 ( 0.4417, 0.2122,-0.4285,-0.1814, 0.5597,-0.4797) \[ 0.37%\]]{style="color:#38761d"}\
-> [PC6 34241.78 ( 0.5570,-0.0735,-0.5418, 0.1242,-0.3636, 0.4931) \[ 0.14%\]]{style="color:#38761d"}
+The percentage in brackets represent the amount of variation in the original Landsat bands 2-7 are captured by that PCA component. For example, PCA component 1 captures 58% of the variation in the original 6 bands and PCA component 2 captures 35% of the variation.
 
--   Each line of the output represents a PCA component.
+```
+Eigen values (vectors) [% importance]
 
--   The list of values in parentheses is the *eigenvector* of each PCA component, with the 6 values indicating the contribution of each of LandSat images 2-7 to the component. Larger positive or negative numbers indicate greater contributions of a band to the component. For example, LandSat band 4 has the largest contribution to PCA component 1, while band 6 has the largest contribution to component 2.
+PC1 14640530.56 ( 0.4461, 0.4915, 0.5480, 0.4167, 0.1994, 0.2136) [58.03%]
+PC2 8850161.06 ( 0.2240, 0.1951, 0.1050, 0.0543,-0.7001,-0.6385) [35.08%]
+PC3 1502032.84 ( 0.2335, 0.1528, 0.2947,-0.8794,-0.1102, 0.2231) [ 5.95%]
+PC4 108422.28 ( 0.4370,-0.8041, 0.3529, 0.0416, 0.1120,-0.1536) [ 0.43%]
+PC5 94291.01 ( 0.4417, 0.2122,-0.4285,-0.1814, 0.5597,-0.4797) [ 0.37%]
+PC6 34241.78 ( 0.5570,-0.0735,-0.5418, 0.1242,-0.3636, 0.4931) [ 0.14%]
+```
 
--   The percentage in brackets represent the amount of variation in the original LandSat bands 2-7 are captured by that PCA component. For example, PCA component 1 captures 58% of the variation in the original 6 bands and PCA component 2 captures 35% of the variation.
 
 ::::: grid
 ::: g-col-6
@@ -500,41 +483,37 @@ Statistical details of PCA output appear in the console or terminal.
 :::
 :::::
 
-## Visualizing PCA results
+### Visualizing PCA results
 
 ::::: grid
 ::: g-col-6
 
--   To better see spatial variation in a PCA component image, you can assign a different color table from the standard grey-scale.
+To better see spatial variation in a PCA component image, you can assign a different color table from the standard grey-scale. This is often called a "**false color image**".
 
--   This is often called a "**false color image**".
+Here is PCA component 1 colored with a **bcyr** (blue-cyan-yellow-red) color table with **histogram equalization** checked.
 
--   Here is PCA component 1 colored with a **bcyr** (blue-cyan-yellow-red) color table with **histogram equalization** checked.
+Follow the instructions given above for histogram equalization, but pick `bcyr` instead of grey for the color table.
 
--   Follow the instructions given above for histogram equalization, but pick bcyr instead of grey for the color table.
-
--   Note how areas of different vegetation, soil, and water stand out more clearly than with grey-scale. Try other color tables.
+Note how areas of different vegetation, soil, and water stand out more clearly than with grey-scale. Try other color tables.
 :::
 
 ::: g-col-6
-![False color image of PCA component 1 of LandSat 8 bands 2-7](img_remotesensing/remotesensing_27.webp)
+![False color image of PCA component 1 of LandSat 8 bands 2-7](img_remotesensing/remotesensing_27.webp){width="80%"}
 :::
 :::::
 
-## Image fusion with PCA results
+### Image fusion with PCA results
 
 ::::: grid
 ::: g-col-6
 
--   The image fusion methods described above for multiple LandSat bands can also be used for PCA results.
+The image fusion methods described above for multiple Landsat bands can also be used for PCA results.
 
--   The PCA text output shown above indicates that the first 3 PCA components capture 97% of the variation in the original 6 LandSat bands 2-7.
+The PCA text output shown above indicates that the first 3 PCA components capture 97% of the variation in the original 6 Landsat bands 2-7. This means that we can visualize nearly all of the information in the original 6 Landsat bands by creating an RGB color image of PCA components 1, 2, and 3 using *d.rgb* in the layer manager.
 
--   This means that we can visualize nearly all of the information in the original 6 LandSat bands by creating an RGB color image of PCA components 1, 2, and 3 using *d.rgb* in the layer manager.
+Follow the procedures described in the [Image fusion in the layer manager section](#image-fusion-layermgr) using PCA components 1-3.
 
--   Follow the procedures described in the [Image fusion in the layer manager section](#image-fusion-layermgr) using PCA components 1-3.
-
--   Areas of different vegetation, water, urban construction, and other human landscape modification stand out in distinctive colors
+Areas of different vegetation, water, urban construction, and other human landscape modification stand out in distinctive colors
 :::
 
 ::: g-col-6
@@ -542,57 +521,34 @@ Statistical details of PCA output appear in the console or terminal.
 :::
 :::::
 
-------------------------------------------------------------------------
+Sometimes less important PCA components can also be informative even though they capture a small percentage of the overall variation in the Landsat bands.
 
-::::: grid
-::: g-col-6
+Try RGB image fusion with PCA components 4, 5, and 6. How does this image differ from one using PCA components 1, 2, and 3?
 
--   Sometimes less important PCA components can also be informative even though they capture a small percentage of the overall variation in the LandSat bands.
-
--   Try RGB image fusion with PCA components 4, 5, and 6
-
--   How does this image differ from one using PCA components 1, 2, and 3?
-:::
-
-::: g-col-6
-![Image fusion of PCA components 4, 5, & 6](img_remotesensing/PCA456.webp)
-:::
-:::::
+![Image fusion of PCA components 4, 5, & 6](img_remotesensing/PCA456.webp){width="50%"}
 
 ## Combining remote sensing images with other GIS data
 
-::::: grid
-::: g-col-6
+In GRASS, remote sensing images are simply rasters, like DEM elevation maps or land use maps. That means that we can combine remote sensing imagery with any other kind of map available in your GIS database.
 
--   In GRASS, remote sensing images are simply rasters, like DEM elevation maps or land use maps.
+For example, the a vector map of streams and lakes can be overlaid in the Layer Manager onto the image fusion of PCA components 1-3 created above.
 
--   That means that we can combine remote sensing imagery with any other kind of map available in your GIS database.
+![Image fusion of PCA components 1, 2, & 3 overlayed by streams and lakes vectors](img_remotesensing/PCA123_streams_lakes.webp){width="50%"}
 
--   For example, the a vector map of streams and lakes can be overlaid in the Layer Manger onto the image fusion of PCA components 1-3 created above.
-:::
-
-::: g-col-6
-![Image fusion of PCA components 1, 2, & 3 overlayed by streams and lakes vectors](img_remotesensing/PCA123_streams_lakes.webp)
-:::
-:::::
 
 # 3D visualization of remote sensing and GIS
 
-## Overview
+Image fusion can also be used to add color to topography in multiple ways. This makes it possible to visualize information from satellite imagery, or derivative products like PCA components, together with topographic relief.
 
--   Image fusion can also be used to add color to topography in multiple ways with GRASS. This makes it possible to visualize information from satellite imagery, or derivative products like PCA components, together with topographic relief.
+Image fusion with PCA components of Landsat images combined with relief from a DEM makes it possible to represent information across 6 bands in the EM spectrum, elevation, slope, and aspect in a single 9-dimensional visualization.
 
--   Image fusion with PCA components of LandSat images combined with relief from a DEM makes it possible to represent information across 6 bands across the EM spectrum, elevation, slope, and aspect in a single 9-dimensional visualization.
+Such complex visualizations can be done easily in GRASS by creating a new color shaded relief map, in the layer manager, or in GRASS's N-dimensional visualization environment, NVIZ. This requires only a few steps.
 
--   Such complex visualizations can be done easily in GRASS by creating a new color shaded relief map, in the layer manager, or in GRASS's N-dimensional visualization environment, NVIZ. This requires only a few steps.
+  1.  Create a relief map of topography from a DEM.
 
-    1.  Create a relief map of topography from a DEM.
+  2.  Combine satellite bands or PCA components into a new RGB color map.
 
-    2.  Combine satellite bands or PCA components into a new RGB color map.
-
-    3.  Use the RGB color map to shade the relief map in a new color shaded relief map, in the Layer Manager, or in NVIZ.
-
--   These procedures are detailed below.
+  3.  Use the RGB color map to shade the relief map in a new color shaded relief map, in the Layer Manager, or in NVIZ.
 
 ## Generating a topographic relief map
 
@@ -631,8 +587,6 @@ r.relief input=elevation output=elevation_relief zscale=3
 
 #### Python
 
-Use the v.extract tool to create a vector point map named *FMC* from the *hospitals* map.
-
 ```{python}
 gs.run_command("r.relief", 
                 input="elevation", 
@@ -644,7 +598,7 @@ gs.run_command("r.relief",
 
 ### Generating an RGB color map from image fusion
 
-Use the [r.composite](https://grass.osgeo.org/grass-stable/manuals/r.composite.html) tool from the **Raster/Manage colors/Create RGB** menu to create a new RGB map from the fusion of 3 PCA component maps
+Use the [r.composite](https://grass.osgeo.org/grass-stable/manuals/r.composite.html) tool from the **Raster/Manage colors/Create RGB** menu to create a new RGB map from the fusion of 3 PCA component maps.
 
 :::::: {.panel-tabset group="language"}
 
@@ -675,8 +629,6 @@ r.composite red=Flagstaff_landsat8.1 green=Flagstaff_landsat8.2 blue=Flagstaff_l
 
 #### Python
 
-Use the v.extract tool to create a vector point map named *FMC* from the *hospitals* map.
-
 ```{python}
 gs.run_command("r.composite", 
                 red="Flagstaff_landsat8.1", 
@@ -689,7 +641,7 @@ gs.run_command("r.composite",
 
 ## Combining relief and a color image fusion map
 
-A topographic relief map and an RGB image fusion map can be combined with the [d.shade tool](https://grass.osgeo.org/grass-stable/manuals/d.shade.html) in the layer manager or by using the [r.shade](https://grass.osgeo.org/grass-stable/manuals/r.shade.html) tool from the **/Raster/Terrain analysis/Apply shade to raster** menu.
+A topographic relief map and an RGB image fusion map can be combined with the [d.shade](https://grass.osgeo.org/grass-stable/manuals/d.shade.html)  tool in the layer manager or by using the [r.shade](https://grass.osgeo.org/grass-stable/manuals/r.shade.html) tool from the **/Raster/Terrain analysis/Apply shade to raster** menu.
 
 :::::: {.panel-tabset group="language"}
 
@@ -722,8 +674,6 @@ r.shade shade=elevation_relief color=Flagstaff_landsat8PCA_123_RGB output=PCA_re
 
 #### Python
 
-Use the v.extract tool to create a vector point map named *FMC* from the *hospitals* map.
-
 ```{python}
 gs.run_command("r.shade", 
                 shade="elevation_relief", 
@@ -734,27 +684,22 @@ gs.run_command("r.shade",
 
 ::::::
 
-![relief map of topography shaded by RGB fusion of PCA components 1-3](img_remotesensing/PCA123_relief.webp)
+![Relief map of topography shaded by RGB fusion of PCA components 1-3](img_remotesensing/PCA123_relief.webp){width="60%"}
 
 ### Visualizing image fusion and topography in NVIZ
 
--   Additionally, the PCA image fusion can be used to color a 3D visualization of topography in GRASS's **3D view** using the *NVIZ* module.
+Additionally, the PCA image fusion can be used to color a 3D visualization of topography in GRASS's **3D view** using the *NVIZ* module.
 
--   Start by opening the **elevation DEM** in the layer manager. Make sure that no other maps except elevation are displayed.
+- Start by opening the **elevation DEM** in the layer manager. Make sure that no other maps except elevation are displayed. 
+- Select **3D view** from the pull-down menu at the top of the map display window. This should display the elevation map in 3D with the same shading seen in the 2D display.
 
--   Select **3D view** from the pull-down menu at the top of the map display window.
+![DEM topography displayed in 3D](img_remotesensing/NVIZ_elevation.webp){width="80%"}
 
--   This should display the elevation map in 3D with the same shading seen in the 2D display.
+- Next, select the **data** tab in the 3D display manager window (It might be easier to manage the 3D display if you 'tear' it off from the side bar into a separate window). Make sure the elevation map is selected in the **Raster map** box at the top of the data window.
 
-![DEM topography displayed in 3D](img_remotesensing/NVIZ_elevation.webp)
+- Scroll down a bit to the **Color** section and replace the elevation map with the RGB raster map of the PCA 1-3 image fusion (*Flagstaff_landsat8PCA_123_RGB*).
 
--   Next, select the **data** tab in the 3D display manager window (It might be easier to manage the 3D display if you 'tear' it off from the side bar into a separate window).
-
--   Make sure the elevation map is selected in the **Raster map** box at the top of the data window.
-
--   Scroll down a bit to the **Color** section and replace the elevation map with the RGB raster map of the PCA 1-3 image fusion (*Flagstaff_landsat8PCA_123_RGB*).
-
-![DEM topography colored by PCA components 1-3 displayed in 3D](img_remotesensing/NVIZ_elevation_PCA123.webp)
+![DEM topography colored by PCA components 1-3 displayed in 3D](img_remotesensing/NVIZ_elevation_PCA123.webp){width="80%"}
 
 # Advanced remote sensing with GRASS
 
@@ -768,11 +713,11 @@ GRASS has many more features and tools for working with remote sensing data.
 
     -   Machine learning algorithms for [unsurpervised and supervised image classification](https://grass.osgeo.org/grass-stable/manuals/imageryintro.html#image-classification) and [feature detection](https://grass.osgeo.org/grass-stable/manuals/addons/r.learn.ml2.html)
 
-    -   [Statistical analysis](https://grass.osgeo.org/grass-stable/manuals/rasterintro.html#raster-map-statistics) and visualization demonstrated in this tutorial.
+    -   [Statistical analysis](https://grass.osgeo.org/grass-stable/manuals/rasterintro.html#raster-map-statistics) and visualization as demonstrated in this tutorial.
 
--   Satellite **time series** can be transformed into **time cubes** for analysis with GRASS's unique [Temporal GIS](https://grass.osgeo.org/grass-stable/manuals/temporalintro.html) tools
+-   Satellite **time series** can be transformed into **time cubes** for analysis with GRASS's unique [Temporal GIS](https://grass.osgeo.org/grass-stable/manuals/temporalintro.html) tools.
 
--   For **aerial photography**, there are Imagery tools for
+-   For **aerial photography**, there are tools for
 
     -   [Georectification](https://grass.osgeo.org/grass-stable/manuals/imageryintro.html#geocoding-of-imagery-data)
 
@@ -782,7 +727,7 @@ GRASS has many more features and tools for working with remote sensing data.
 
 -   GRASS has an extensive suite of raster and vector tools for processing and visualizing [LiDAR data](https://grass.osgeo.org/grass-stable/manuals/vectorintro.html#lidar-data-processing), as well raster and vector import and processing of LiDAR data. 
 
--   There are multiple methods for [interpolation](https://grass.osgeo.org/grass-stable/manuals/rasterintro.html#raster-map-operations) of data points from **geophysical survey**.
+-   There are multiple methods for [interpolation](https://grass.osgeo.org/grass-stable/manuals/rasterintro.html#raster-map-operations) of data points from **geophysical surveys**.
 
 -   For **3D geophysics** (e.g., electrical tomography or ground penetrating radar), GRASS offers a unique suite of true [3D voxel analysis tools](https://grass.osgeo.org/grass-stable/manuals/raster3dintro.html) with n-dimensional visualization in [NVIZ](https://grass.osgeo.org/grass-stable/manuals/wxGUI.nviz.html).
 
