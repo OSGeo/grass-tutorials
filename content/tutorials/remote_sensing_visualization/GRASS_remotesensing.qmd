@@ -13,8 +13,8 @@ format:
     code-copy: true
     code-fold: false
 page-layout: article
-categories: [intermediate user, advanced user, GUI, imagery, remote sensing, visualization]
-description: Analysis and visualization of multi-band satellite imagery using image fusion, environmental indexes, and dimensionality reduction with principle components analysis.
+categories: [beginner, GUI, imagery, remote sensing, visualization]
+description: Analysis and visualization of multi-band satellite imagery using image fusion, environmental indexes, and dimensionality reduction with principal components analysis.
 execute: 
   eval: false
 copyright: 
