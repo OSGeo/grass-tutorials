@@ -169,5 +169,7 @@ Once you sumbmit a PR, the CI pipeline will build your
 tutorial, so you and a reviewer can check if everything is ok.
 When a reviewer approves, your PR will be merged soon.
 
+Please note that maintainers may make minor edits to improve clarity, consistency, or visual style.
+
 ---
 Thanks for helping us build better educational resources for the GRASS community!

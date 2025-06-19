@@ -28,9 +28,6 @@ website:
     # We do this for consistency with the rest of the sites.
     # https://github.com/quarto-ext/fontawesome/issues/6
     right:
-      - icon: opencollective
-        href: https://opencollective.com/grass/contribute
-        aria-label: GRASS on Open Collective
       - text: "{{< fa brands github >}}"
         href: https://github.com/OSGeo/grass
         aria-label: GRASS on GitHub
