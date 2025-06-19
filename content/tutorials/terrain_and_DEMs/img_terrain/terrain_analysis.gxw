@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE gxw SYSTEM "grass-gxw.dtd">
+<gxw>
+    <session>
+        <database>/Users/cmbarton/Dropbox (ASU)/GRASS_dropbox/grassdata_dropbox</database>
+        <location>flagstaff_arizona_usa</location>
+        <mapset>terrain</mapset>
+    </session>
+    <layer_manager dim="193,253,1294,1218">
+    </layer_manager>
+    <layout>
+        <panes>layout2|name=toolbarWorkspace;caption=Workspace Toolbar;state=271056;dir=1;layer=2;row=1;pos=0;prop=100000;bestw=111;besth=34;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1;notebookid=-1;transparent=255|name=toolbarTools;caption=Tools Toolbar;state=271056;dir=1;layer=2;row=1;pos=113;prop=100000;bestw=257;besth=34;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1;notebookid=-1;transparent=255|name=toolbarMisc;caption=Misc Toolbar;state=271056;dir=1;layer=2;row=1;pos=372;prop=100000;bestw=79;besth=34;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1;notebookid=-1;transparent=255|name=toolbarNviz;caption=3D view Toolbar;state=271058;dir=1;layer=2;row=1;pos=453;prop=100000;bestw=120;besth=34;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1;notebookid=-1;transparent=255|name=map display content;caption=;state=768;dir=5;layer=0;row=0;pos=0;prop=100000;bestw=1;besth=1;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1;notebookid=-1;transparent=255|name=statusbar;caption=;state=67383488;dir=3;layer=10;row=0;pos=0;prop=100000;bestw=1294;besth=30;minw=30;minh=30;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1;notebookid=-1;transparent=255|name=datacatalog;caption=Data;state=402917372;dir=4;layer=1;row=0;pos=0;prop=100000;bestw=512;besth=283;minw=320;minh=176;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1;notebookid=-1;transparent=255|name=layers;caption=Layers;state=402917372;dir=4;layer=1;row=0;pos=1;prop=100000;bestw=512;besth=283;minw=320;minh=176;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1;notebookid=-1;transparent=255|name=tools;caption=Tools;state=402917372;dir=6;layer=0;row=0;pos=0;prop=100000;bestw=512;besth=283;minw=320;minh=176;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1;notebookid=0;transparent=255|name=console;caption=Console;state=402917372;dir=6;layer=0;row=0;pos=1;prop=100000;bestw=512;besth=283;minw=320;minh=176;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1;notebookid=0;transparent=255|name=__notebook_0;caption=Console;state=403179518;dir=2;layer=1;row=0;pos=0;prop=100000;bestw=512;besth=283;minw=320;minh=176;maxw=-1;maxh=-1;floatx=1741;floaty=762;floatw=512;floath=283;notebookid=0;transparent=255|name=history;caption=History;state=402917372;dir=6;layer=0;row=0;pos=2;prop=100000;bestw=512;besth=283;minw=320;minh=176;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1;notebookid=0;transparent=255|name=python;caption=Python;state=402917372;dir=6;layer=0;row=0;pos=3;prop=100000;bestw=512;besth=283;minw=320;minh=176;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1;notebookid=0;transparent=255|name=__notebook_0_min;caption=Python;state=67384008;dir=2;layer=10;row=0;pos=0;prop=100000;bestw=26;besth=38;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1;notebookid=-1;transparent=255|name=control6830e84c0000635d0000000f;caption=Console;state=67384008;dir=2;layer=10;row=0;pos=40;prop=100000;bestw=26;besth=38;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1;notebookid=-1;transparent=255|dock_size(1,2,1)=36|dock_size(5,0,0)=10|dock_size(3,10,0)=30|dock_size(4,1,0)=375|dock_size(6,0,0)=514|dock_size(2,10,0)=28|</panes>
+        <notebook>panel6830d773000054cd00000002=+0@layout2|name=dummy;caption=;state=67372030;dir=3;layer=0;row=0;pos=0;prop=100000;bestw=440;besth=561;minw=440;minh=561;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1;notebookid=-1;transparent=255|name=panel6830d773000054cd00000002;caption=;state=67372028;dir=5;layer=0;row=0;pos=0;prop=100000;bestw=0;besth=0;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1;notebookid=-1;transparent=255|dock_size(5,0,0)=10|</notebook>
+    </layout>
+    <display name="Map Display 1" render="1" mode="0" showCompExtent="0" alignExtent="1" constrainRes="1" showStatusbar="1" showToolbars="1" isDocked="1" dim="1,26,879,1095" extent="420121.941903,13853153.208889,481903.452196,13925891.306942,0.000000,1.000000" tbres="1.000000" viewMode="2d" >
+        <layer type="shaded" name="elevation_relief@terrain" checked="0" opacity="1.000000">
+            <task name="d.shade">
+                <parameter name="shade">
+                    <value>elevation_relief@terrain</value>
+                </parameter>
+                <parameter name="color">
+                    <value>elevation@PERMANENT</value>
+                </parameter>
+                <parameter name="brighten">
+                    <value>40</value>
+                </parameter>
+            </task>
+        </layer>
+        <layer type="raster" name="elevation_relief@terrain" checked="0" opacity="1.000000">
+            <task name="d.rast">
+                <parameter name="map">
+                    <value>elevation_relief@terrain</value>
+                </parameter>
+            </task>
+        </layer>
+        <layer type="vector" name="DEM_closeup@terrain" checked="0" opacity="1.000000">
+            <task name="d.vect">
+                <parameter name="map">
+                    <value>DEM_closeup@terrain</value>
+                </parameter>
+                <parameter name="color">
+                    <value>251:2:7:255</value>
+                </parameter>
+                <parameter name="fill_color">
+                    <value>none</value>
+                </parameter>
+                <parameter name="width">
+                    <value>3</value>
+                </parameter>
+                <parameter name="icon">
+                    <value>basic/circle</value>
+                </parameter>
+            </task>
+        </layer>
+        <layer type="rastnum" name="elevation@PERMANENT" checked="0" opacity="1.000000">
+            <task name="d.rast.num">
+                <parameter name="map">
+                    <value>elevation@PERMANENT</value>
+                </parameter>
+                <parameter name="precision">
+                    <value>0</value>
+                </parameter>
+                <parameter name="font">
+                    <value>Helvetica Neue:Regular</value>
+                </parameter>
+            </task>
+        </layer>
+        <layer type="vector" name="DEM_detail@terrain" checked="0" opacity="1.000000">
+            <task name="d.vect">
+                <parameter name="map">
+                    <value>DEM_detail@terrain</value>
+                </parameter>
+                <parameter name="color">
+                    <value>251:2:7:255</value>
+                </parameter>
+                <parameter name="fill_color">
+                    <value>none</value>
+                </parameter>
+                <parameter name="width">
+                    <value>3</value>
+                </parameter>
+                <parameter name="icon">
+                    <value>basic/circle</value>
+                </parameter>
+            </task>
+        </layer>
+        <layer type="raster" name="elevation500m@terrain" checked="0" opacity="1.000000">
+            <task name="d.rast">
+                <parameter name="map">
+                    <value>elevation500m@terrain</value>
+                </parameter>
+            </task>
+        </layer>
+        <layer type="raster" name="elevation@terrain" checked="0" opacity="1.000000">
+            <task name="d.rast">
+                <parameter name="map">
+                    <value>elevation@terrain</value>
+                </parameter>
+            </task>
+        </layer>
+        <layer type="raster" name="topography_colored_relief@terrain" checked="1" opacity="1.000000">
+            <selected />
+            <task name="d.rast">
+                <parameter name="map">
+                    <value>topography_colored_relief@terrain</value>
+                </parameter>
+            </task>
+        </layer>
+        <layer type="raster" name="elevation@PERMANENT" checked="1" opacity="1.000000">
+            <task name="d.rast">
+                <parameter name="map">
+                    <value>elevation@PERMANENT</value>
+                </parameter>
+            </task>
+        </layer>
+    </display>
+</gxw>
