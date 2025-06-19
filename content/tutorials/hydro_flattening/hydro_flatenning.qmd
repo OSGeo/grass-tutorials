@@ -4,18 +4,19 @@ author: "Doug Newcomb & Anna Petrasova"
 date: 2025-06-17
 date-modified: today
 lightbox: true
+image: thumbnail.webp
 format:
   html:
     toc: true
     code-tools: true
     code-copy: true
     code-fold: false
-categories: [Python, hydrology, beginner, intermediate, topography]
+categories: [Python, beginner, intermediate, topography, lidar]
 description: Learn how to do hydro-flattening of a DEM.
-engine: jupyter
-execute: 
+engine: knitr
+execute:
+  code-copy: true
   eval: false
-jupyter: python3
 ---
 
 # What is hydro-flattening?
@@ -42,8 +43,7 @@ following these steps:
 - Create a filled DEM layer combining the mean ground data, hydro-flattened data, and other interpolated data.
 - Export the resulting data from a GRASS project to a TIF file.
 
-
-# Getting ready
+## Getting ready
 
 To get ready for the analysis, we will need to download lidar data, orthoimagery and install the r.hydro.flatten addon.
 
@@ -51,7 +51,7 @@ To get ready for the analysis, we will need to download lidar data, orthoimagery
 If you are not sure how to download and get started with GRASS using its graphical user interface or using Python, checkout the tutorials [Get started with GRASS GUI](../get_started/fast_track.qmd) and [Get started with GRASS & Python in Jupyter Notebooks](../get_started/fast_track_grass_and_python.qmd).
 :::
 
-## Download data
+### Download data
 
 We will download lidar dataset from [USGS website](https://apps.nationalmap.gov/downloader/).
 Search for _Lake Logan, North Carolina_ or use this bounding box:
@@ -76,7 +76,7 @@ for example:
 
 We will use this file later on.
 
-## Start GRASS and create a new project
+### Start GRASS and create a new project
 
 If this is the first time you have opened GRASS you will see the default startup
 screen with a WGS84 world project. Click on the Create new project button on the left
@@ -86,16 +86,17 @@ on the upper left.
 ![Creating a new project in GUI](../get_started/images/grass_gui_first_time_and_cli_combined.png)
 
 This will open a wizard where you:
-1. provide a name for the new project (e.g., _nc6543_), clck Next
-2. specify _Select CRS from a list by EPSG or description_, click Next
-3. find EPSG 6543 and select it from the list, click Next
-4. select default datum transformation, click next
-5. see summary and click Finish
 
-## Import data
+1. provide a name for the new project (e.g., _nc6543_), click _Next_
+2. specify _Select CRS from a list by EPSG or description_, click _Next_
+3. find EPSG 6543 and select it from the list, click _Next_
+4. select default datum transformation, click _Next_
+5. see summary and click _Finish_
+
+### Import data
 
 The next step is to import the ground point data from the 6 lidar
-tiles to create a seamless mean ground elevation layer at 1m resolution. 
+tiles to create a seamless mean ground elevation layer at 1m resolution.
 The data is in NC State Plane Feet, so we will be using a conversion factor of 3.28084 to convert the feet to meters for the resolution.
 
 Fortunately, the GRASS tool [r.in.pdal](https://grass.osgeo.org/grass-devel/manuals/r.in.pdal.html)
@@ -103,7 +104,7 @@ automates several aspects of this process.
 
 ::::::::: {.panel-tabset group="language"}
 
-### GUI
+#### GUI
 
 Click on _File → Import Raster Data → Point cloud (LAS LiDAR) import_.
 
@@ -121,22 +122,31 @@ Class 2 is ground, class 13 are roads and class 10 was used to designate ground 
 within 1 meter of 3D break lines for water bodies. These classes will get us the complete ground point dataset.
 - Projection: check _Reproject to project’s coordinate system if needed_.
 
+![r.in.pdal Input tab](new_rinpdalinput.webp)
+
 Now press run and wait. You should see the layer added to the map, if you don't see it,
 right click on the layer and select _Zoom to selected map(s)_.
 From the same context menu you can select _Metadata_ to see
 number of cells, CRS information, extent, range of values and other info.
 
-### Command line
+#### Command line
 
 ```{bash}
 r.in.pdal -e -n -w file=/path/to/lidar/laslist.txt output=lake_logan_1m resolution=3.28084 class_filter=2,10,13
 r.info map=lake_logan_1m
 ```
 
-### Python
+#### Python
 
 ```{python}
-gs.run_command("r.in.pdal", flags="enw", file="/path/to/lidar/laslist.txt", output="lake_logan_1m", resolution=3.28084, class_filter=[2, 10, 13])
+gs.run_command(
+    "r.in.pdal",
+    flags="enw",
+    file="/path/to/lidar/laslist.txt",
+    output="lake_logan_1m",
+    resolution=3.28084,
+    class_filter=[2, 10, 13],
+)
 print(gs.read_command("r.info", map="lake_logan_1m"))
 ```
 
@@ -151,19 +161,21 @@ In a tool dialog, check _Allow output files to overwrite existing files_. In com
 
 :::
 
-## Download orthoimagery
+### Download orthoimagery
 
 The State of North Carolina has a program to collect aerial imagery on a 4 year cycle.
 The most current data set for this location is from 2023.
 The URL to access the WMS data set is
 `https://services.gis.nc.gov/secure/services/Imagery/Orthoimagery_2023/ImageServer/WMSServer`.
 
-
 ::::::::: {.panel-tabset group="language"}
 
-### GUI
+#### GUI
 
-To display it, add web service layer: ![](addwms.webp)  
+To display it, add web service layer:
+
+![Add WMS layer in GUI](addwms.webp)  
+
 and paste the URL into the _Server settings_ text box and press _Connect_.
 Select the newly populated layer _Orthoimagery (2023)_.
 Select _Source projection_ EPSG:6543 to match your project's CRS for faster response.
@@ -177,29 +189,36 @@ a descriptive name to quickly recall the image service between sessions.
 Uncheck the orthoimagery layer and zoom into one of the void areas to the left of the lake. Once
 you have zoomed in, check the orthoimagery layer and see what the void represents.
 
-### Command line
+#### Command line
 
 ```{bash}
 r.in.wms layers=0 output=ortho srs=6543 url=https://services.gis.nc.gov/secure/services/Imagery/Orthoimagery_2023/ImageServer/WMSServer
-``` 
+```
 
-### Python
+#### Python
 
 ```{python}
-gs.run_command("r.in.wms", layers=0, output="ortho", srs="6543", url="https://services.gis.nc.gov/secure/services/Imagery/Orthoimagery_2023/ImageServer/WMSServer"
+gs.run_command(
+    "r.in.wms",
+    layers=0,
+    output="ortho",
+    srs="6543",
+    url="https://services.gis.nc.gov/secure/services/Imagery/Orthoimagery_2023/ImageServer/WMSServer",
+)
 ```
 
 :::::::::
 
 ![Orthoimagery 2023](imagery.webp)
 
-## Installing r.hydro.flatten addon
-
+### Installing r.hydro.flatten addon
 
 ::::::::: {.panel-tabset group="language"}
 
-### GUI
+#### GUI
 
+::::: grid
+::: g-col-4
 GRASS Addons are installed in the GUI with
 _Addons extensions→ Install extensions from addons_.
 In the dialog, search for the addon and _Install_.
@@ -210,17 +229,22 @@ GRASS will automatically load the r.hydro.flatten tool in the Addons portion of 
 In the quit confirmation dialog
 click on _Quit GRASS_. The store curent settings dialog will then pop up, select _No_.
 Start GRASS again. You should now see an Addons option in the Tools tab with r.hydro.flatten listed there.
-Double click on r.hydro.flatten tool to get the dialog:
+Double click on r.hydro.flatten tool to open a dialog.
 
-![](new_rihydroflatten1.webp)
+:::
+::: g-col-8
 
-### Command line
+![](new_install_hydroflatten.webp)
+:::
+::::::
+
+#### Command line
 
 ```{bash}
 g.extension extension=r.hydro.flatten
 ```
 
-### Python
+#### Python
 
 ```{python}
 gs.run_command("g.extension", extension="r.hydro.flatten")
@@ -228,7 +252,7 @@ gs.run_command("g.extension", extension="r.hydro.flatten")
 
 :::::::::
 
-# Hydro-flattening Lake Logan
+## Hydro-flattening Lake Logan
 
 Now we are ready to compute the hydro-flattened DEM.
 The r.hydro.flatten addon will calculate the estimated elevations of the voids from the 14th
@@ -238,6 +262,7 @@ edge values around each void.
 ::::::::: {.panel-tabset group="language"}
 
 ### GUI
+
 In the r.hydro.flatten dialog, set the following input and output values:
 
 ![Required tab of r.hydro.flatten dialog](new_rihydroflatten1.webp)
@@ -251,8 +276,13 @@ r.hydro.flatten input=lake_logan_1m water_elevation=lake_logan_1m_wat_elev water
 ### Python
 
 ```{python}
-gs.run_command("r.hydro.flatten", input="lake_logan_1m", water_elevation="lake_logan_1m_wat_elev", water_elevation_stddev="lake_logan_1m_wat_stddev", percentile=14)
-
+gs.run_command(
+    "r.hydro.flatten",
+    input="lake_logan_1m",
+    water_elevation="lake_logan_1m_wat_elev",
+    water_elevation_stddev="lake_logan_1m_wat_stddev",
+    percentile=14,
+)
 ```
 
 :::::::::
@@ -261,7 +291,7 @@ gs.run_command("r.hydro.flatten", input="lake_logan_1m", water_elevation="lake_l
 ::: g-col-6
 Let's inspect the newly created *lake_logan_1m_wat_stddev* raster
 that represents the standard deviation of elevation values along the edge of the water bodies.
-As you can see, the pond below the dam has such a low value that it is almost white. 
+As you can see, the pond below the dam has such a low value that it is almost white.
 This means the hydro-flattening tool successfully flattened the pond surface.
 
 However, the river upstream of the main lake (southwest), the lake, and the river downstream of the lake (northeast)
@@ -278,18 +308,18 @@ These help capture gradual changes in elevation along the flow direction and ens
 :::
 
 ::: g-col-6
-![](stddev_nobreaklines.webp)
+![Standard deviation of elevation along water bodies](stddev_nobreaklines.webp)
 :::
 ::::::
 
-# Adding break lines
+## Adding break lines
 
 We will manually add a break line to separate the lake from the river on both sides.
 
 Additionally, we will digitize a centerline representing the river and create transects in an automated way
 by using [v.transects](https://grass.osgeo.org/grass-devel/manuals/addons/v.transects.html) tool.
 
-## Creating centerlines
+### Creating centerlines
 
 1. We will start a [vector digitizer](https://grass.osgeo.org/grass-devel/manuals/wxGUI.vdigit.html)
 from the [Map Display toolbar](https://grass.osgeo.org/grass-devel/manuals/wxGUI.html#map-display-toolbar)
@@ -309,31 +339,41 @@ For longer river segments you can use [v.centerline](https://grass.osgeo.org/gra
 for automated centerline generation.
 :::
 
-
-## Creating river transects
+### Creating river transects
 
 Install [v.transects](https://grass.osgeo.org/grass-devel/manuals/addons/v.transects.html) addon
 in the same way as we installed the r.hydro.flatten one.
 
 ::::::::: {.panel-tabset group="language"}
 
-### GUI
+#### GUI
 
 In the GUI dialog set the following values:
 
 ![Required tab](new_vtransect_1.webp)
+
 ![Optional tab](new_vtransect_options.webp)
 
-### Command line
+#### Command line
 
 ```{bash}
 v.transects input=centerlines output=centerlines_120_trans transect_spacing=120 dleft=60 dright=60 metric=along transect_perpendicular=line -l
 ```
 
-### Python
+#### Python
 
 ```{python}
-gs.run_command("v.transects", input="centerlines", output="centerlines_120_trans", transect_spacing=120, dleft=60, dright=60, metric="along", transect_perpendicular="line",  flags="l")
+gs.run_command(
+    "v.transects",
+    input="centerlines",
+    output="centerlines_120_trans",
+    transect_spacing=120,
+    dleft=60,
+    dright=60,
+    metric="along",
+    transect_perpendicular="line",
+    flags="l",
+)
 ```
 
 :::::::::
@@ -344,7 +384,7 @@ gs.run_command("v.transects", input="centerlines", output="centerlines_120_trans
 
 Once the output transect layer is added to the Layers panel you will see the transects generated on the
 Map Display. You will note that some of the transect do not exactly line up with the shoreline correctly.
-Right click on the transect vector layer and select start editing to bring up the vector editing toolbar.
+Right click on the transect vector layer and select _Start editing_ to bring up the vector editing toolbar.
 Select the _Move selected vertex_ tool and use it to select and move the ends of the line to line up
 correctly. (Left click to select, left click to select new location, right click to complete move.)
 
@@ -360,7 +400,7 @@ correctly. (Left click to select, left click to select new location, right click
 
 ::::::
 
-## Digitizing dam
+### Digitizing dam
 
 We will continue digitizing the *centerlines_120_trans* layer by adding breaklines on both sides of the dam.
 
@@ -373,7 +413,7 @@ Digitize the line along where you see the dam structure meet the water and save 
 
 ![Ditizing the dam](new_damwaterline.webp)
 
-# Hydro-flattening with break lines
+## Hydro-flattening with break lines
 
 Let's re-run r.hydro.flatten with the created break lines.
 This time, use *centerlines_120_trans* as your input vector layer
@@ -384,7 +424,7 @@ and output resulting raster with filled DEM.
 ### GUI
 
 In the GUI dialog set the following values in the Optional tab.
-In the Required tab, add *_2dbreak* to the output names.
+In the Required tab, add _\_2dbreak_ to the output names.
 
 ![Optional tab](new_hydrofaltten_2D_trans.webp)
 
@@ -397,8 +437,15 @@ r.hydro.flatten input=lake_logan_1m water_elevation=lake_logan_1m_wat_elev_2dbre
 ### Python
 
 ```{python}
-gs.run_command("r.hydro.flatten", input="lake_logan_1m", water_elevation="lake_logan_1m_wat_elev_2dbreak", water_elevation_stddev="lake_logan_1m_wat_stddev_2dbreak", percentile=14, breaklines="centerlines_120_trans", filled_elevation="lake_logan_1m_filled_DEM")
-
+gs.run_command(
+    "r.hydro.flatten",
+    input="lake_logan_1m",
+    water_elevation="lake_logan_1m_wat_elev_2dbreak",
+    water_elevation_stddev="lake_logan_1m_wat_stddev_2dbreak",
+    percentile=14,
+    breaklines="centerlines_120_trans",
+    filled_elevation="lake_logan_1m_filled_DEM",
+)
 ```
 
 :::::::::
@@ -409,12 +456,16 @@ gs.run_command("r.hydro.flatten", input="lake_logan_1m", water_elevation="lake_l
 
 Looking at the new standard deviation layer
 you will see that the lake and river are very light, indicating that the edge values for the lake and most
-of the river sections have relatively low standard deviation values. 
+of the river sections have relatively low standard deviation values.
 
 There is a red spot in the top center of the study area.
 If you look at the area on the orthoimagery, you see dense evergreen vegetation. This is an area with a
 substantial void in the ground points that is not water.
-We don't want this area to be flat, rather we will interpolate it with [r.fillnulls](https://grass.osgeo.org/grass-devel/manuals/r.fillnulls.html)
+We don't want this area to be flat, rather we will properly interpolate it.
+
+To avoid filling areas with standard deviation higher than a certain value, we will re-run
+r.hydro.flatten with parameter **max_stddev** and then fill those values
+with [r.fillnulls](https://grass.osgeo.org/grass-devel/manuals/r.fillnulls.html).
 
 :::
 ::: g-col-6
@@ -423,26 +474,70 @@ We don't want this area to be flat, rather we will interpolate it with [r.fillnu
 :::
 ::::::
 
-
 ::::::::: {.panel-tabset group="language"}
 
-### GUI
+#### GUI
 
-First re-run the r.hydro.flatten with parameter **max_stddev=5**
-and then call r.fillnulls.
+Re-run the r.hydro.flatten with parameter **max_stddev=5** to avoid flattening
+areas with standard deviation > 5.
 
+Then call r.fillnulls with input layer *lake_logan_1m_filled_DEM*
+and output *lake_logan_1m_filled_DEM_fillnulls* and default values.
 
-### Command line
+Finally, run [r.relief](https://grass.osgeo.org/grass-devel/manuals/r.relief.html) to see the resulting topography.
+
+#### Command line
 
 ```{bash}
 r.hydro.flatten input=lake_logan_1m water_elevation=lake_logan_1m_wat_elev_2dbreak water_elevation_stddev=lake_logan_1m_wat_stddev_2dbreak percentile=14 breaklines=centerlines_120_trans filled_elevation=lake_logan_1m_filled_DEM max_stddev=5
+r.fillnulls input=lake_logan_1m_filled_DEM output=lake_logan_1m_filled_DEM_fillnulls method=rst
+r.relief input=lake_logan_1m_filled_DEM_fillnulls output=relief
 ```
 
-### Python
+#### Python
 
 ```{python}
-gs.run_command("r.hydro.flatten", input="lake_logan_1m", water_elevation="lake_logan_1m_wat_elev_2dbreak", water_elevation_stddev="lake_logan_1m_wat_stddev_2dbreak", percentile=14, breaklines="centerlines_120_trans", filled_elevation="lake_logan_1m_filled_DEM", max_stddev=5)
-
+gs.run_command(
+    "r.hydro.flatten",
+    input="lake_logan_1m",
+    water_elevation="lake_logan_1m_wat_elev_2dbreak",
+    water_elevation_stddev="lake_logan_1m_wat_stddev_2dbreak",
+    percentile=14,
+    breaklines="centerlines_120_trans",
+    filled_elevation="lake_logan_1m_filled_DEM",
+    max_stddev=5,
+)
+gs.run_command(
+    "r.fillnulls",
+    input="lake_logan_1m_filled_DEM",
+    output="lake_logan_1m_filled_DEM_fillnulls",
+    method="rst",
+)
+gs.run_command("r.relief", input="lake_logan_1m_filled_DEM_fillnulls", output="relief")
 ```
 
 :::::::::
+
+::::: grid
+
+::: g-col-6
+
+![Shaded relief of the hydro-flattened DEM](relief.webp)
+
+:::
+
+::: g-col-6
+
+![Zoomed-in on the dam and river segment](relief_zoom.webp)
+
+:::
+::::::
+
+
+***
+
+:::{.smaller}
+The development of this tutorial was in part funded by the US
+[National Science Foundation (NSF)](https://www.nsf.gov/),
+award [2303651](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2303651).
+:::
