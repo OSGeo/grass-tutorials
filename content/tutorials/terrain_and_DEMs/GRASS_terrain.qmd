@@ -13,7 +13,7 @@ format:
     code-copy: true
     code-fold: false
 page-layout: article
-categories: [beginner, intermediate, raster, DEM, visualization, terrain, topography, slope, aspect, landforms, stream networks, watershed]
+categories: [beginner, intermediate, raster, DEM, visualization, terrain, topography, slope, aspect, landforms, hydrology, streams]
 description: This tutorial guides a user through multiple ways of analyzing and modeling terrain from DEM raster maps.
 execute: 
   eval: false
@@ -33,7 +33,7 @@ GRASS has many tools that can help you visualize and model terrain from digital 
 
 -  [r.watershed](https://grass.osgeo.org/grass-stable/manuals/r.watershed.html) for modeling overland flow and watershed basins, and
 
--  [r.stream.extract](https://grass.osgeo.org/grass%20stable/manuals/r.stream.extract.html) to generate stream networks.  
+-  [r.stream.extract](https://grass.osgeo.org/grass-stable/manuals/r.stream.extract.html) to generate stream networks.  
 
 This tutorial will explore these tools, but they are only a few of the many GRASS modules to represent and analyze landscapes.  
 
@@ -41,7 +41,7 @@ This tutorial will explore these tools, but they are only a few of the many GRAS
 This tutorial uses one of the standard GRASS sample data sets for Flagstaff, Arizona, USA: ***flagstaff_arizona_usa***. We will refer to place names in that data set, but it can be completed with any of the [standard sample data sets](https://grass.osgeo.org/download/data/) for any region--for example, the [North Carolina data set](https://grass.osgeo.org/sampledata/north_carolina/nc_spm_08_grass7.zip). We will use the *elevation* DEM.  
 :::
 
-::: {.callout-note title="GRASS environment"}
+::: {.callout-note title="GRASS interfaces"}
 This tutorial is designed so that you can complete it using the **GRASS GUI**, GRASS commands from the **console or terminal**, or using GRASS commands in a **Jupyter Notebook** environment.  
 :::
 
@@ -174,7 +174,7 @@ A shaded relief map adds shadows to a DEM, for a user-specified direction of sun
 
 We can use the [r.relief](https://grass.osgeo.org/grass-stable/manuals/r.relief.html) tool to visualize the topographic relief of the *elevation* DEM for the Flagstaff area.  
 
-We will keep the defaults for sun direction and height, but increase the z-exaggeration to 3 to make the topography stand out better.  
+We will keep the defaults for sun direction and height, but increase the vertical exaggeration to 3 to make the topography stand out better.  
 
 ::::::::: {.panel-tabset group="language"}
 
@@ -217,7 +217,7 @@ r.relief input=elevation output=relief zscale=3
 #### Python
 
 ```{python}
-gs.run_command("r.relief",input="elevation", output="relief zscale=3")
+gs.run_command("r.relief",input="elevation", output="relief" zscale=3)
 ```
 
 :::::::::
@@ -226,7 +226,9 @@ gs.run_command("r.relief",input="elevation", output="relief zscale=3")
 
 ## Combining color and relief
 
-To better visualize the difference in the terrain, you can drape the color elevation over the relief map you just made GRASS makes it easy for you to fuse color and relief shading to visualize topography, terrain features, land cover, or other geographic information.  
+To better visualize the difference in the terrain, you can drape the color elevation over the relief map you just made. 
+
+GRASS makes it easy for you to fuse color and relief shading to visualize topography, terrain features, land cover, or other geographic information.  
 
 -  This can be done by creating a new map, using [r.shade](https://grass.osgeo.org/grass-stable/manuals/r.shade.html) tool or  
 
@@ -601,9 +603,9 @@ Filtering for a limited range of slope values highlights important terrain featu
 
 Slope, aspect, and related analyses can help identify terrain features like volcanoes and canyons. GRASS also offers tools to identify topographic features and classify terrain into landform categories. In the standard GRASS tools set, these include:  
 
--  [r.geomorphon](https://grass.osgeo.org/grass84/manuals/r.geomorphon.html): Calculates geomorphons (terrain forms) and associated geometry using machine vision approach.  
+-  [r.geomorphon](https://grass.osgeo.org/grass-stable/manuals/r.geomorphon.html): Calculates geomorphons (terrain forms) and associated geometry using machine vision approach.  
 
--  [r.param.scale](https://grass.osgeo.org/grass84/manuals/r.param.scale.html): Extracts terrain parameters from a DEM.
+-  [r.param.scale](https://grass.osgeo.org/grass-stable/manuals/r.param.scale.html): Extracts terrain parameters from a DEM.
 
 Additional GRASS Addons useful for this kind of terrain analysis include:
 
@@ -615,9 +617,9 @@ Additional GRASS Addons useful for this kind of terrain analysis include:
 
 -  [r.terrain.texture](https://grass.osgeo.org/grass-stable/manuals/addons/r.terrain.texture.html)  
 
-In this tutorial, we will briefly explore [r.geomorphon](https://grass.osgeo.org/grass84/manuals/r.geomorphon.html) to classify the DEM into a set of landform categories. You are encouraged to try out the other tools for using the standard GRASS sample data sets or your own data.  
+In this tutorial, we will briefly explore [r.geomorphon](https://grass.osgeo.org/grass-stable/manuals/r.geomorphon.html) to classify the DEM into a set of landform categories. You are encouraged to try out the other tools for using the standard GRASS sample data sets or your own data.  
 
--  The *r.geomorphon* tool identifies and classifies a cell using information about the topographic relief in eight directions (see the [r.geomorphon](https://grass.osgeo.org/grass84/manuals/r.geomorphon.html) Description for more details)). There are a number of options.
+-  The *r.geomorphon* tool identifies and classifies a cell using information about the topographic relief in eight directions (see the [r.geomorphon](https://grass.osgeo.org/grass-stable/manuals/r.geomorphon.html) Description for more details)). There are a number of options.
 
 -  The most important option is the **Outer search radius**, which is the maximum distance that the algorithm will record topographic relief. By default, this distance is measured in map cells, but you can change it measure in meters with the "-m" option.
 
@@ -746,7 +748,7 @@ Because DEM rasters make it possible to generate maps of slope and aspect, this 
 
 -  and many other environmental phenomena.  
 
-GRASS has many modules for analyzing and modeling [hydrology and watersheds](https://grass.osgeo.org/grass84/manuals/topic_hydrology.html), far more than can be covered in this tutorial. Rather, the goal of this tutorial is to give you a sense of what the potential for watershed modeling in GRASS and encourage you to explore its rich array of tools on your own. To that end, this tutorial will explore a few of many features of two of these tools, [r.watershed](https://grass.osgeo.org/grass84/manuals/r.watershed.html) and [r.stream.extract](https://grass.osgeo.org/grass84/manuals/r.stream.extract.html).  
+GRASS has many modules for analyzing and modeling [hydrology and watersheds](https://grass.osgeo.org/grass-stable/manuals/topic_hydrology.html), far more than can be covered in this tutorial. Rather, the goal of this tutorial is to give you a sense of what the potential for watershed modeling in GRASS and encourage you to explore its rich array of tools on your own. To that end, this tutorial will explore a few of many features of two of these tools, [r.watershed](https://grass.osgeo.org/grass-stable/manuals/r.watershed.html) and [r.stream.extract](https://grass.osgeo.org/grass-stable/manuals/r.stream.extract.html).  
 
 ## Watershed basins  
 
@@ -771,7 +773,7 @@ Watershed basins are portions of a terrain in which all surface water will flow 
 ::::: grid
 ::: g-col-6
 
-1.  Open the [r.watershed](https://grass.osgeo.org/grass84/manuals/r.watershed.html) module from the Raster/Hydrologic modeling/Watershed analysis menu.  
+1.  Open the [r.watershed](https://grass.osgeo.org/grass-stable/manuals/r.watershed.html) module from the Raster/Hydrologic modeling/Watershed analysis menu.  
 
 2.  Set "Name of elevation raster map" to *elevation*.  
 
@@ -855,7 +857,7 @@ Above, we also made a flow accumulation map. A flow accumulation map models the 
 
 -  Additional settings in *r.watershed* enable modeling overland flow more realistically with different amounts of rain falling across the region, and vegetation, soil characteristics, or barriers like dams or dikes also affecting accumulation.  
 
--  [r.watershed](https://grass.osgeo.org/grass84/manuals/r.watershed.html) uses a **multiple flow direction** algorithm by default in which water flowing out of a cell is distributed among all adjacent downslope cells. The greatest flow is directed to the adjacent downslope cell with the greatest elevation difference and lower flows are allocated to downslope cells with lesser elevation difference.  
+-  [r.watershed](https://grass.osgeo.org/grass-stable/manuals/r.watershed.html) uses a **multiple flow direction** algorithm by default in which water flowing out of a cell is distributed among all adjacent downslope cells. The greatest flow is directed to the adjacent downslope cell with the greatest elevation difference and lower flows are allocated to downslope cells with lesser elevation difference.  
 :::
 
 ::: g-col-6
@@ -926,7 +928,7 @@ Here is a flow accumulation map with a legend using a logarithmic scale. Note hi
 
 ### Vectorizing stream network with *r.to.vect*  
 
-We can make the streams more easily visible if we convert the raster stream map to a vector line map. This can be done easily with the [r.to.vect](https://grass.osgeo.org/grass84/manuals/r.to.vect.html) tool that converts rasters maps into vectors.  
+We can make the streams more easily visible if we convert the raster stream map to a vector line map. This can be done easily with the [r.to.vect](https://grass.osgeo.org/grass-stable/manuals/r.to.vect.html) tool that converts rasters maps into vectors.  
 
 -  *r.to.vect* can convert points, lines, and areas. In this case, we will convert the stream segments created by *r.watershed* into vector lines.  
 
@@ -939,7 +941,7 @@ We can make the streams more easily visible if we convert the raster stream map 
 ::::: grid
 ::: g-col-6
 
-1.  Select the [r.to.vect](https://grass.osgeo.org/grass84/manuals/r.to.vect.html) tool from either the Raster/Map type conversions/Raster to vector **or** the File/Map type conversions/Raster to vector menu.  
+1.  Select the [r.to.vect](https://grass.osgeo.org/grass-stable/manuals/r.to.vect.html) tool from either the Raster/Map type conversions/Raster to vector **or** the File/Map type conversions/Raster to vector menu.  
 
 2.  Enter the map *watershed_streams10000* as the "Name of input raster map".  
 
@@ -988,12 +990,12 @@ The maps below show the vector stream network overlaying watershed basins on the
 :::::
 
 ::: {.callout-note title="Tip"}
-For a more detailed stream network, run *r.watershed* with a minimum basin size smaller than the 10,000 cells used above. If you choose a very small minimum basin size to create a very detailed stream map, you may be prompted to run [r.thin](https://grass.osgeo.org/grass84/manuals/r.thin.html) before running *r.to.vect* to make sure that raster stream map consists of only single grid cell stream lines. 
+For a more detailed stream network, run *r.watershed* with a minimum basin size smaller than the 10,000 cells used above. If you choose a very small minimum basin size to create a very detailed stream map, you may be prompted to run [r.thin](https://grass.osgeo.org/grass-stable/manuals/r.thin.html) before running *r.to.vect* to make sure that raster stream map consists of only single grid cell stream lines. 
 :::
 
 ### Vectorizing stream network with *r.stream.extract*  
 
-An alternative way to generate a stream network from a watershed analysis is with the [r.stream.extract](https://grass.osgeo.org/grass84/manuals/r.stream.extract.html) tool.  
+An alternative way to generate a stream network from a watershed analysis is with the [r.stream.extract](https://grass.osgeo.org/grass-stable/manuals/r.stream.extract.html) tool.  
 
 -  This tool uses a DEM and a flow accumulation map to generate a vector or raster stream network.  
 
@@ -1008,7 +1010,7 @@ An alternative way to generate a stream network from a watershed analysis is wit
 ::::: grid
 ::: g-col-6
 
-1.  Select the [r.stream.extract](https://grass.osgeo.org/grass84/manuals/r.to.vect.html) tool from either the Raster/Hydrologic modeling/Extraction of stream networks menu.  
+1.  Select the [r.stream.extract](https://grass.osgeo.org/grass-stable/manuals/r.to.vect.html) tool from either the Raster/Hydrologic modeling/Extraction of stream networks menu.  
 
 2.  Enter *elevation* for the "Name of input elevation raster map".  
 
@@ -1060,9 +1062,9 @@ gs.run_command("r.stream.extract",
 
 :::::::::::::::
 
-The 2 images below show the stream network generated by *r.stream.extract* overlaying a color shaded relief map (left) and a comparison of this network with the one generated by r.watershed and then vectorized with *r.to.vect(* (right).  
+The 2 images below show the stream network generated by *r.stream.extract* overlaying a color shaded relief map (left) and a comparison of this network with the one generated by r.watershed and then vectorized with *r.to.vect* (right).  
 
--  Note the stream lines (blue) and points (red) indicating stream heads and junctions in the left image. Lines or points can be displayed or hidden or shown together in the vector properties tool [d.vect](https://grass.osgeo.org/grass84/manuals/d.vect.html).  
+-  Note the stream lines (blue) and points (red) indicating stream heads and junctions in the left image. Lines or points can be displayed or hidden or shown together in the vector properties tool [d.vect](https://grass.osgeo.org/grass-stable/manuals/d.vect.html).  
 
 -  In the image to the right, the more detailed stream network generated by *r.stream.extract* is shown in narrow blue lines and the the stream network generated by *r.watershed* and *r.to.vect* is shown as wider yellow lines.  
 
@@ -1082,4 +1084,4 @@ To display the stream network without the junction nodes, uncheck the "point" bo
 
 # Summary
 
-In this tutorial we have gone over only a few the many tools available in GRASS to conduct terrain and watershed analysis. We used the Flagstaff sample dataset to complete this analysis, but you can also try this other datasets and DEM maps. You can also use the GRASS sample datasets to explore the Many other tools available under the terrain analysis and [hydrology](https://grass.osgeo.org/grass84/manuals/topic_hydrology.html) hydrology sections. In addition to the main GRASS modules, there are also many others available as [GRASS addons](https://grass.osgeo.org/grass-stable/manuals/addons/).  
+In this tutorial we have gone over only a few of the many tools available in GRASS to conduct terrain and watershed analysis. We used the Flagstaff sample dataset to complete this analysis, but you can also try this other datasets and DEM maps. You can also use the GRASS sample datasets to explore the many other tools available under the terrain analysis and [hydrology](https://grass.osgeo.org/grass-stable/manuals/topic_hydrology.html) hydrology sections. In addition to the main GRASS modules, there are also many others available as [GRASS addons](https://grass.osgeo.org/grass-stable/manuals/addons/).  
