@@ -5,6 +5,8 @@ project:
     - "*.qmd"
 website:
   site-url: "https://grass-tutorials.osgeo.org"
+  repo-url: https://github.com/OSGeo/grass-tutorials
+  repo-actions: [edit, source, issue]
   favicon: images/favicon.ico
   twitter-card: true
   open-graph: true
