@@ -4,6 +4,7 @@ author: "Eunice Villaseñor Iribe and Michael Barton"
 date: 2025-06-23
 date-modified: today
 lightbox: true
+engine: knitter
 image: img_terrain/thumbnail.webp
 format: 
   html:
@@ -815,7 +816,7 @@ Watershed basins are portions of a terrain in which all surface water will flow 
 
 #### Command line
 
-```{python}
+```{bash}
 r.watershed -a -b elevation=elevation threshold=10000 accumulation=watershed_accumulation10000 basin=watershed_basins10000 stream=watershed_streams10000
 ```
 
