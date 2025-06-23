@@ -1,7 +1,7 @@
 ---
 title: "Visualizing and Modeling Terrain from DEMs in GRASS"
 author: "Eunice Villaseñor Iribe and Michael Barton"
-date: 2025-06-06
+date: 2025-06-23
 date-modified: today
 lightbox: true
 image: img_terrain/thumbnail.webp
@@ -399,7 +399,7 @@ We will create new maps from the *elevation* DEM for slope (each cell will store
 Add the "-n" flag so that aspect will be recorded as degrees clockwise from North. Otherwise, aspect will be calculated as degrees counter clockwise from East.  
 
 ```{python}
-r.slope.aspect elevation=elevation\@TerrainAnalysis slope=slope aspect=aspect -n
+r.slope.aspect elevation=elevation slope=slope aspect=aspect -n
 ```
 
 #### Python
@@ -517,7 +517,7 @@ The raster legend tool can be accessed from the display window tool bar. This to
 
 #### Command line  
 
-A legend can be generated using the [d.legend](https://grass.osgeo.org/grass-stable/manuals/r.legend.html) command.
+A legend can be generated using the [d.legend](https://grass.osgeo.org/grass-stable/manuals/d.legend.html) command.
 
 ```{python}
 d.legend -d raster=slope title=Slope title_fontsize=14 units=° labelnum=4 range=0,75 fontsize=12
@@ -525,7 +525,7 @@ d.legend -d raster=slope title=Slope title_fontsize=14 units=° labelnum=4 range
 
 #### Python
 
-A legend can be generated using the [d.legend](https://grass.osgeo.org/grass-stable/manuals/r.legend.html) command.  
+A legend can be generated using the [d.legend](https://grass.osgeo.org/grass-stable/manuals/d.legend.html) command.  
 
 ```{python}
 gs.run_command("d.legend", 
@@ -559,7 +559,7 @@ Rather than seeing all slopes or other terrain characteristics, it is sometimes 
 
 1.  Make sure that the *slope* map and the *relief* maps are showing in the Layer Manager (Double click a map in the Data Catalog to add it to the Layer Manager). The *slope* map should be above the *relief* map.  
 
-2.  Double click on the *slope* map to open its display properties tool.   ([d.rast](https://grass.osgeo.org/grass-stable/manuals/r.rast.html))  
+2.  Double click on the *slope* map to open its display properties tool.   ([d.rast](https://grass.osgeo.org/grass-stable/manuals/d.rast.html))  
 
 3.  Under the Selection tab, enter 10-76 to display only slopes at 10° or above, and click Apply or OK.  
 
@@ -567,7 +567,7 @@ Rather than seeing all slopes or other terrain characteristics, it is sometimes 
 
 #### Command line
 
-You can display only slopes ≥ 10° using the ([d.rast](https://grass.osgeo.org/grass-stable/manuals/r.rast.html)) tool.
+You can display only slopes ≥ 10° using the ([d.rast](https://grass.osgeo.org/grass-stable/manuals/d.rast.html)) tool.
 
 ```{python}
 d.rast map=slope values=10-76
@@ -575,7 +575,7 @@ d.rast map=slope values=10-76
 
 #### Python
 
-You can display only slopes ≥ 10° using the ([d.rast](https://grass.osgeo.org/grass-stable/manuals/r.rast.html)) tool.
+You can display only slopes ≥ 10° using the ([d.rast](https://grass.osgeo.org/grass-stable/manuals/d.rast.html)) tool.
 
 ```{python}
 gs.run_command("d.rast", 
@@ -599,7 +599,7 @@ Filtering for a limited range of slope values highlights important terrain featu
 :::
 :::::
 
-## Topgraphic Landforms  
+## Topographic Landforms  
 
 Slope, aspect, and related analyses can help identify terrain features like volcanoes and canyons. GRASS also offers tools to identify topographic features and classify terrain into landform categories. In the standard GRASS tools set, these include:  
 
@@ -758,13 +758,9 @@ Watershed basins are portions of a terrain in which all surface water will flow 
 
 -  The minimum required for modeling watershed basins, flow accumulations, and stream networks is a DEM (*elevation*) and the minimum size of the watershed basins to model (measured in number of cells). We will create basins with a minimum size of **10,000** cells (9 km2). Choosing a smaller number would generate a map of many smaller basins.  
 
--  Although we start with mapping watershed basins, to save time, we will have *r.watershed* also generate outputs for flow accumulation and stream segments at the same time is is creating a basin map.  
+-  Although we start with mapping watershed basins, to save time, we will have *r.watershed* also generate outputs for flow accumulation and stream segments at the same time it is creating a basin map.  
 
 -  To produce better looking basin and streams maps, we will also select the "Positive flow accumulation" and "Beautify flat areas" options.  
-
-::: {.callout-note title="Demo Dataset"}
-*r.watershed* runs very fast for this kind of modeling. Nevertheless, it is advisable to give it as much RAM as you can spare under the Optional tab.  
-:::
 
 ::::::::::::::: {.panel-tabset group="language"}
 
@@ -809,8 +805,6 @@ Watershed basins are portions of a terrain in which all surface water will flow 
 
 -  Check the "Beautify flat areas" box to have more accurate stream segments across flat areas.  
 
--  Modify available memory as appropriate for your system.  
-
 6.  Click Run  
 :::
 
@@ -829,8 +823,8 @@ r.watershed -a -b elevation=elevation threshold=10000 accumulation=watershed_acc
 
 ```{python}
 gs.run_command("r.watershed", 
-                elevation="elevation\@TerrainAnalysis", 
-                threshold="10000", 
+                elevation="elevation", 
+                threshold=10000, 
                 accumulation=watershed_accumulation10000, 
                 basin="watershed_basin10000", 
                 stream="watershed_streams10000", 
