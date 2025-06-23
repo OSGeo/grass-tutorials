@@ -853,6 +853,8 @@ Above, we also made a flow accumulation map. A flow accumulation map models the 
 -  Additional settings in *r.watershed* enable modeling overland flow more realistically with different amounts of rain falling across the region, and vegetation, soil characteristics, or barriers like dams or dikes also affecting accumulation.  
 
 -  [r.watershed](https://grass.osgeo.org/grass-stable/manuals/r.watershed.html) uses a **multiple flow direction** algorithm by default in which water flowing out of a cell is distributed among all adjacent downslope cells. The greatest flow is directed to the adjacent downslope cell with the greatest elevation difference and lower flows are allocated to downslope cells with lesser elevation difference.  
+
+-  While some hydrology modeling tools require depressions or sinks in a DEM to be filled first in order to properly route water across a terrain, *r.watershed* does not require this. Rather is uses a least cost path algorithm to route water across depressions. 
 :::
 
 ::: g-col-6
