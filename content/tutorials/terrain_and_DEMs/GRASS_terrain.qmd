@@ -152,7 +152,7 @@ Try out some other color tables. ETOPO2, terrain, and the SRTM color tables are 
 
 #### Command line
 
-```{python}
+```{bash}
 r.colors -e map=elevation color=elevation
 ```
 
@@ -211,7 +211,7 @@ We will keep the defaults for sun direction and height, but increase the vertica
 
 #### Command line
 
-```{python}
+```{bash}
 r.relief input=elevation output=relief zscale=3 
 ```
 
@@ -276,7 +276,7 @@ We will start by creating a new color-shaded relief map using [r.shade](https://
 
 #### Command line  
 
-```{python}
+```{bash}
 r.shade shade=relief color=elevation output=topography_colored_relief brighten=40]
 ```
 
@@ -399,7 +399,7 @@ We will create new maps from the *elevation* DEM for slope (each cell will store
 
 Add the "-n" flag so that aspect will be recorded as degrees clockwise from North. Otherwise, aspect will be calculated as degrees counter clockwise from East.  
 
-```{python}
+```{bash}
 r.slope.aspect elevation=elevation slope=slope aspect=aspect -n
 ```
 
@@ -520,7 +520,7 @@ The raster legend tool can be accessed from the display window tool bar. This to
 
 A legend can be generated using the [d.legend](https://grass.osgeo.org/grass-stable/manuals/d.legend.html) command.
 
-```{python}
+```{bash}
 d.legend -d raster=slope title=Slope title_fontsize=14 units=° labelnum=4 range=0,75 fontsize=12
 ```
 
@@ -552,7 +552,7 @@ Here is the result.
 
 ### Displaying specific slope values
 
-Rather than seeing all slopes or other terrain characteristics, it is sometimes useful to focus on a limited range values. This can be done quickly the display properties for raster maps.  
+Rather than seeing all slopes or other terrain characteristics, it is sometimes useful to focus on a limited range values. This can be done quickly in the display properties tool for raster maps.  
 
 :::::::::::: {.panel-tabset group="language"}
 
@@ -570,7 +570,7 @@ Rather than seeing all slopes or other terrain characteristics, it is sometimes 
 
 You can display only slopes ≥ 10° using the ([d.rast](https://grass.osgeo.org/grass-stable/manuals/d.rast.html)) tool.
 
-```{python}
+```{bash}
 d.rast map=slope values=10-76
 ```
 
@@ -677,7 +677,7 @@ Now create an analysis of very small landforms using a search radius of only 5 c
 
 We will start with a large outer search radius of 200 cells (600 m on the Flagstaff DEM). This will classify larger scale landforms.  
 
-```{python}
+```{bash}
 r.geomorphon elevation=elevation forms=landforms200 search=200 skip=10 flat=1 comparison=anglev2_distance
 ```
 
@@ -882,7 +882,7 @@ As with slope, a legend can help convey the information of a flow accumulation m
 
 #### Command line
 
-```{python}
+```{bash}
 d.legend -l raster=watershed_accumulation100000 title="Flow Accumulation" title_fontsize=14 label_values=1,10,100,1000,10000,100000,1000000 fontsize=12
 ```
 
@@ -956,7 +956,7 @@ We can make the streams more easily visible if we convert the raster stream map 
 
 #### Command line
 
-```{python}
+```{bash}
 r.to.vect -v input=watershed_streams10000 output=watershed_streams10000 type=line
 ```
 
@@ -1041,7 +1041,7 @@ An alternative way to generate a stream network from a watershed analysis is wit
 
 #### Command line
 
-```{python}
+```{bash}
 r.stream.extract elevation=elevation accumulation=watershed_accumulation10000@ threshold=5000 stream_vector=streams5000accumulation
 ```
 
