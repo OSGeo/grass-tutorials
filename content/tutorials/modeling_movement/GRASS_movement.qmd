@@ -437,7 +437,7 @@ We can create this friction map by reclassifying the *landuse* map using [*r.rec
 
 ## GUI
 
-The [r.reclass](https://grass.osgeo.org/grass-stable/manuals/r.reclass.html) tool is found under the Raster/Change category… menu.  
+The [r.reclass](https://grass.osgeo.org/grass-stable/manuals/r.reclass.html) tool is found under the Raster/Change category menu.  
 
 ::::: grid
 ::: g-col-6
@@ -458,8 +458,6 @@ The [r.reclass](https://grass.osgeo.org/grass-stable/manuals/r.reclass.html) too
 :::
 
 ::: g-col-6
-
-This creates a new friction map named *friction_landcover*.  
 
 ![](img_movement/GRASS_movement_22.webp)  
 :::
@@ -496,6 +494,8 @@ gs.write_command("r.reclass",
                  stdin=rules)
 ```
 ::::::
+
+This creates a new friction map named *friction_landcover*.  
 
 ![The reclassified friction map (*friction_landcover*)](img_movement/GRASS_movement_23.webp)  
 
