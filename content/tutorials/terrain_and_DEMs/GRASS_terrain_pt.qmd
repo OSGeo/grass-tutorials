@@ -209,7 +209,10 @@ r.relief input=elevation output=relief zscale=3
 #### Python
 
 ```{python}
-gs.run_command("r.relief",input="elevation", output="relief" zscale=3)
+gs.run_command("r.relief", 
+                input="elevation", 
+                output="relief", 
+                zscale=3)
 ```
 :::::::::
 
@@ -265,14 +268,14 @@ Começaremos criando um novo mapa de relevo sombreado em cores usando [r.shade](
 #### Linha de comando
 
 ```{bash}
-r.shade shade=relief color=elevation output=topography_colored_relief brighten=40]
+r.shade shade=relief color=elevation output=topography_colored_relief brighten=40
 ```
 
 #### Python
 
 ```{python}
 gs.run_command("r.shade", 
-                shade="relief, 
+                shade="relief", 
                 color="elevation", 
                 output="topography_colored_relief", 
                 brighten=40)
@@ -658,8 +661,8 @@ r.geomorphon elevation=elevation forms=landforms200 search=200 skip=10 flat=1 co
 
 Repita com um raio de busca muito menor para classificar formas de relevo muito menores.
 
-```{python}
-r.geomorphon elevation=elevation@terrain forms=landforms5 search=5 skip=0 flat=1 comparison=anglev2_distance
+```{bash}
+r.geomorphon elevation=elevation forms=landforms5 search=5 skip=0 flat=1 comparison=anglev2_distance
 ```
 
 #### Python
@@ -798,7 +801,7 @@ r.watershed -a -b elevation=elevation threshold=10000 accumulation=watershed_acc
 gs.run_command("r.watershed", 
                 elevation="elevation", 
                 threshold=10000, 
-                accumulation=watershed_accumulation10000, 
+                accumulation="watershed_accumulation10000", 
                 basin="watershed_basin10000", 
                 stream="watershed_streams10000", 
                 flags="ab")
@@ -839,7 +842,7 @@ Assim como no caso da inclinação da vertente, uma legenda pode ajudar a transm
 ::: {.panel-tabset group="language"}
 #### GUI
 
--   Nome do mapa raster: watershed_accumulation10000\@terrain (na aba Input).
+-   Nome do mapa raster: watershed_accumulation10000 (na aba Input).
 
 -   Título da legenda: "Flow Accumulation" (na aba Title).
 
@@ -1004,7 +1007,7 @@ Uma maneira alternativa de gerar uma rede de drenagens a partir de uma análise 
 #### Linha de comando
 
 ```{bash}
-r.stream.extract elevation=elevation accumulation=watershed_accumulation10000@ threshold=5000 stream_vector=streams5000accumulation
+r.stream.extract elevation=elevation accumulation=watershed_accumulation10000 threshold=5000 stream_vector=streams5000accumulation
 ```
 
 #### Python
@@ -1012,7 +1015,7 @@ r.stream.extract elevation=elevation accumulation=watershed_accumulation10000@ t
 ```{python}
 gs.run_command("r.stream.extract", 
                 elevation="elevation", 
-                accumulation="watershed_accumulation10000@", 
+                accumulation="watershed_accumulation10000", 
                 threshold=5000, 
                 stream_vector="streams5000accumulation")
 ```
