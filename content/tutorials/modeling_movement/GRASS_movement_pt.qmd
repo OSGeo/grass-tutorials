@@ -87,15 +87,16 @@ Se você não tem certeza de como começar a usar o GRASS usando sua interface g
 
 ::::: grid
 ::: g-col-6
+
 1.  Adicione o raster de *elevação (elevation)* ao Gerenciador de Camadas *(Layer Manager)*.  
 
-2.  Clique com o botão direito do mouse na *elevação (elevation)* no Gerenciador de Camadas*(Layer Manager)*.  
+2.  Clique com o botão direito do mouse na *elevação (elevation)* no Gerenciador de  Camadas*(Layer Manager)*.  
 
 3.  Selecione *defina a região computacional do mapa selecionado* *(set computational region from selected map)*.  
 
-4.  Abra a **Calculadora de Mapa Raster** *(Raster Map Calculator)* na barra de ferramentas superior (ícone "ábaco/*abacus*").  
+4.  Abra a **Calculadora de Mapa Raster** *(Raster Map Calculator)* na barra de ferramentas superior (ícone "ábaco/*abacus*").
 
-5.  Preencha o nome do mapa de saída (*name for new raster map to create*) como *friction0* e insira 0 no campo de expressão.
+5.  Preencha o nome do mapa de saída (*name for new raster map to create*) como *friction0* e insira 0 no campo de expressão (*expression*).
 
 6.  Pressione Executar *(Run)*.  
 :::
@@ -145,16 +146,15 @@ Agora que temos um mapa DEM para terreno e um mapa de atrito, tudo o que precisa
 ::: g-col-6
 Use o **Gerenciador de Tabela de Atributos** *(Attribute Table Manager)* para *hospitals*:
 
-1.  Exiba o mapa *hospitals* adicionando-o ao Gerenciador de Camadas do Catálogo de Dados. 
+1.  Exiba o mapa *hospitals* adicionando-o ao Gerenciador de Camadas do Catálogo de Dados.  
 
-2.  Clique com o botão direito e abra o Gerenciador de Tabela de Atributos (*Attribute
-Table Manager*). 
+2.  Clique com o botão direito e abra o Gerenciador de Tabela de Atributos (*Attribute Table Manager*).  
 
 3.  Selecione o registro "Flagstaff Medical Center".  
 
 4.  Clique com o botão direito e selecione **Extraia recursos selecionados** *(Extract selected features)* do menu de contexto.  
 
-5.  Nomeie o novo mapa como *FMC*
+5.  Nomeie o novo mapa como *FMC*.  
 :::
 
 ::: g-col-6
@@ -204,7 +204,8 @@ Use a ferramente *r.walk* no menu **Análise Raster/Terreno** (*Raster/Terrain A
 :::
 
 ::: g-col-6
-2.  Digite um nome para o **mapa de direções** (*FMC_directions*) a ser usado para criar um caminho de menor custo.  
+2.  Digite um nome para o **mapa de direções** (*FMC_directions*) a ser usado para criar um caminho de menor custo (*name for the output raster map*).  
+
 
 ![](img_movement/GRASS_movement_7.webp){fig-align="left" width="100%"}  
 :::
@@ -212,6 +213,7 @@ Use a ferramente *r.walk* no menu **Análise Raster/Terreno** (*Raster/Terrain A
 
 ::::: grid
 ::: g-col-6
+
 3.  Insira o **ponto inicial** (*name of starting vector points in map*) que é o arquivo chamado de FMC.  
 
 ![](img_movement/GRASS_movement_8.webp){fig-align="left" width="100%"}  
