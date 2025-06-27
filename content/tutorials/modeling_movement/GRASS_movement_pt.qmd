@@ -1,0 +1,558 @@
+---
+title: "Modelando Movimento no GRASS"
+author: "Michael Barton, Leticia Correa, & Anna Petrasova"
+date: 2025-05-09
+date-modified: today
+lightbox: true
+engine: knitter
+image: img_movement/thumbnail.webp
+format: 
+  html:
+    embed-resources: true
+    toc: true
+    code-tools: true
+    code-copy: true
+    code-fold: false
+page-layout: article
+categories: [intermediate, advanced, GUI, raster, cost surface, least cost path, Português]
+description: Gerando uma superfície de custo cumulativo e um caminho de menor custo com *r.walk* e *r.path* para modelar o movimento ao caminhar por uma paisagem.
+execute: 
+  eval: false
+copyright: 
+  holder: Michael Barton, Leticia Correa, & Anna Petrasova
+  year: 2025
+funding: "A criação deste tutorial foi parcialmente apoiada pela bolsa FAIN 2303651 da Fundação Nacional de Ciências dos EUA."
+---
+
+GRASS possui ferramentas sofisticadas para modelar o movimento pelo terreno, incluindo [r.cost](https://grass.osgeo.org/grass-stable/manuals/r.cost.html), [r.walk](https://grass.osgeo.org/grass-stable/manuals/r.walk.html), [r.drain](https://grass.osgeo.org/grass-stable/manuals/r.drain.html), e [r.path](https://grass.osgeo.org/grass-stable/manuals/r.path.html). Neste tutorial usaremos ***r.walk*** e ***r.path*** para determinar o melhor caminho percorrido para um destino que será um hospital.
+
+::: {.callout-note title="Dataset"}
+Este tutorial usa um dos conjuntos de dados de amostra padrão do GRASS: flagstaff_arizona_usa. Faremos referência a nomes de lugares nesse conjunto de dados, mas ele pode ser completado com qualquer um dos [standard sample data sets](https://grass.osgeo.org/download/data/) para qualquer região - por exemplo, [North Carolina data set](https://grass.osgeo.org/sampledata/north_carolina/nc_basic_spm_grass7.zip). Nós usaremos o DEM de elevação de Flagstaff (*elevation* DEM), o arquivo de pontos vetoriais dos *hospitals* (qualquer outro arquivo de pontos vetoriais servirá) e o mapa raster *uso do solo* (*landuse)* .
+
+Este tutorial foi criado para que você possa concluí-lo usando a interface gráfica do usuário (GUI) do GRASS (**GRASS GUI)**, comandos GRASS do **console ou terminal** ou usando comandos GRASS em um ambiente **Jupyter Notebook**.
+:::
+
+::: {.callout-note title="Don't know how to get started?"}
+Se você não tem certeza de como começar a usar o GRASS usando sua interface gráfica de usuário ou usando Python, confira os tutoriais [Get started with GRASS GIS GUI](../get_started/fast_track.qmd) e [Get started with GRASS & Python in Jupyter Notebooks](../get_started/fast_track_grass_and_python.qmd).
+:::
+
+## O que é uma superfície de custo (cost surface)?
+
+::::: grid
+::: g-col-6
+-   Uma **superfície de custo** é um raster em que cada célula representa o “custo” ou a dificuldade de se mover pela paisagem.  
+
+-   Uma **superfície de custo cumulativa** *(cumulative cost surface)* mostra o custo total acumulado de deslocamento de um ponto de partida até um local. Superfícies de custo cumulativo também são usadas para encontrar o **caminho de menor custo** *(least cost path)* entre um local e o ponto de partida.  
+
+-   A ferramenta GRASS [r.walk](https://grass.osgeo.org/grass-stable/manuals/r.walk.html) gera uma superfície de custo cumulativo usando a regra de Naismith para tempos de caminhada, onde cada célula tem o valor em **segundos** do tempo que leva para caminhar do ponto inicial até essa célula.  
+:::
+
+::: g-col-6
+![superfície de custo](img_movement/GRASS_movement_0.webp){fig-align="right" width="100%"}
+:::
+:::::
+
+# Modelagem de movimento com uma superfície de custo cumulativa
+
+## Visão geral
+
+::::: grid
+::: g-col-6
+1.  Comece com um **DEM de elevação** para topografia para determinar os custos de movimentação.  
+
+2.  Crie um **mapa de atrito** *(friction map)* com um valor de 0 (ou outros valores para custos de movimentação adicionais).  
+
+3.  Selecione **ponto de partida(s)** *(start point(s))*.  
+
+4.  Crie uma **superfície de custo** *(cost surface)*.  
+
+5.  Um caminho de **menor custo** *(least cost)* pode então ser calculado entre qualquer ponto na superfície de custo e o ponto inicial.  
+:::
+
+::: g-col-6
+![DEM](img_movement/GRASS_movement_1.webp)  
+:::
+:::::
+
+## Mapa de atrito
+
+-   O comando [map calculator](https://grass.osgeo.org/grass-stable/manuals/r.mapcalc.html) (calculadora de mapa) no GRASS permite criar, alterar ou combinar mapas usando **álgebra de mapas** *(map algebra)*. A calculadora de mapas pode ser usada a partir da interface gráfica do usuário (GUI) ou como um comando.  
+
+-   Antes de fazer um mapa de fricção você faz um mapa de fricção, certifique-se de que a [**computational region**](https://grass.osgeo.org/grass-stable/manuals/g.region.html) (região computacional) corresponde ao mapa de elevação.  
+
+-   Crie o mapa *friction0* com 0 em cada célula.  
+
+:::::: {.panel-tabset group="language"}
+#### GUI
+
+::::: grid
+::: g-col-6
+
+1.  Adicione o raster de *elevação (elevation)* ao Gerenciador de Camadas *(Layer Manager)*.  
+
+2.  Clique com o botão direito do mouse na *elevação (elevation)* no Gerenciador de  Camadas*(Layer Manager)*.  
+
+3.  Selecione *defina a região computacional do mapa selecionado* *(set computational region from selected map)*.  
+
+4.  Abra a **Calculadora de Mapa Raster** *(Raster Map Calculator)* na barra de ferramentas superior (ícone "ábaco/*abacus*").
+
+5.  Preencha o nome do mapa de saída (*name for new raster map to create*) como *friction0* e insira 0 no campo de expressão (*expression*).
+
+6.  Pressione Executar *(Run)*.  
+:::
+
+::: g-col-6
+![Calculadora de mapa raster](img_movement/GRASS_movement_2.webp)  
+:::
+:::::
+
+#### Linha de comando
+
+1.  Defina a região para corresponder ao mapa de elevação.  
+
+2.  Crie um mapa de atrito com um valor de 0 em todas as células que corresponda à extensão e resolução do mapa de elevação.  
+
+```{bash}
+g.region raster=elevation
+r.mapcalc "friction0 = 0"
+```
+
+#### Python
+
+1.  Defina a região para corresponder ao mapa de elevação.  
+
+2.  Crie um mapa de atrito com um valor de 0 em todas as células que corresponda à extensão e resolução do mapa de elevação.  
+
+```{bash}
+gs.run_command("g.region", raster="elevation")
+gs.mapcalc("friction0 = 0")
+```
+::::::
+
+## Escolha um ponto de partida
+
+Agora que temos um mapa DEM para terreno e um mapa de atrito, tudo o que precisamos para uma superfície de custo cumulativo é um ponto de partida: o ponto a partir do qual calcular os custos de movimento.  
+
+-   Um ponto inicial pode ser um ponto vetorial, uma célula raster ou até mesmo um par de coordenadas.  
+
+-   Uma superfície de custo em *r.walk* pode ter vários pontos iniciais.  
+
+-   Faremos um ponto de partida no Flagstaff Medical Center, encontrado no arquivo de pontos vetoriais do hospital *(hospitals)*.  
+
+:::::: {.panel-tabset group="language"}
+#### GUI
+
+::::: grid
+::: g-col-6
+Use o **Gerenciador de Tabela de Atributos** *(Attribute Table Manager)* para *hospitals*:
+
+1.  Exiba o mapa *hospitals* adicionando-o ao Gerenciador de Camadas do Catálogo de Dados.  
+
+2.  Clique com o botão direito e abra o Gerenciador de Tabela de Atributos (*Attribute Table Manager*).  
+
+3.  Selecione o registro "Flagstaff Medical Center".  
+
+4.  Clique com o botão direito e selecione **Extraia recursos selecionados** *(Extract selected features)* do menu de contexto.  
+
+5.  Nomeie o novo mapa como *FMC*.  
+:::
+
+::: g-col-6
+![ferramenta de tabela de dados para mapa de pontos vetoriais de hospitais](img_movement/GRASS_movement_3.webp)  
+
+![ferramenta de tabela de dados para mapa de pontos específicos de hospitais](img_movement/GRASS_movement_4.webp){width="60%"}  
+:::
+:::::
+
+#### Linha de comando
+
+Use a ferramenta v.extract para criar um mapa de pontos vetoriais chamado *FMC* a partir do mapa de *hospitals*.  
+
+```{bash}
+v.extract input=hospitals type=point where="FACILITY_N = 'FLAGSTAFF MEDICAL CENTER'" output=FMC
+```
+
+#### Python
+
+Use the v.extract tool to create a vector point map named *FMC* from the *hospitals* map.  
+
+```{python}
+gs.run_command("v.extract", 
+                input="hospitals", 
+                type="point", 
+                where="FACILITY_N = 'FLAGSTAFF MEDICAL CENTER'", 
+                output="FMC")
+```
+::::::
+
+Use a ferramenta *d.vect* clicando duas vezes em FMC no gerenciador de camadas para exibir o ponto com uma cor e tamanho para vê-lo melhor.  
+
+![](img_movement/GRASS_movement_5.webp)
+
+## Gerar a superfície de custo cumulativo {#gerar-superfície-cumulativa-de-custo}
+
+::::::::::::: {.panel-tabset group="language"}
+#### GUI
+
+Use a ferramente *r.walk* no menu **Análise Raster/Terreno** (*Raster/Terrain Analysis*)
+
+::::: grid
+::: g-col-6
+1.  Entre com o **mapa de elevação** (*elevation*), **mapa de atrito** (*friction0*), e dê o **nome da superfície de custo** (*name for output raster map*) a ser criada (FMC_cost_seconds).  
+
+![](img_movement/GRASS_movement_6.webp){fig-align="left" width="100%"}  
+:::
+
+::: g-col-6
+2.  Digite um nome para o **mapa de direções** (*FMC_directions*) a ser usado para criar um caminho de menor custo (*name for the output raster map*).  
+
+
+![](img_movement/GRASS_movement_7.webp){fig-align="left" width="100%"}  
+:::
+:::::
+
+::::: grid
+::: g-col-6
+
+3.  Insira o **ponto inicial** (*name of starting vector points in map*) que é o arquivo chamado de FMC.  
+
+![](img_movement/GRASS_movement_8.webp){fig-align="left" width="100%"}  
+:::
+
+::: g-col-6
+4.  Opcional: controlar a **extensão espacial** *(spatial extent)* da superfície de custo.  
+
+![](img_movement/GRASS_movement_9.webp)  
+:::
+:::::
+
+::::: grid
+::: g-col-6
+5.  Opcional: ajuste a configuração do **Parâmetro de movimento** *(Movement parameter)*.  
+
+![](img_movement/GRASS_movement_10.webp){fig-align="left" width="100%"}  
+:::
+
+::: g-col-6
+6.  Recomendado: selecione **knight's move** para calcular custo e direção.  
+
+![](img_movement/GRASS_movement_11.webp){fig-align="left" width="100%"}  
+:::
+:::::
+
+::: {.callout-note title="Tip"}
+Clique no botão "copiar" para copiar o comando GRASS. Você pode salvá-lo em um arquivo de texto para reutilização posterior ou para documentar seu trabalho.  
+:::
+
+#### Linha de comando
+
+-   Use o comando r.walk para gerar a superfície de custo cumulativo.  
+
+```{bash}
+r.walk elevation=elevation friction=friction0 output=FMC_cost_seconds outdir=FMC_directions start_points=FMC -k
+```
+
+#### Python
+
+-   Use o comando r.walk para gerar a superfície de custo cumulativo.  
+
+```{python}
+gs.run_command("r.walk",
+               elevation="elevation",
+               friction="friction0",
+               output="FMC_cost_seconds",
+               outdir="FMC_directions",
+               start_points="FMC",
+               flags="k")
+```
+:::::::::::::
+
+## Mapa de superfície de custo cumulativo
+
+Cada valor de célula raster na superfície de custo é o tempo em segundos para caminhar do FMC até essa célula no terreno do DEM de Flagstaff.  
+
+![](img_movement/GRASS_movement_12.webp)  
+
+::: {.callout-note title="Tip"}
+Dica: Você pode exibir a superfície de custo cumulativo sobre um mapa de relevo sombreado no **gerenciador de camadas** *(layer manager)* usando a ferramenta  [d.shade](https://grass.osgeo.org/grass-stable/manuals/d.shade.html) e um mapa de relevo de elevação feito com [r.relief](https://grass.osgeo.org/grass-stable/manuals/d.shade.html).  
+:::
+
+## Movimento através de uma superfície de custo cumulativo {#movement-across-cost-surface}
+
+Você pode transformar o tempo de caminhada em segundos em horas dividindo o mapa por 3600 usando a calculadora de mapas.  
+
+:::::: {.panel-tabset group="language"}
+#### GUI
+
+::::: grid
+::: g-col-6
+1.  Abra a calculadora de mapa *(map calculator)*.  
+
+2.  Digite o nome do novo mapa de tempo de caminhada em horas: *FMC_cost_hours*.  
+
+3.  Digite FMC_cost_seconds / 3600 no campo de expressões.  
+
+4.  Pressione Executar *(Run)*.  
+:::
+
+::: g-col-6
+![](img_movement/GRASS_movement_13.webp){fig-align="left" width="100%"}  
+:::
+:::::
+
+#### Linha de Comando
+
+```{bash}
+r.mapcalc "FMC_cost_hours = FMC_cost_seconds / 3600"
+```
+
+#### Python
+
+```{python}
+gs.mapcalc("FMC_cost_hours = FMC_cost_seconds / 3600")
+```
+::::::
+
+------------------------------------------------------------------------
+
+::::: grid
+::: g-col-6
+-   Podemos consultar ou filtrar essa superfície de custo cumulativo por hora para áreas de tempo de caminhada equivalente.  
+
+-   Por exemplo, no **gerenciador de camadas** *(layer manager)*, podemos usar a ferramenta *d.rast* para mostrar a área dentro de uma caminhada de 2 horas do FMC e, em seguida, definir a opacidade da superfície de custo para 50% para ver o terreno subjacente.  
+:::
+
+::: g-col-6
+![](img_movement/GRASS_movement_15.webp)  
+:::
+:::::
+
+![A área sombreada representa o terreno alcançado em uma caminhada de 2 horas a partir do FMC](img_movement/GRASS_movement_14.webp)  
+
+# Caminhos de menor custo {#least-cost-path}
+
+## Visão geral
+
+-   Também podemos traçar um **caminho de menor custo** (LCP), que é a rota menos custosa (com menor tempo de viagem) entre qualquer ponto na superfície de custo cumulativo e o FMC.  
+
+-   Imagine um caminhante perdido a nordeste de Flagstaff que precisa caminhar até o FMC.  
+
+-   Qual caminho levaria menos tempo?  
+
+![](img_movement/GRASS_movement_16.webp)  
+
+## Gerando um caminho de menor custo
+
+Para criar um LCP no GRASS, usaremos [r.path](https://grass.osgeo.org/grass-stable/manuals/r.path.html) (também no menu Análise Raster/Terreno - "*Raster/Terrain"*).  
+
+:::::::: {.panel-tabset group="language"}
+#### GUI
+
+::::: grid
+::: g-col-6
+1.  Insira o **mapa de direções** (FMC_directions) que também criamos quando criamos a superfície de custo cumulativo.  
+
+![](img_movement/GRASS_movement_17.webp)  
+:::
+
+::: g-col-6
+2.  Insira as **coordenadas do caminhante** *(starting point)* como ponto de partida para o LCP. (Também podemos usar um ponto vetorial predefinido).  
+
+![](img_movement/GRASS_movement_18.webp)  
+:::
+:::::
+
+:::: grid
+::: g-col-6
+3.  Especifique o **nome do mapa de caminho do vetor de saída** *(name of the output vector)* que será LCP_cumulative.  
+
+![](img_movement/GRASS_movement_19.webp)  
+:::
+::::
+
+#### Linha de comando
+
+```{bash}
+r.path input=FMC_directions format=auto vector_path=LCP_cumulative start_coordinates=477476,13914951
+```
+
+#### Python
+
+```{python}
+gs.run_command("r.path",
+               input="FMC_directions",
+               format="auto",
+               vector_path="LCP_cumulative",
+               start_coordinates=[477476, 13914951])
+```
+::::::::
+
+## Caminho de menor custo gerado
+
+Aqui está o resultado do LCP.  
+
+![](img_movement/GRASS_movement_20.webp)  
+
+# Adicionando um mapa de atrito aos custos de movimentação
+
+## Visão geral
+
+-   Um **mapa de atrito** *(friction map)* pode ser usado para incorporar outros fatores além do terreno na criação de uma superfície de custo cumulativo e na modelagem de movimento.  
+
+-   O valor de cada célula em um raster de mapa de atrito é a quantidade de tempo de caminhada, em segundos/metro, *além do tempo necessário* devido ao terreno.  
+
+-   Podemos **reclassificar** *(reclassify)* o mapa de *uso do solo* para criar um mapa de atrito da quantidade de tempo extra que levaria para caminhar por diferentes tipos de cobertura do solo.  
+
+![Reclassificação do *uso do solo* *(landuse)* para mostrar os principais tipos de cobertura do solo](img_movement/GRASS_movement_21.webp)  
+
+## Reclassificando o *uso do solo* para criar um mapa fictício
+
+Uma velocidade padrão de caminhada em terreno plano é de cerca de 5 km/h = 0,72 s/m.  
+
+Podemos então estimar que levaria mais:  
+
+-   3 s/m para caminhar por uma densa floresta de pinheiros e zimbros  
+
+-   1 s/m para atravessar uma floresta de coníferas  
+
+-   2 s/m para vagar pela área urbana de Flagstaff  
+
+-   5 s/m para escalar campos de lava  
+
+-   10 s/m para tentar atravessar a água  
+
+Podemos criar este mapa de atrito reclassificando o mapa de *uso do solo* usando [*r.reclass*](https://grass.osgeo.org/grass-stable/manuals/r.reclass.html) para atribuir novos valores de atrito às categorias de cobertura do solo existentes.  
+
+:::::: {.panel-tabset group="language"}
+## GUI
+
+A ferramenta [r.reclass](https://grass.osgeo.org/grass-stable/manuals/r.reclass.html) pode ser encontrada no menu Raster/Alterar (Raster/Change).  
+
+::::: grid
+::: g-col-6
+1.  Insira com raster o *uso do solo* (*landuse)* que será reclassificado.  
+
+2.  Insira *friction_reclassified* para o mapa de saída (output) reclassificado.  
+
+3.  Insira as regras de reclassificação diretamente na caixa de texto ou a partir de um arquivo de texto salvo. Use o símbolo \* para representar tudo o que não estiver coberto pelas regras de reclassificação específicas.  
+
+> 11 90 95 = 10 water\
+> 21 thru 24 = 2 urban\
+> 31 = 5 lava\
+> 41 thru 43 = 1 conifer forest\
+> 52 = 3 pinyon juniper woodland\
+> \* = 0 no friction
+:::
+
+::: g-col-6
+-   Isso cria um novo mapa de atrito denominado *friction_landcover*.  
+
+![](img_movement/GRASS_movement_22.webp)  
+:::
+:::::
+
+## Linha de comando
+
+```{bash}
+r.reclass input=landuse output=friction_landcover rules=- << EOF
+11 90 95 = 10 water
+21 thru 24 = 2 urban
+31 = 5 lava
+41 thru 43 = 1 conifer forest
+52 = 3 pinyon juniper woodland
+* = 0 no friction
+EOF
+```
+
+## Python
+
+```{python}
+rules = """\
+11 90 95 = 10 water
+21 thru 24 = 2 urban
+31 = 5 lava
+41 thru 43 = 1 conifer forest
+52 = 3 pinyon juniper woodland
+* = 0 no friction
+"""
+gs.write_command("r.reclass",
+                 input="landuse",
+                 output="friction_landcover",
+                 rules="-",
+                 stdin=rules)
+```
+::::::
+
+O mapa de atrito reclassificado (friction_landcover).  
+
+![O mapa de atrito reclassificado (friction_landcover)](img_movement/GRASS_movement_23.webp)  
+
+## Modificando uma superfície de custo cumulativo com um mapa de atrito.  
+
+Agora podemos criar uma nova superfície de custo cumulativo usando esse novo mapa de atrito e convertê-lo de segundos para horas, como fizemos antes:  
+
+::: {.panel-tabset group="language"}
+#### GUI
+
+1.  Siga os procedimentos na seção Gerar a superfície de custo cumulativo e substitua o novo mapa friction_landcover pelo mapa friction0 usado anteriormente.  
+
+2.  Siga os procedimentos em e substitua o novo mapa friction_landcover pelo mapa friction0 usado anteriormente.   
+
+3.  Converta a superfície de custo cumulativo em horas em vez de segundos seguindo os procedimentos na seção Movimento em uma superfície de custo cumulativo.  
+
+#### Linha de comando
+
+```{bash}
+r.walk elevation=elevation friction=friction_landcover output=FMC_vegcost_seconds outdir=FMC_vegcost_directions start_points=FMC -k
+r.mapcalc "FMC_vegcost_hours = FMC_vegcost_seconds / 3600"
+```
+
+#### Python
+
+```{python}
+gs.run_command("r.walk",
+               elevation="elevation",
+               friction="friction_landcover",
+               output="FMC_vegcost_seconds",
+               outdir="FMC_vegcost_directions",
+               start_points="FMC",
+               flags="k")
+gs.mapcalc("FMC_vegcost_hours = FMC_vegcost_seconds / 3600")
+```
+:::
+
+![superfície de custo cumulativo com atrito adicional da cobertura do solo](img_movement/GRASS_movement_24.webp)
+
+## Caminhos de menor custo e atrito
+
+Podemos criar um novo LCP do caminhante encalhado para o FMC em terrenos onde a cobertura do solo também afeta o custo do movimento.  
+
+::: {.panel-tabset group="language"}
+#### GUI
+
+1.  Siga os procedimentos na seção Caminho de menor custo, substituindo o novo mapa de direção feito junto com a superfície de custo cumulativo pelo mapa de atrito da cobertura do solo.  
+
+2.  Dê a este novo LCP o nome *LCP_vegcost* para diferenciá-lo do LCP anterior.  
+
+#### Linha de comando
+
+```{bash}
+r.path input=FMC_vegcost_directions format=auto vector_path=LCP_vegcost start_coordinates=477476,13914951
+```
+
+#### Python
+
+```{python}
+gs.run_command("r.path",
+               input="FMC_vegcost_directions",
+               format="auto",
+               vector_path="LCP_vegcost",
+               start_coordinates=[477476, 13914951])
+```
+:::
+
+-   Leva mais tempo para chegar ao FMC se o caminhante tiver que navegar por vegetação densa, além do terreno.  
+
+-   No mapa abaixo, o terreno colorido pela cobertura do solo; o LCP original com apenas terreno é mostrado pela linha azul. O LCP com um mapa de atrito de cobertura do solo é mostrado pela linha amarela mais grossa.  
+
+![comparando LCP apenas com terreno e com atrito de cobertura de solo](img_movement/GRASS_movement_25.webp)

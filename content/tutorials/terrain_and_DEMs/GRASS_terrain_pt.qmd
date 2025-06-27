@@ -1,0 +1,1046 @@
+---
+title: "Visualização e modelagem de terrenos a partir de MDE no GRASS"
+author: "Eunice Villaseñor Iribe, Michael Barton, & Leticia Correa"
+date: 2025-06-23
+date-modified: today
+lightbox: true
+engine: knitter
+image: img_terrain/thumbnail.webp
+format: 
+  html:
+    embed-resources: true
+    toc: true
+    code-tools: true
+    code-copy: true
+    code-fold: false
+page-layout: article
+categories: [beginner, intermediate, raster, DEM, visualization, terrain, slope, aspect, landforms, hydrology, streams, Português]
+description: Este tutorial orienta o usuário por meio de várias maneiras de analisar e modelar terrenos a partir de mapas raster MDE.
+execute: 
+  eval: false
+copyright: 
+  holder: Eunice Villaseñor Iribe, Michael Barton, & Leticia Correa
+  year: 2025
+funding: "A criação deste tutorial foi parcialmente apoiada pela bolsa FAIN 2303651 da Fundação Nacional de Ciências dos EUA."
+---
+
+O GRASS possui diversas ferramentas que podem ajudar você a visualizar e modelar terrenos a partir de mapas raster de modelo digital de elevação - MDE (*digital elevation model - DEM*). Alguns exemplos incluem:
+
+-   [r.shade](https://grass.osgeo.org/grass-stable/manuals/r.shade.html) para visualização,
+
+-   [r.slope.aspect](https://grass.osgeo.org/grass-stable/manuals/r.slope.aspect.html) para modelagem da inclinação da vertente e aspecto,
+
+-   [r.geomorphon](https://grass.osgeo.org/grass-stable/manuals/r.geomorphon.html) para modelar aspectos topográficos,
+
+-   [r.watershed](https://grass.osgeo.org/grass-stable/manuals/r.watershed.html) para modelagem de escoamento superficial e bacias hidrográficas, e
+
+-   [r.stream.extract](https://grass.osgeo.org/grass-stable/manuals/r.stream.extract.html) para gerar drenages de fluxo.
+
+Este tutorial explorará essas ferramentas, mas elas são apenas alguns dos muitos módulos do GRASS para representar e analisar paisagens.
+
+::: {.callout-note title="Demo Dataset"}
+Este tutorial usa um dos conjuntos de dados de amostra padrão do GRASS para Flagstaff, Arizona, EUA: ***flagstaff_arizona_usa***. Faremos referência a nomes de lugares nesse conjunto de dados, mas ele pode ser completado com qualquer um dos [conjuntos de dados de amostra padrão](https://grass.osgeo.org/download/data/) para qualquer região - por exemplo, [Conjunto de dados da Carolina do Norte](https://grass.osgeo.org/sampledata/north_carolina/nc_spm_08_grass7.zip). Usaremos o MDE elevação (*elevation* *DEM*).
+:::
+
+::: {.callout-note title="GRASS interfaces"}
+Este tutorial foi criado para que você possa concluí-lo usando a interface **gráfica do usuário (GUI)** do GRASS, comandos GRASS do **console ou terminal** ou usando comandos GRASS em um ambiente **Jupyter Notebook.**
+:::
+
+::: {.callout-note title="Don't know how to get started?"}
+Se você não tem certeza de como começar a usar o GRASS usando sua interface gráfica de usuário ou usando Python, confira os tutoriais [Comece com o GRASS GIS GUI](https://grass-tutorials.osgeo.org/content/tutorials/get_started/fast_track.html) e [Comece a usar GRASS e Python no Jupyter Notebooks.](https://grass-tutorials.osgeo.org/content/tutorials/get_started/JupyterOnWindows_OSGeo4W_Tutorial.html)
+:::
+
+# Terreno, MDE e SIG Raster
+
+::::: grid
+::: g-col-4
+-   Embora muitos mapas representem feições **vetoriais** como pontos, linhas e áreas, a paisagem espacialmente contínua do terreno é frequentemente representada em SIG por raster.\
+:::
+
+::: g-col-8
+![Raster MDE do terreno ao redor de Flagstaff, Arizona](img_terrain/flagstaff_color_DEM.webp)
+:::
+:::::
+
+:::: grid
+::: g-col-4
+-   Os dados raster representam o terreno por uma grade contínua de células, muito parecida com os pixels de uma foto digital.
+:::
+
+::: g-col-8
+![foto digital com detalhe para o pixel. *Créditos:* *Basile Morin 2020 ([Wikimedia Commons,](https://commons.wikimedia.org/wiki/File:Sunlight_and_stormy_sky_over_the_mountains_and_paddy_fields_in_Vang_Vieng,_Laos.jpg)[CC4.0)](https://creativecommons.org/licenses/by-sa/4.0/deed.en))*](img_terrain/landscape.webp)
+:::
+::::
+
+::::: grid
+::: g-col-4
+-   Com um **modelo digital de elevação** (MDE) raster, cada célula da grade armazena a elevação acima do nível do mar do terreno coberto pela célula da grade.\
+:::
+
+::: g-col-8
+![MDE da área de Flagstaff. As células do raster armazenam os dados de elevação do terreno.](img_terrain/flagstaf_DEM_detail.webp)
+:::
+:::::
+
+::::: grid
+::: g-col-4
+-   Ao armazenar a elevação de um terreno em vários pontos, um MDE pode ser usado para calcular a inclinação da vertente e o aspecto em cada local, para identificar características topográficas ou para modelar a direção em que a água fluirá sobre um terreno.
+
+-   Ele também pode ser usado para produzir visualizações impressionantes que exibem características do terreno, além de representar a topografia.\
+:::
+
+::: g-col-8
+![](img_terrain/flagstaff_NVIZ_DEM_white.webp)
+:::
+:::::
+
+Neste tutorial, usaremos o MDE denominado **elevation** (elevação). No conjunto de dados de amostra de Flagstaff, este MDE tem uma resolução espacial de 30m (as células da grade representam trechos de 30 x 30m do terreno) com elevação em metros acima do nível médio do mar.
+
+# Vizualizando o terreno
+
+Existem várias maneiras de criar visualizações de terreno no GRASS.
+
+-   Uma tabela de cores pode ser aplicada a um MDE para que diferentes elevações sejam atribuídas a cores diferentes.
+
+-   Um MDE pode ser sombreado para criar a aparência de relevo topográfico 3D.
+
+-   A cor pode ser aplicada a um mapa de relevo sombreado (*shaded relief map*).
+
+-   Um MDE de terreno pode ser renderizado em 3D para ser visualizado em diferentes perspectivas.
+
+## Aplicando a tabela de cores ao MDE
+
+O GRASS oferece várias maneiras de aplicar cores a um DEM para visualizar o terreno no menu Raster/Gerenciar cores (*Raster/Manage colors menu*). A maneira mais simples é aplicar uma tabela de cores usando o módulo [r.colors](https://grass.osgeo.org/grass-stable/manuals/r.colors.html).
+
+Vamos aplicar a tabela de cores de *elevation* ao MDE de Flagstaff. Esta tabela atribui cores "quentes" a elevações mais altas e cores "frias" a elevações mais baixas.
+
+::::::::: {.panel-tabset group="language"}
+#### GUI
+
+::::: grid
+::: g-col-6
+1.  Selecione a ferramenta [r.colors](https://grass.osgeo.org/grass-stable/manuals/r.colors.html) no menu Raster/Gerenciar cores (*Raster/Manage colors menu*).
+
+2.  Na aba "Mapa" (*Map*), selecione o mapa *elevation* na caixa de entrada "Nome do(s) mapa(s) raster" (*Name of raster map(s)*").
+:::
+
+::: g-col-6
+![](img_terrain/r_colors1.webp)
+:::
+:::::
+
+::::: grid
+::: g-col-6
+3.  Na aba "Definição" (*Define*), selecione *elevation* como o nome da tabela de cores (*color table*).
+
+4.  Clique em Run.\
+:::
+
+::: g-col-6
+![](img_terrain/r_colors2.webp)
+:::
+:::::
+
+Experimente outras tabelas de cores. As tabelas de cores ETOPO2, Terrain e SRTM também são boas para cores de terreno. Você também pode criar uma tabela de cores personalizada facilmente, conforme descrito no manual do r.colors.
+
+#### Linha de comando
+
+```{bash}
+r.colors -e map=elevation color=elevation
+```
+
+#### Python
+
+```{python}
+gs.run_command("r.colors", 
+                map="elevation", 
+                color="elevation", 
+                flags="e")
+```
+:::::::::
+
+![MDE de elevação de Flagstaff colorido com a cor chamada *elevation*](img_terrain/flagstaff_elevation_colortable.webp)
+
+## Relevo sombreado do terreno
+
+Um mapa de relevo sombreado adiciona sombras a um MDE, para uma direção da luz solar e uma posição do sol acima do horizonte especificadas pelo usuário. O sombreamento do relevo pode ser gerado porque, com a elevação do terreno armazenada em cada célula da grade, a altura e o aspecto (direção para a qual o terreno está voltado) de cada célula são conhecidos. Um mapa de relevo tem a aparência de uma topografia 3D.
+
+Podemos usar a ferramenta [r.relief](https://grass.osgeo.org/grass-stable/manuals/r.relief.html) para visualizar o relevo topográfico do MDE de elevação para a área de Flagstaff.
+
+Manteremos os padrões de direção e altura do sol, mas aumentaremos o exagero vertical para 3 para que a topografia se destaque melhor.
+
+::::::::: {.panel-tabset group="language"}
+#### GUI
+
+::::: grid
+::: g-col-6
+Análise de raster/terreno/Calcular relevo sombreado (*Raster/Terrain analysis/Compute shaded relief*)
+
+1.  Selecione a ferramenta [r.relief](https://grass.osgeo.org/grass-stable/manuals/r.relief.html) no menu Análise de raster/terreno/Calcular relevo sombreado (*Raster/Terrain analysis/Compute shaded relief*)
+
+2.  Entre com o DEM *elevation* como mapa de entrada (*input raster*).
+
+3.  Escreva *relief (*relevo) para dar nome ao mapa de saída (*output shaded relief map*).\
+:::
+
+::: g-col-6
+![](img_terrain/r_relief1.webp)
+:::
+:::::
+
+::::: grid
+::: g-col-6
+4.  Na aba "Opcional" (*Optional*), insira 3 para o "Fator para exagero de relevo" (*Factor for exaggerating relief*).
+
+5.  Clique em Run.\
+:::
+
+::: g-col-6
+![](img_terrain/r_relief2.webp)
+:::
+:::::
+
+#### Linha de comando
+
+```{bash}
+r.relief input=elevation output=relief zscale=3 
+```
+
+#### Python
+
+```{python}
+gs.run_command("r.relief", 
+                input="elevation", 
+                output="relief", 
+                zscale=3)
+```
+:::::::::
+
+![Mapa de relevo (*relief*)do terreno de Flagstaff](img_terrain/relief.webp)
+
+## Combinando cor e relevo
+
+Para visualizar melhor a diferença no terreno, você pode sobrepor a elevação colorida ao mapa de relevo que acabou de criar.
+
+O GRASS facilita a fusão de cores e sombreamento em relevo para visualizar topografia, características do terreno, cobertura do solo ou outras informações geográficas.
+
+-   Isso pode ser feito criando um novo mapa com a ferramenta [r.shade](https://grass.osgeo.org/grass-stable/manuals/r.shade.html) ou
+
+-   sobrepondo dinamicamente um mapa de cores sobre um mapa de relevo no **gerenciador de camadas (layer manager)** da GUI e na janela de exibição.
+
+Sobreporemos o MDE onde usamos a tabela de cores atribuída no início desta seção com o mapa de relevo que você acabou de fazer usando ambos os métodos.
+
+Essa abordagem também pode ser usada para visualizar outras análises de terreno concluídas posteriormente neste tutorial.
+
+::::::::: {.panel-tabset group="language"}
+#### GUI
+
+Começaremos criando um novo mapa de relevo sombreado em cores usando [r.shade](https://grass.osgeo.org/grass-stable/manuals/r.shade.html).
+
+::::: grid
+::: g-col-6
+1.  Abra *r.shade* no menu Análise de raster/terreno/Aplicar sombra ao raster (*Raster/Terrain analysis/Apply shade to raster*).
+
+2.  Defina o mapa "Nome do relevo sombreado" *(Name of shaded relief)* para o *relief* (relevo).
+
+3.  Defina "Nome do raster para cobrir o raster de relevo" (Name of raster to drape over relief raster) como *elevation* (elevação).
+
+4.  Insira *topography_colored_relief* como "Nome do mapa raster sombreado" (Name of shaded raster).
+:::
+
+::: g-col-6
+![](img_terrain/r_shade1.webp)
+:::
+:::::
+
+::::: grid
+::: g-col-6
+5.  Na aba "Opções" (Optional), defina o brilho (*percent to brighten*) como 40% para fornecer um resultado mais colorido.
+
+6.  Clique em Run.\
+:::
+
+::: g-col-6
+![](img_terrain/r_shade2.webp)
+:::
+:::::
+
+#### Linha de comando
+
+```{bash}
+r.shade shade=relief color=elevation output=topography_colored_relief brighten=40
+```
+
+#### Python
+
+```{python}
+gs.run_command("r.shade", 
+                shade="relief", 
+                color="elevation", 
+                output="topography_colored_relief", 
+                brighten=40)
+```
+:::::::::
+
+![mapa de relevo sombreado colorido](img_terrain/flagstaff_color_relief2.webp)
+
+Você também pode exibir um mapa de relevo sombreado de cores dinamicamente no **gerenciador de camadas (layer manager)** da GUI usando a ferramenta d.shade.
+
+:::::: {.panel-tabset group="language"}
+#### GUI
+
+::::: grid
+::: g-col-6
+1.  No gerenciados de camadas (layer manager), selecione **Adicionar camada de mapa de relevo sombreado (Add shaded relief map layer)** (*d.shade* tool) no botão menu **Adicionar várias camadas de mapa raster (Add various raster map layers)**.
+
+2.  Entre com o mapa chamado *relief* na caixa de texto "Nome do relevo sombreado" (Name of shaded relief).
+
+3.  Entre com o mapa chamado *elevation* na caixa de texto "Nome do raster a ser aplicado sobre o relevo" (Name of raster to drape over relief).
+
+4.  Se você definir a "Porcentagem de brilho" (Percent to brighten) como 30 ou 40, a exibição ficará mais atraente visualmente.
+:::
+
+::: g-col-6
+![](img_terrain/layer_manager_shaded_relief.webp)
+:::
+:::::
+::::::
+
+## Renderização de um terreno 3D
+
+Adicionalmente, uma visualização da topografia em 3D pode ser gerada no GRASS's **3D view** usando o módulo *NVIZ*.
+
+1.  Comece abrindo o DEM de *elevation* no gerenciador de camadas (layer manager). Certifique-se de que **nenhum outro mapa, exceto o *elevation*, seja exibido**.
+
+2.  Selecione **3D view** no menu suspenso na parte superior da janela de exibição do mapa.
+
+3.  Isso deve exibir o mapa de elevação em 3D com o mesmo sombreamento visto na exibição 2D.
+
+4.  Use os controles na aba "Exibir" (View) para alterar a perspectiva, o exagero z e outras características.
+
+5.  Para uma visão mais detalhada do terreno, diminua a resolução "fina" (*fine*) na aba "Dados" (*Data*).
+
+![Topografia MDE renderizada em 3D](img_terrain/NVIZ_elevation.webp)
+
+# Analisando e Modelando as Características do Terreno
+
+O GRASS facilita a modelagem e a análise de uma ampla gama de características do terreno usando um MDE. A inclinação da vertente e o aspecto do terreno, além de características topográficas como picos, cristas e vales, são importantes para estudar e modelar características do solo, vegetação, microclimas, fluxo de água e movimento na superfície. Modelar o fluxo de água sobre o terreno também é relevante para ecologia, redes fluviais e riscos de inundação. Neste tutorial, demonstraremos como usar um MDE para realizar essas análises.
+
+## Inclinação da vertente e aspectos
+
+::::: grid
+::: g-col-6
+A diferença de elevação entre uma célula raster em um MDE e as células adjacentes permite calcular a inclinvação da vertente para essa célula. Também permite calcular a direção para a qual a célula está voltada — seu aspecto.
+
+Podemos usar a ferramente [r.slope.aspect](https://grass.osgeo.org/grass-stable/manuals/r.slope.aspect.html) para determinar a inclinação e o aspecto, bem como diversas outras características do terreno.
+
+Criaremos novos mapas a partir do MDE *elevation* para inclinação do terreno (cada célula armazenará a inclinação em graus) e aspecto (cada célula armazenará o aspecto em graus a partir do norte).
+:::
+
+::: g-col-6
+![Diagrama esquemático de inclinaçã da vertente e aspecto para um MDE. As setas sólidas indicam a inclinação das células para as cores correspondentes e as linhas tracejadas indicam o aspecto.](img_terrain/slope.webp)
+:::
+:::::
+
+:::::::::::: {.panel-tabset group="language"}
+#### GUI
+
+::::: grid
+::: g-col-6
+1.  Abra a ferramenta r.slope.aspect tool no menu Análise de raster/terreno/declive e aspecto (Raster/Terrain analysis/Slope and aspect).
+
+2.  Defina a camada raster *elevation* como "Nome do mapa raster de elevação de entrada"(Name of input elevation raster map).\
+:::
+
+::: g-col-6
+![](img_terrain/r.slope1.webp)
+:::
+:::::
+
+::::: grid
+::: g-col-6
+3.  Digite *slope* para o "Nome para o mapa raster de declive de saída" (Name for output slope raster map).
+
+4.  Digite *aspect* para "Nome para o mapa raster de aspecto de saída" (Name for output aspect raster map).\
+:::
+
+::: g-col-6
+![](img_terrain/r.slope2.webp)
+:::
+:::::
+
+::::: grid
+::: g-col-6
+5.  Na aba Configurações (Settings), clique na caixa de seleção "Criar aspecto em graus no sentido horário a partir do Norte" (Create aspect as degrees clockwise from North). Caso contrário, o aspecto será calculado em graus no sentido anti-horário a partir do Leste.
+
+6.  Clique em Run.\
+:::
+
+::: g-col-6
+![](img_terrain/r.slope3.webp)
+:::
+:::::
+
+#### Linha de comando
+
+Adicione o sinalizador "-n" para que o aspecto seja registrado em graus no sentido horário a partir do Norte. Caso contrário, o aspecto será calculado em graus no sentido anti-horário a partir do Leste.
+
+```{bash}
+r.slope.aspect elevation=elevation slope=slope aspect=aspect -n
+```
+
+#### Python
+
+Adicione o sinalizador "-n" para que o aspecto seja registrado em graus no sentido horário a partir do Norte. Caso contrário, o aspecto será calculado em graus no sentido anti-horário a partir do Leste.
+
+```{python}
+gs.run_command("r.slope.aspect",  
+                elevation="elevation", 
+                slope="slope", 
+                aspect="aspect", 
+                flags="n")
+```
+::::::::::::
+
+Aqui estão os mapas de inclinação da vertente e aspecto resultantes.
+
+-   Observe como a tabela de cores de aspecto em escala de cinza padrão confere ao mapa uma aparência tridimensional, como um mapa em relevo. Isso ocorre porque ele varia do claro ao escuro de acordo com a orientação do terreno, de forma semelhante às sombras do sol. A ferramenta [r.relief](https://grass.osgeo.org/grass-stable/manuals/r.relief.html) usa um algoritmo semelhante para gerar um mapa de relevo.
+
+-   A ferramenta [r.slope.aspect](https://grass.osgeo.org/grass-stable/manuals/r.slope.aspect.html) pode produzir outros mapas analíticos, incluindo mapas da **mudança na inclinação** tanto na direção descendente quanto na transversal, e a **taxa de mudança na inclinação** em diferentes direções.
+
+::::: grid
+::: g-col-6
+![mapa raster de inclinação da vertente](img_terrain/flagstaff_slope.webp)
+:::
+
+::: g-col-6
+![mapa raster de aspecto](img_terrain/flagstaff_aspect.webp)
+:::
+:::::
+
+### Adicionando uma legenda para a visualização da inclinação da vertente e da topografia
+
+Você pode colorir um mapa de relevo com declividade usando o mesmo procedimento descrito acima, mas usando o mapa de *inclinação da vertente* (*slope*) para a cor em vez do MDE *elevation*. Isso permitirá comparar o relevo topográfico e a declividade.
+
+Embora isso possa ajudar a visualizar as diferenças entre as áreas, usar uma **legenda** pode ajudar a determinar qual é o intervalo de valores presentes na área raster e como as cores correspondem a esses valores. Com o GRASS, você pode facilmente criar uma legenda altamente informativa para o seu mapa.
+
+:::::::::::::::::::::::: {.panel-tabset group="language"}
+#### GUI
+
+::::: grid
+::: g-col-6
+A ferramenta de legenda raster pode ser acessada na barra de ferramentas da janela de exibição. Esta ferramenta possui diversas opções. Exploraremos várias delas.
+:::
+
+::: g-col-6
+![ferramenta de exibição de legenda](img_terrain/legend_tool.webp)
+:::
+:::::
+
+::::: grid
+::: g-col-6
+1.  Na aba Entrada (Input), entre com o arquivo chamado *slope* no local "Nome do mapa raster" (Name of raster map).\
+:::
+
+::: g-col-6
+![entrada d.legend](img_terrain/d.legend1.webp)
+:::
+:::::
+
+::::: grid
+::: g-col-6
+2.  Na aba Título (Title), digite "Slope" no campo "Título da Legenda" (Legend title) e digite 14 no para informar o tamanho da fonte "Title font size".\
+:::
+
+::: g-col-6
+![entrada d.legend](img_terrain/d.legend2.webp)
+:::
+:::::
+
+::::: grid
+::: g-col-6
+3.  Na aba "Avançado" (*Advanced*), insira o símbolo de grau (°) ou a palavra "deg" (graus) como "Unidades a serem exibidas" (Units to display).
+:::
+
+::: g-col-6
+![entrada d.legend](img_terrain/d.legend3.webp)
+:::
+:::::
+
+::::: grid
+::: g-col-6
+4.  Na aba "Gradiente" (*Gradient*), marque a caixa "Adicionar histograma à legenda suavizada" (Add histogram to smoothed legend).\
+:::
+
+::: g-col-6
+![entrada d.legend](img_terrain/d.legend5.webp)
+:::
+:::::
+
+::::: grid
+::: g-col-6
+5.  A inclinação máxima do mapa que estamos fazendo é de 76 graus. Para uma legenda com boa aparência, podemos limitar a exibição a 0-75 graus. Na aba "Subconjunto" (*Subset*), insira "0,75" na caixa de texto "Subconjunto" (*Subset of the map range*) para os valores mínimo e máximo a serem exibidos.\
+:::
+
+::: g-col-6
+![entrada d.legend](img_terrain/d.legend6.webp)
+:::
+:::::
+
+::::: grid
+::: g-col-6
+6.  Finalmente, na aba de configuração da Fonte (*Font*), digite 12 para o tamanho da fonte na caixa de texto "Tamanho da Fonte" (Font size).
+
+7.  Clique em OK para ver a legenda. Você pode reposicionar e redimensionar a legenda com o mouse ou de modo numérico na aba "Opções" (Options).\
+:::
+
+::: g-col-6
+![entrada d.legend](img_terrain/d.legend7.webp)
+:::
+:::::
+
+#### Linha de comando
+
+Uma legenda pode ser gerada usando o comando [d.legend](https://grass.osgeo.org/grass-stable/manuals/d.legend.html).
+
+```{bash}
+d.legend -d raster=slope title=Slope title_fontsize=14 units=° labelnum=4 range=0,75 fontsize=12
+```
+
+#### Python
+
+Uma legenda pode ser gerada usando o comando [d.legend](https://grass.osgeo.org/grass-stable/manuals/d.legend.html).
+
+```{python}
+gs.run_command("d.legend", 
+                map="slope", 
+                color="slope", 
+                title="Slope", 
+                title_fontsize=14, 
+                units="°", 
+                labelnum=4, 
+                range="0,75",
+                fontsize=12)
+```
+::::::::::::::::::::::::
+
+Aqui está o resultado:
+
+-   O resultado mostra o intervalo de valores de inclinação e cores de diferentes valores de inclinação, e o histograma mostra o número de células para cada valor de inclinação.
+
+-   Você também pode adicionar uma barra de escala e uma seta para o norte no mesmo item da barra de menu na janela de exibição onde você selecionou a ferramenta da legenda.
+
+![Mapa de relevo colorido por inclinação da vertente, com legenda, barra de escala e seta norte](img_terrain/slope_relief_legend.webp)
+
+### Exibindo valores específicos da inclinação da vertente
+
+Em vez de visualizar todas as inclinações ou outras características do terreno, às vezes é útil focar em valores de um intervalo limitado. Isso pode ser feito rapidamente na ferramenta de propriedades de exibição para mapas raster.
+
+::: {.panel-tabset group="language"}
+#### GUI
+
+1.  Tenha certeza de que os mapas *slope* e *relief* estão exibidos no Gerenciador de Camadas (Layer Manager). Para isso, clique duas vezes no mapa localizado no Catálogo de Dados (Data Catalog) para adicioná-lo ao Gerenciador de Camadas. O mapa *slope* deve estar acima do mapa *relief*.
+
+2.  Clique duas vezes no mapa *slope* para abrir sua ferramenta de propriedades de exibição ([d.rast](https://grass.osgeo.org/grass-stable/manuals/d.rast.html))
+
+3.  Na aba de Seleção (Selection), digite 10-76 para que sejam exibidas inclinações de 10° ou acima, depois cliquei em Apply ou OK.
+
+4.  Você pode exibir isso sobre o mapa de relevo definindo a **opacidade (opacity)** para 50%.
+
+#### Linha de comando
+
+Você pode exibir apenas inclinações ≥ 10° usando a ferramenta ([d.rast](https://grass.osgeo.org/grass-stable/manuals/d.rast.html))
+
+```{bash}
+d.rast map=slope values=10-76
+```
+
+#### Python
+
+Você pode exibir apenas inclinações ≥ 10° usando a ferramenta ([d.rast](https://grass.osgeo.org/grass-stable/manuals/d.rast.html)).
+
+```{python}
+gs.run_command("d.rast", 
+                map="slope", 
+                values="10-76")
+```
+:::
+
+::::: grid
+::: g-col-6
+A filtragem para uma gama limitada de valores de inclinação do relevo destaca características importantes do terreno da região de Flagstaff.
+
+-   O terreno nesta área é dominado pelo campo vulcânico de São Francisco, incluindo o vulcão estratificado San Francisco Peaks, e vários outros vulcões menores e cones de cinzas. Altos valores acentuam essas características vulcânicas na parte superior do mapa.
+
+-   No canto sudoeste do mapa, encontra-se o início da escarpa do Planalto Colorado, onde o terreno desce rapidamente por centenas de metros em direção ao vale do Rio Verde. A drenagem profunda nesta região demarca essa característica do terreno.
+:::
+
+::: g-col-6
+![Áreas de grande declive (10-76°) sobrepondo relevo topográfico](img_terrain/flagstaff_highslope.webp)
+:::
+:::::
+
+## Relevo Topográfico
+
+Inclinação da vertente, aspecto e análises relacionadas podem ajudar a identificar características do terreno, como vulcões e cânions. O GRASS também oferece ferramentas para identificar características topográficas e classificar o terreno em categorias de relevo. No conjunto de ferramentas padrão do GRASS, estas incluem:
+
+-   [r.geomorphon](https://grass.osgeo.org/grass-stable/manuals/r.geomorphon.html): Calcula geomorfos (formas de terreno) e geometria associada usando abordagem de visão de máquina.
+
+-   [r.param.scale](https://grass.osgeo.org/grass-stable/manuals/r.param.scale.html): Extrai parâmetros de terreno de um MDE.
+
+Outros complementos GRASS úteis para esse tipo de análise de terreno incluem:
+
+-   [r.local.relief](https://grass.osgeo.org/grass-stable/manuals/addons/r.local.relief.html)
+
+-   [r.shaded.pca](https://grass.osgeo.org/grass-stable/manuals/addons/r.shaded.pca.html)
+
+-   [r.skyview](https://grass.osgeo.org/grass-stable/manuals/addons/r.skyview.html)
+
+-   [r.terrain.texture](https://grass.osgeo.org/grass-stable/manuals/addons/r.terrain.texture.html)
+
+Neste tutorial, exploraremos brevemente o [r.geomorphon](https://grass.osgeo.org/grass-stable/manuals/r.geomorphon.html) para classificar o MDE em um conjunto de categorias de relevo. Recomendamos que você experimente as outras ferramentas para usar os conjuntos de dados de amostra padrão do GRASS ou seus próprios dados.
+
+-   A ferramenta r.geomorphon identifica e classifica uma célula usando informações sobre o relevo topográfico em oito direções (consulte a descrição de [r.geomorphon](https://grass.osgeo.org/grass-stable/manuals/r.geomorphon.html) para mais detalhes). Há várias opções.
+
+-   A opção mais importante é o **Raio de busca externa** **(Outer search radius)**, que é a distância máxima que o algoritmo registrará no relevo topográfico. Por padrão, essa distância é medida em células do mapa, mas você pode alterá-la para metros com a opção "-m".
+
+-   Quando o raio é pequeno, o terreno será classificado em formas de relevo locais e de pequena escala: por exemplo, pequenos outeiros, ravinas e depressões locais. Quando o raio é grande, o terreno será classificado em formas de relevo maiores: por exemplo, grandes colinas e montanhas, vales e bacias.
+
+-   Um **raio de pesquisa interno (Inner search radius)** pode ser definido para que a ferramenta ignore todos os relevos menores próximos a uma célula.
+
+:::::::::::: {.panel-tabset group="language"}
+#### GUI
+
+Começaremos com um grande raio de busca externo de 200 células (6 km no DEM de Flagstaff). Isso classificará formas de relevo de maior escala.
+
+::::: grid
+::: g-col-6
+1.  Selecione a ferramente *r.geomorphon* no menu Raster/Terrain analysis/Landforms.
+
+2.  Digite 200 no campo "Raio de busca externo" (Outer search radius) e 10 no "Raio de busca interno"(Inner search radius).\
+:::
+
+::: g-col-6
+![](img_terrain/r.geomorphon1.webp)
+:::
+:::::
+
+::::: grid
+::: g-col-6
+3.  Digite *landforms200* para o mapa de saída na caixa de texto "Formas geomórficas mais comuns" (Most common geomorphic forms).\
+:::
+
+::: g-col-6
+![](img_terrain/r.geomorphon2.webp)
+:::
+:::::
+
+::::: grid
+::: g-col-6
+4.  Na aba Opções (Optional), defina a "Comparação" (Comparison) como *anglev2_distance* para obter melhores resultados.
+
+5.  Clique em Run. Esta análise pode levar alguns minutos dependendo do seu processador e memória RAM.\
+:::
+
+::: g-col-6
+![](img_terrain/r.geomorphon3.webp)
+:::
+:::::
+
+Agora crie uma análise de relevos muito pequenos usando um raio de busca de apenas 5 células (150 m).
+
+Repita os mesmos passos para as grandes formas de relevo, mas com 5 para "Raio de busca externo" e 0 para "Raio de busca interno" (Inner search radius). A análise será muito mais rápida com essas configurações.
+
+#### Linha de comando
+
+Começaremos com um grande raio de busca externo de 200 células (600 m no DEM de Flagstaff). Isso classificará formas de relevo de maior escala.
+
+```{bash}
+r.geomorphon elevation=elevation forms=landforms200 search=200 skip=10 flat=1 comparison=anglev2_distance
+```
+
+Repita com um raio de busca muito menor para classificar formas de relevo muito menores.
+
+```{bash}
+r.geomorphon elevation=elevation forms=landforms5 search=5 skip=0 flat=1 comparison=anglev2_distance
+```
+
+#### Python
+
+Começaremos com um grande raio de busca externo de 200 células (600 m no DEM de Flagstaff). Isso classificará formas de relevo de maior escala.
+
+```{python}
+gs.run_command("r.geomorphon", 
+                elevation="elevation", 
+                forms="landforms200", 
+                search=200, 
+                skip=10, 
+                flat=1, 
+                comparison="anglev2_distance")
+```
+
+Repita com um raio de busca muito menor para classificar formas de relevo muito menores.
+
+```{python}
+gs.run_command("r.geomorphon", 
+                elevation="elevation", 
+                forms="landforms200", 
+                search=5, 
+                skip=0, 
+                flat=1, 
+                comparison="anglev2_distance")
+```
+::::::::::::
+
+As duas imagens abaixo mostram formas de relevo classificadas por *r.geomorphon* em diferentes escalas em um enquadramento no MDE *elevation* de Flagstaff, com foco em uma seção do campo vulcânico de São Francisco. Os mapas de formas de relevo são mostrados como sombreamento colorido sobre o mapa de relevo topográfico.
+
+-   Em uma escala maior (raio de busca de 200 células), picos e cristas marcam os cumes de todos os grandes vulcões e pequenos cones de cinzas. Eles são cercados por zonas de esporões, encostas e cavidades, divididas por vales, indicando seus campos de lava.
+
+-   Em escalas menores (raio de busca de 5 células), as bordas estreitas das crateras vulcânicas são marcadas por cristas, com o interior das crateras frequentemente demarcado por vales e fossos. As formações vulcânicas são todas classificadas como encostas.
+
+::::: grid
+::: g-col-6
+![relevos em grande escala com raio de busca = 200 células](img_terrain/geomorphons_radius200_10.webp)
+:::
+
+::: g-col-6
+![pequenas formas de relevo em raio de busca = 5 células](img_terrain/geomorphons_radius5_0.webp)
+:::
+:::::
+
+# Bacias Hidrográficas e Modelagens Hidrológicas
+
+Como os rasters DEM permitem gerar mapas de declive e aspecto, essas informações podem ser usadas para modelar o fluxo de água através do relevo topográfico do terreno. Isso, por sua vez, permite uma ampla gama de análises, frequentemente descritas como modelagem de **bacias hidrográficas** ou **hidrológica**. Exemplos de modelagem de bacias hidrográficas incluem:
+
+-   modelagem de **acumulação de fluxo**, representando a quantidade de água que passa por cada célula à medida que a água flui encosta abaixo através de um terreno;
+
+-   identificação de **bacias hidrográficas**, a porção de um terreno que drena para uma rede fluvial de um determinado tamanho;
+
+-   modelagem de um **córrego ou rede de drenagem**, dados os locais de maior acumulação de fluxo dentro de uma bacia hidrográfica;
+
+-   modelagem da **erosão potencial** como uma função da quantidade de água que flui através das células de um terreno, sua inclinação (afetando a velocidade do fluxo de água), cobertura do solo e substrato.
+
+-   modelagem do **potencial de inundações**;
+
+-   modelagem do **potencial infiltração** das águas superficiais e seu impacto na vegetação e nas águas subterrâneas;
+
+-   e muitos outros fenômenos ambientais.
+
+O GRASS possui diversos módulos para análise e modelagem de hidrologia [hydrology](https://grass.osgeo.org/grass-stable/manuals/topic_hydrology.html) e bacias hidrográficas [watersheds](https://grass.osgeo.org/grass-stable/manuals/topic_hydrology.html), muito mais do que o que pode ser abordado neste tutorial. O objetivo deste tutorial é dar a você uma ideia do potencial da modelagem de bacias hidrográficas no GRASS e incentivá-lo a explorar sua rica gama de ferramentas por conta própria. Para tanto, este tutorial explorará alguns dos muitos recursos de duas dessas ferramentas, [r.watershed](https://grass.osgeo.org/grass-stable/manuals/r.watershed.html) e [r.stream.extract](https://grass.osgeo.org/grass-stable/manuals/r.stream.extract.html).
+
+## Bacias hidrográficas
+
+Bacias hidrográficas são porções de um terreno nas quais toda a água superficial flui por terra para um único sistema de drenagem, saindo da bacia por uma única saída. Elas podem ter dimensões tão pequenas quanto alguns quilômetros ou tão grandes quanto as bacias hidrográficas que abrangem toda a água que deságua nos rios Mississipi ou Amazonas.
+
+-   Embora existam muitas entradas possíveis para afetar como *r.watershed* modela diferentes características hidrológicas, usaremos o exemplo mais simples aqui.
+
+-   O mínimo necessário para modelar bacias hidrográficas, acumulações de fluxo e redes fluviais é um MDE (*elevation*) e o tamanho mínimo das bacias hidrográficas a serem modeladas (medido em número de células). Criaremos bacias com um tamanho mínimo de **10.000** células (9 km²). Escolher um número menor geraria um mapa de muitas bacias menores.
+
+-   Embora comecemos mapeando bacias hidrográficas, para economizar tempo, faremos com que *r.watershed* também gere saídas para acumulação de fluxo e segmentos de fluxo ao mesmo tempo em que cria um mapa de bacia.
+
+-   Para produzir mapas de bacias e córregos com melhor aparência, também selecionaremos as opções "Acúmulo de fluxo positivo" (Positive flow accumulation) e "Embelezar áreas planas" (Beautify flat areas).
+
+:::::::::::: {.panel-tabset group="language"}
+#### GUI
+
+::::: grid
+::: g-col-6
+1.  Abra o módulo [r.watershed](https://grass.osgeo.org/grass-stable/manuals/r.watershed.html) no menu Modelagem raster/hidrológica/Análise de bacias hidrográficas (Raster/Hydrologic modeling/Watershed analysis).
+
+2.  Defina "Nome do mapa raster de elevação" (Name of elevation raster map) como *elevation*.
+
+3.  Insira 10.000 para "Tamanho mínimo da bacia hidrográfica externa" (Minimum size of exterior watershed basin).\
+:::
+
+::: g-col-6
+![](img_terrain/r.watershed1.webp)
+:::
+:::::
+
+::::: grid
+::: g-col-6
+4.  Na guia Saídas (Outputs), insira:
+
+-   watershed_accumulation10000 para "acumulação" (accumulation),
+
+-   watershed_basin10000 for "bacias" (basins), e
+
+-   watershed_streams10000 for "riachos" (stream segments).\
+:::
+
+::: g-col-6
+![](img_terrain/r.watershed2.webp)
+:::
+:::::
+
+::::: grid
+::: g-col-6
+5.  Na aba Opcional (Optional):
+
+-   Marque a caixa "Acumulação de fluxo positiva" (Positive flow accumulation). Caso contrário, a acumulação de fluxo será negativa para as bacias na borda do mapa, indicando que elas podem sub-representar a acumulação.
+
+-   Marque a caixa "Embelezar áreas planas" (Beautify flat areas) para ter segmentos de fluxo mais precisos em áreas planas.
+
+6.  Clique em Run\
+:::
+
+::: g-col-6
+![](img_terrain/r.watershed3.webp)
+:::
+:::::
+
+#### Linha de comando
+
+```{bash}
+r.watershed -a -b elevation=elevation threshold=10000 accumulation=watershed_accumulation10000 basin=watershed_basins10000 stream=watershed_streams10000
+```
+
+#### Python
+
+```{python}
+gs.run_command("r.watershed", 
+                elevation="elevation", 
+                threshold=10000, 
+                accumulation="watershed_accumulation10000", 
+                basin="watershed_basin10000", 
+                stream="watershed_streams10000", 
+                flags="ab")
+
+```
+::::::::::::
+
+Mapa resultante das bacias hidrográficas.
+
+![bacias hidrográficas com ≥ 10.000 células colorindo um mapa de relevo](img_terrain/watershed_basins.webp)
+
+## Acumulação de Fluxo
+
+Acima, também criamos um mapa de acumulação de fluxo. Um mapa de acumulação de fluxo modela o fluxo potencial de água sobre um terreno:
+
+::::: grid
+::: g-col-6
+-   Supondo que um centímetro de chuva caia em cada célula de um MDE, os valores de um mapa de acumulação de fluxo mostrarão a profundidade da água em centímetros que se acumula e flui sobre cada célula à medida que a água flui para dentro da célula a partir de células adjacentes na encosta.
+
+-   O mapa que elaboramos pressupõe que a mesma quantidade de chuva caiu em todas as células e que o relevo topográfico é o único fator que afeta o escoamento superficial da água. Portanto, o modelo de acumulação de fluxo gerado representa valores máximos.
+
+-   Configurações adicionais em *r.watershed* permitem modelar o fluxo superficial de forma mais realista, com diferentes quantidades de chuva caindo na região, e vegetação, características do solo ou barreiras como represas ou diques também afetando o acúmulo.
+
+-   [r.watershed](https://grass.osgeo.org/grass-stable/manuals/r.watershed.html) utiliza um algoritmo de **múltiplas direções de fluxo** por padrão, no qual a água que flui de uma célula é distribuída entre todas as células adjacentes a jusante. O maior fluxo é direcionado para a célula adjacente a jusante com a maior diferença de elevação, enquanto os fluxos menores são alocados para as células a jusante com menor diferença de elevação.
+
+-   Embora algumas ferramentas de modelagem hidrológica exijam que depressões ou sumidouros em um MDE sejam preenchidos primeiro para direcionar a água adequadamente através de um terreno, *r.watershed* não exige isso. Ao contrário, utiliza um algoritmo de caminho de menor custo para direcionar a água através de depressões.
+:::
+
+::: g-col-6
+![mapa de acumulação de fluxo para a região de Flagstaff](img_terrain/watershed_accumulation.webp)
+
+![diagrama esquemático do modelo de acumulação de fluxo de múltiplas direções de fluxo em um DEM](img_terrain/watershed.webp)
+:::
+:::::
+
+Assim como no caso da inclinação da vertente, uma legenda pode ajudar a transmitir as informações de um mapa de acumulação de fluxo com mais clareza. A distribuição dos valores de acumulação, no entanto, não é linear, com muitas células em encostas apresentando acumulação mínima e algumas células no fundo de grandes cursos d'água apresentando valores muito mais altos. Por esse motivo, uma escala logarítmica comunica melhor as relações entre cores e valores. Crie uma legenda conforme descrito anteriormente, mas com algumas opções adicionais.
+
+::: {.panel-tabset group="language"}
+#### GUI
+
+-   Nome do mapa raster: watershed_accumulation10000 (na aba Input).
+
+-   Título da legenda: "Flow Accumulation" (na aba Title).
+
+-   Tamanho da fonte do título: 14 (na aba Title).
+
+-   Usar escala logarítmica: marque a caixa "guia Avançado" (na aba Advanced).
+
+-   Valores específicos para desenhar carrapatos: 1,10,100,1000,10000,100000,1000000 (na aba Gradient).
+
+-   Tamanho da fonte: 12 (na aba Font).
+
+#### Linha de comando
+
+```{bash}
+d.legend -l raster=watershed_accumulation100000 title="Flow Accumulation" title_fontsize=14 label_values=1,10,100,1000,10000,100000,1000000 fontsize=12
+```
+
+#### Python
+
+```{python}
+gs.run_command("d.legend", 
+                raster="watershed_accumulation10000", 
+                title="Flow Accumulation", 
+                title_fontsize=14, 
+                label_values="1,10,100,1000,10000,100000,1000000", 
+                fontsize=12, 
+                flags="l")
+```
+:::
+
+Aqui está um mapa de acumulação de fluxo com uma legenda em escala logarítmica. Observe maior acumulação nas encostas dos picos de São Francisco, nos principais cursos de água e em pequenas depressões rasas de lagos.
+
+![mapa de acumulação de fluxo colorindo um mapa de relevo com legenda em escala logarítmica](img_terrain/watershed_accumulation_legend.webp)
+
+## Redes de drenagens networks
+
+*r.watershed* também produz mapas de córregos, representando as drenagens primárias de cada bacia hidrográfica de 10.000 células.
+
+::::: grid
+::: g-col-6
+-   É um mapa raster de córregos com cada célula de córregos codificada e colorida para corresponder à bacia que drena, vista no mapa da região de Flagstaff à direita.
+
+-   O fundo é definido como preto nas propriedades de exibição porque, de outra forma, é muito difícil distinguir as células do fluxo raster.\
+:::
+
+::: g-col-6
+![mapa de segmentos de fluxo raster para cada bacia hidrográfica.](img_terrain/watershed_streams.webp)
+:::
+:::::
+
+### Vetorização de rede de drenagens com *r.to.vect*
+
+Podemos tornar as drenagens mais visíveis se convertermos o mapa de fluxo raster em um mapa de linhas vetoriais. Isso pode ser feito facilmente com a ferramenta [r.to.vect](https://grass.osgeo.org/grass-stable/manuals/r.to.vect.html), que converte mapas raster em vetores.
+
+-   *r.to.vect* pode converter pontos, linhas e áreas. Neste caso, converteremos os segmentos de drenagens criados por *r.watershed* em linhas vetoriais.
+
+-   Os segmentos rasterizados das drenagens são codificados com os valores das bacias hidrográficas que as drenam. Esses valores podem ser transferidos para os segmentos de linha vetorial equivalentes.
+
+:::::: {.panel-tabset group="language"}
+#### GUI
+
+::::: grid
+::: g-col-6
+1.  Selecione a ferramenta [r.to.vect](https://grass.osgeo.org/grass-stable/manuals/r.to.vect.html) no menu Conversões de tipo Raster/Mapa/Raster para vetor (Raster/Map type conversions/Raster to vector) **ou** no menu Arquivo/Conversões de tipo Mapa/Raster para vetor ( File/Map type conversions/Raster to vector).
+
+2.  Para dar nome ao mapa digite *watershed_streams10000* no campo "Nome do mapa raster de entrada" (Name of input raster map).
+
+3.  Para dar nome ao mapa digite *watershed_streams10000* no campo "Nome para o mapa vetorial de saída" (Name for output vector map).
+
+4.  Insira *line* como o "Tipo de recurso de saída" (Output feature type).
+
+5.  Na aba opcional, marque a caixa "Usar valores raster como categorias em vez de sequência única" (Use raster values as categories instead of unique sequence). Isso copiará o número da bacia para o campo de chave de índice CAT do novo mapa de linhas vetoriais.
+
+6.  Clique em Run.\
+:::
+
+::: g-col-6
+![](img_terrain/r.vect1.webp)
+:::
+:::::
+
+#### Linha de comando
+
+```{bash}
+r.to.vect -v input=watershed_streams10000 output=watershed_streams10000 type=line
+```
+
+#### Python
+
+```{python}
+gs.run_command("r.to.vect", 
+                input="watershed_streams10000", 
+                output="watershed_streams10000", 
+                type="line",
+                flags="v")
+```
+::::::
+
+Os mapas abaixo mostram a rede de drenagens vetoriais sobrepondo as bacias hidrográficas à esquerda e sobrepondo um mapa de relevo sombreado à direita.
+
+::::: grid
+::: g-col-6
+![drenagens e bacias hidrográficas](img_terrain/watershed_basins&streamvectors.webp)
+:::
+
+::: g-col-6
+![drenagens e relevo topográfico](img_terrain/relief&streamvectors.webp)
+:::
+:::::
+
+::: {.callout-note title="Tip"}
+Para uma rede de fluxos mais detalhada, execute *r.watershed* com um tamanho mínimo de bacia menor que as 10.000 células usadas acima. Se você escolher um tamanho mínimo de bacia muito pequeno para criar um mapa de fluxos muito detalhado, poderá ser solicitado a executar [r.thin](https://grass.osgeo.org/grass-stable/manuals/r.thin.html) antes de executar *r.to.vect* para garantir que o mapa de fluxo raster consista apenas em linhas de fluxo de células de grade única.
+:::
+
+### Vetorização de drenagens com *r.stream.extract*
+
+Uma maneira alternativa de gerar uma rede de drenagens a partir de uma análise de bacia hidrográfica é com a ferramenta[r.stream.extract](https://grass.osgeo.org/grass-stable/manuals/r.stream.extract.html).
+
+-   Esta ferramenta utiliza um MDE e um mapa de acumulação de fluxo para gerar uma rede de drenagem em formato vetorial ou raster.
+
+-   O nível de detalhamento da rede de drenagem é controlado pela seleção da acumulação de fluxo mínima a ser utilizada.
+
+-   *r.stream.extract* não apenas cria um mapa vetorial de linhas representando os cursos d'água, como também gera pontos vetoriais na nascente de cada curso e nas junções entre os cursos d'água
+
+:::::::::::: {.panel-tabset group="language"}
+::::: grid
+::: g-col-6
+1.  Selecione a ferramenta [r.stream.extract](https://grass.osgeo.org/grass-stable/manuals/r.to.vect.html) no menu Raster/Modelagem Hidrológica/Extração (Raster/Hydrologic modeling/Extraction of stream networks).
+
+2.  Insira o mapa raster de *elevation* no campo "Nome do mapa raster de elevação de entrada" (Name of input elevation raster map).
+
+3.  Insira 5000 no campo "Acumulação mínima de fluxo para cursos d'água" (Minimum flow accumulation for streams), onde números menores geram uma rede de drenagem mais específica, enquanto números maiores geram uma rede menos específica.
+:::
+
+::: g-col-6
+![](img_terrain/r.stream.extract1.webp)
+:::
+:::::
+
+::::: grid
+::: g-col-6
+4.  Digite *watershed_accumulation10000* para o "Nome do mapa raster de acumulação de entrada" (Name of input accumulation raster map).\
+:::
+
+::: g-col-6
+![](img_terrain/r.stream.extract2.webp)
+:::
+:::::
+
+::::: grid
+::: g-col-6
+5.  Insira *streams5000accumulation* em "Nome para mapa vetorial de saída com ID de fluxo exclusivo" (Name for output vector map with unique stream id).
+
+6.  Clique em Run.\
+:::
+
+::: g-col-6
+![](img_terrain/r.stream.extract3.webp)
+:::
+:::::
+
+#### Linha de comando
+
+```{bash}
+r.stream.extract elevation=elevation accumulation=watershed_accumulation10000 threshold=5000 stream_vector=streams5000accumulation
+```
+
+#### Python
+
+```{python}
+gs.run_command("r.stream.extract", 
+                elevation="elevation", 
+                accumulation="watershed_accumulation10000", 
+                threshold=5000, 
+                stream_vector="streams5000accumulation")
+```
+::::::::::::
+
+As duas imagens abaixo mostram a rede de drenagem gerada pelo *r.stream.extract* sobreposta a um mapa de relevo sombreado colorido (à esquerda) e uma comparação dessa rede com a gerada pelo r.watershed e posteriormente vetorizada com *r.to.vect* (à direita).
+
+-   Observe as linhas de fluxo (azul) e os pontos (vermelho) indicando nascentes e junções na imagem à esquerda. Linhas ou pontos podem ser exibidos, ocultados ou mostrados juntos na ferramenta de propriedades vetoriais [d.vect](https://grass.osgeo.org/grass-stable/manuals/d.vect.html).
+
+-   Na imagem à direita, a rede de fluxo mais detalhada gerada por *r.stream.extract* é mostrada em linhas azuis estreitas, e a rede de fluxo gerada por *r.watershed* e *r.to.vect* é mostrada em linhas amarelas mais largas.
+
+::::: grid
+::: g-col-6
+![](img_terrain/relief&extracted_streams.webp)
+:::
+
+::: g-col-6
+![](img_terrain/stream_comparison.webp)
+:::
+:::::
+
+::: {.callout-note title="Tip"}
+Para exibir a rede de fluxo sem os nós de junção, desmarque a caixa "ponto" (point) na guia Seleção (Selection) da ferramenta de propriedades de exibição de vetor (*comando: d.vect map=streams5000accumulation type=line*).
+:::
+
+# Resumo
+
+Neste tutorial, abordamos apenas algumas das muitas ferramentas disponíveis no GRASS para realizar análises de terrenos e bacias hidrográficas. Utilizamos o conjunto de dados de exemplo Flagstaff para realizar esta análise, mas você também pode experimentar outros conjuntos de dados e mapas MDE. Você também pode usar os conjuntos de dados de exemplo do GRASS para explorar as muitas outras ferramentas disponíveis nas seções de análise de terrenos e [hidrologia](https://grass.osgeo.org/grass-stable/manuals/topic_hydrology.html) . Além dos módulos principais do GRASS, há muitos outros disponíveis como c[GRASS complementos](https://grass.osgeo.org/grass-stable/manuals/addons/).
