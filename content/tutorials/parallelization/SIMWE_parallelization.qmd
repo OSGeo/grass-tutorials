@@ -8,6 +8,7 @@ description: >
   In this tutorial we will run overland flow
   and erosion simulation (SIMWE) split by subwatersheds
   in parallel.
+thumbnail: SIMWE_images/thumbnail.webp
 format:
   html:
     toc: true
@@ -677,8 +678,7 @@ import grass.script as gs
 
 
 def compute(huc12):
-    simulation_time = 300
-    print(huc12)
+    simulation_time = 180
     gs.run_command(
         "v.extract",
         input="river_basins",
@@ -698,6 +698,7 @@ def compute(huc12):
             output_directory=os.getcwd(),
             title_filter="20240510",
             output_name=f"ned_{huc12}",
+            quiet=True,
             env=env,
         )
     with gs.RegionManager(raster=f"ned_{huc12}", env=env):
@@ -778,15 +779,16 @@ def compute(huc12):
             )
             # Erosion: extract negative values and convert to positive mass [kg/m^2]
             gs.mapcalc(
-                f"erosion_{huc12} = if(erdep_{huc12} < 0, abs(erdep_{huc12}) * {simulation_time * 60}, null())",
+                f"erosion_{huc12} = if(erdep_{huc12} < 0, abs(erdep_{huc12}) * {simulation_time * 60}, 0)",
                 env=env,
             )
             erosion = gs.parse_command(
-                "r.univar", map=f"erosion_{huc12}", format="json", env=env
+                "r.univar", map=f"erosion_{huc12}", format="json", flags="e", env=env
             )
             return {
                 "huc12": huc12,
                 "erosion_mean": erosion["mean"],
+                "erosion_median": erosion["median"],
                 "erosion_total": erosion["sum"] * region["nsres"] * region["ewres"],
             }
 
@@ -796,13 +798,11 @@ if __name__ == "__main__":
         "records"
     ]
     huc12s = [basin["huc12"] for basin in basins]
-
     # set the number of processes:
     with Pool(processes=cpu_count()) as pool:
         result = list(tqdm(pool.imap(compute, huc12s), total=len(huc12s)))
         with open("result.json", "w") as fp:
             json.dump(result, fp)
-
 ```
 
 Now execute the script, it will take some time.
@@ -815,18 +815,14 @@ Now execute the script, it will take some time.
 Load the resulting JSON file into a pandas dataframe and normalize the results, so that we can easily compare the subwatersheds.
 
 ```{python}
+import pandas as pd
 import json
 
 with open("result.json") as f:
     stats = json.load(f)
 
 df = pd.DataFrame(stats)
-df["normalized_erosion"] = df.erosion_mean / max(
-    max(df.erosion_mean), max(df.deposition_mean)
-)
-df["normalized_deposition"] = df.deposition_mean / max(
-    max(df.erosion_mean), max(df.deposition_mean)
-)
+df["normalized_erosion"] = df.erosion_mean / max(df.erosion_mean)
 df
 ```
 
@@ -851,15 +847,16 @@ Let's visualize the data with folium:
 import folium
 import branca.colormap as cm
 
-metric = "normalized_deposition"
+metric = "normalized_erosion"
 color_scale = cm.linear.OrRd_09.scale(min(gdf[metric]), max(gdf[metric]))
-color_scale.caption = "Min-max normalized erosion"
+color_scale.caption = "Min-max normalized mean erosion"
+# get region center as latitude, longitude
 region = gs.parse_command("g.region", vector="river_basins", format="json", flags="b")
 m = folium.Map(location=[region["ll_clat"], region["ll_clon"]], zoom_start=9)
 
 tooltip = folium.GeoJsonTooltip(
-    fields=["huc12", "normalized_erosion", "normalized_deposition"],
-    aliases=["HUC12", "Normalized erosion:", "Normalized deposition:"],
+    fields=["huc12", metric],
+    aliases=["HUC12", "Normalized mean erosion:"],
     localize=True,
     sticky=False,
     labels=True,
@@ -876,9 +873,8 @@ g = folium.GeoJson(
     gdf,
     style_function=lambda x: {
         "fillColor": color_scale(x["properties"][metric]),
-        "color": "black",
-        "weight": 1,
-        "fillOpacity": 0.4,
+        "color": "black", "weight": 1,
+        "fillOpacity": 0.5,
     },
     tooltip=tooltip,
 ).add_to(m)
@@ -887,5 +883,5 @@ folium.LayerControl().add_to(m)
 m
 ```
 
-
+![](SIMWE_images/webmap.webp)
 
