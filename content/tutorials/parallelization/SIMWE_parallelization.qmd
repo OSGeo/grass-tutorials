@@ -8,7 +8,7 @@ description: >
   In this tutorial we will run overland flow
   and erosion simulation (SIMWE) split by subwatersheds
   in parallel.
-thumbnail: SIMWE_images/thumbnail.webp
+image: SIMWE_images/thumbnail.webp
 format:
   html:
     toc: true
