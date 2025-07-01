@@ -81,8 +81,8 @@ title: "Computing slope from elevation data in Python"
 author: "Your Name"
 date: "2025-05-15"
 description: "Learn how to derive slope from elevation data in GRASS in a Jupyter Notebook."
-categories: ["beginner", "geomorphometry", Python]
-thumbnail: slope_thumbnail.webp
+categories: [beginner, geomorphometry, Python]
+image: slope_thumbnail.webp
 format:
   ipynb: default
   html:
@@ -117,7 +117,7 @@ At the same time, their size should not be too big to load quickly, try to keep 
 ```
 
 Each tutorial needs to have at least one image that can be used on the main page as a thumbnail.
-You can either specify it in the YAML header (`thumbnail: image.webp`) or add `{.preview-image}` to the image.
+You can either specify it in the YAML header (`image: image.webp`) or add `{.preview-image}` to the image.
 
 ``` markdown
 ![Slope map](slope.webp){.preview-image}
