@@ -63,7 +63,7 @@ This tutorial covers:
 This tutorial can be run as a 
 [computational notebook](https://grass-tutorials.osgeo.org/content/tutorials/earthworks/levees.ipynb).
 Learn how to work with notebooks in the tutorial
-[Get started with GRASS & Python in Jupyter Notebooks](./get_started/fast_track_grass_and_python.qmd).
+[Get started with GRASS & Python in Jupyter Notebooks](./../get_started/fast_track_grass_and_python.qmd).
 :::
 
 # Setup
