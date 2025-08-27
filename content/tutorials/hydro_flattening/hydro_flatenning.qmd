@@ -1,5 +1,5 @@
 ---
-title: "Hydro-flattening a Digitial Elevation Model"
+title: "Hydro-flattening a Digital Elevation Model"
 author: "Doug Newcomb & Anna Petrasova"
 date: 2025-06-17
 date-modified: today
@@ -11,7 +11,7 @@ format:
     code-tools: true
     code-copy: true
     code-fold: false
-categories: [Python, beginner, intermediate, topography, lidar]
+categories: [Python, intermediate, topography, lidar, GUI]
 description: Learn how to do hydro-flattening of a DEM.
 engine: knitr
 execute:
@@ -29,6 +29,8 @@ The result is a DEM with unnatural ripples or slopes on water surfaces, which no
 Hydro-flattening addresses this by incorporating breaklines that enforce flat, level water surfaces and preserve topographic realism.
 Read more [at USGS website](https://www.usgs.gov/ngp-standards-and-specifications/lidar-base-specification-appendix-2-hydro-flattening-reference).
 
+![Example of no breaklines: Geomorphon Analysis of DEM in Roanoke Rapids Reservoir, NC 2014 DEM from QL2 data](triangles.webp)
+
 In this tutorial, you’ll learn how to use GRASS to apply hydro-flattening techniques to lidar-derived DEMs
 using [r.hydro.flatten](https://grass.osgeo.org/grass-stable/manuals/addons/r.hydro.flatten.html) addon
 following these steps:
@@ -41,7 +43,7 @@ following these steps:
 - Create automatic river transects
 - Create hydro-flattened river raster data for inclusion in a DEM
 - Create a filled DEM layer combining the mean ground data, hydro-flattened data, and other interpolated data.
-- Export the resulting data from a GRASS project to a TIF file.
+- Export the resulting data from a GRASS project to a GeoTIFF file.
 
 ## Getting ready
 
@@ -51,10 +53,12 @@ To get ready for the analysis, we will need to download lidar data, orthoimagery
 If you are not sure how to download and get started with GRASS using its graphical user interface or using Python, checkout the tutorials [Get started with GRASS GUI](../get_started/fast_track.qmd) and [Get started with GRASS & Python in Jupyter Notebooks](../get_started/fast_track_grass_and_python.qmd).
 :::
 
+To create a raster surface from LiDAR point cloud data, GRASS must be compiled with the [PDAL libraries](https://pdal.io/en/stable/). This capability is currently only available on Linux and OSX platforms and will be available on Windows when GRASS switches to the cmake-based build system (in development). In the meantime, the mean ground raster surface needed for the hydroflattening portion of the tutorial can be created on Windows using the [QGIS point cloud tools](https://docs.qgis.org/3.40/en/docs/user_manual/processing_algs/qgis/pointcloudconversion.html) (selecting classes 2,10,13 and setting the output resolution to 3.2808 ft).
+
 ### Download data
 
 We will download lidar dataset from [USGS website](https://apps.nationalmap.gov/downloader/).
-Search for _Lake Logan, North Carolina_ or use this bounding box:
+Search for *Lake Logan, North Carolina* or use this bounding box:
 
 -82.933790°, 35.423316°  
 -82.922031°, 35.407718°
@@ -78,12 +82,16 @@ We will use this file later on.
 
 ### Start GRASS and create a new project
 
+::::::::: {.panel-tabset group="language"}
+
+#### GUI
+
 If this is the first time you have opened GRASS you will see the default startup
 screen with a WGS84 world project. Click on the Create new project button on the left
 or look for ![Add project icon](../get_started/images/project-add.png)
 on the upper left.
 
-![Creating a new project in GUI](../get_started/images/grass_gui_first_time_and_cli_combined.png)
+![Creating a new project in GUI](new_firstscreen.webp)
 
 This will open a wizard where you:
 
@@ -92,6 +100,20 @@ This will open a wizard where you:
 3. find EPSG 6543 and select it from the list, click _Next_
 4. select default datum transformation, click _Next_
 5. see summary and click _Finish_
+
+#### Command line
+
+```{bash}
+grass -c EPSG:6543 /path/to/nc6543
+```
+
+#### Python
+
+```{python}
+gs.create_project("/path/to/nc6543", epsg="6543")
+```
+
+:::::::::
 
 ### Import data
 
@@ -168,6 +190,8 @@ The most current data set for this location is from 2023.
 The URL to access the WMS data set is
 `https://services.gis.nc.gov/secure/services/Imagery/Orthoimagery_2023/ImageServer/WMSServer`.
 
+Data is also available for 2019, 2015, and 2010, just substitute those years for 2023 in the URL above if you wish to review those years.
+
 ::::::::: {.panel-tabset group="language"}
 
 #### GUI
@@ -181,11 +205,13 @@ Select the newly populated layer _Orthoimagery (2023)_.
 Select _Source projection_ EPSG:6543 to match your project's CRS for faster response.
 Also select the jpeg radio button in the _Source image format_.
 
-![WMS dialog](wmsdialog.webp)
-
 To remember the URL, click on the _Save_ button on the top of the dialog and enter
 a descriptive name to quickly recall the image service between sessions.
 
+![WMS dialog](wmsdialog.webp)
+
+Click *Add layer*.
+Your GUI should now have _Orthoimagery (2023)_ listed as one of the layers.
 Uncheck the orthoimagery layer and zoom into one of the void areas to the left of the lake. Once
 you have zoomed in, check the orthoimagery layer and see what the void represents.
 
@@ -218,7 +244,7 @@ gs.run_command(
 #### GUI
 
 ::::: grid
-::: g-col-4
+::: g-col-6
 GRASS Addons are installed in the GUI with
 _Addons extensions→ Install extensions from addons_.
 In the dialog, search for the addon and _Install_.
@@ -232,7 +258,7 @@ Start GRASS again. You should now see an Addons option in the Tools tab with r.h
 Double click on r.hydro.flatten tool to open a dialog.
 
 :::
-::: g-col-8
+::: g-col-6
 
 ![](new_install_hydroflatten.webp)
 :::
@@ -329,10 +355,12 @@ from the [Map Display toolbar](https://grass.osgeo.org/grass-devel/manuals/wxGUI
  _New vector map_ and type a name for it, such as _centerlines_.
 Create it and then you can close the newly opened attribute manager dialog, we won't need it.
 
-3. Now start digitizing a centerline, it doesn't have to be perfect. Select _Ditize new line_ tool
+3. Now start digitizing a centerline, it doesn't have to be perfect. Select _Digitize new line_ tool
 from the [toolbar](https://grass.osgeo.org/grass-devel/manuals/wxGUI.vdigit.html#digitizer-toolbar)
 and start digitizing from the edge with right click. To end line, use left click. Do it for both segments of the river.
 Quit digitizer.
+
+![Digitized centerline](new_centerline_digitized.webp)
 
 ::: {.callout-note title="Automated centerlines"}
 For longer river segments you can use [v.centerline](https://grass.osgeo.org/grass-devel/manuals/addons/v.centerline.html)
@@ -411,7 +439,7 @@ approximately the downstream edge of the plunge pool below the dam. It’s proba
 a break line at the base of the dam as well.
 Digitize the line along where you see the dam structure meet the water and save it.
 
-![Ditizing the dam](new_damwaterline.webp)
+![Digitizing the dam](new_damwaterline.webp)
 
 ## Hydro-flattening with break lines
 
@@ -479,19 +507,33 @@ with [r.fillnulls](https://grass.osgeo.org/grass-devel/manuals/r.fillnulls.html)
 #### GUI
 
 Re-run the r.hydro.flatten with parameter **max_stddev=5** to avoid flattening
-areas with standard deviation > 5.
+areas with standard deviation greater than 5.
+Name the resulting layer *lake_logan_1m_filled_DEM_null_above_5_stddev*.
 
-Then call r.fillnulls with input layer *lake_logan_1m_filled_DEM*
-and output *lake_logan_1m_filled_DEM_fillnulls* and default values.
+::::: grid
+
+::: g-col-6
+
+Then find [r.fillnulls](https://grass.osgeo.org/grass-devel/manuals/r.fillnulls.html) tool
+in menu *Raster → Interpolate surfaces → Fill NULL cells*
+and call r.fillnulls with input layer *lake_logan_1m_filled_DEM*, output layer *lake_logan_1m_filled_DEM_fillnulls* and keep the rest with the default values.
+
+![r.fillnulls dialog](new_rfillnulls_dialog1.webp)
+:::
+::: g-col-6
+
+![Open r.fillnulls dialog](new_rfillnulls.webp)
+:::
+:::::
 
 Finally, run [r.relief](https://grass.osgeo.org/grass-devel/manuals/r.relief.html) to see the resulting topography.
 
 #### Command line
 
 ```{bash}
-r.hydro.flatten input=lake_logan_1m water_elevation=lake_logan_1m_wat_elev_2dbreak water_elevation_stddev=lake_logan_1m_wat_stddev_2dbreak percentile=14 breaklines=centerlines_120_trans filled_elevation=lake_logan_1m_filled_DEM max_stddev=5
-r.fillnulls input=lake_logan_1m_filled_DEM output=lake_logan_1m_filled_DEM_fillnulls method=rst
-r.relief input=lake_logan_1m_filled_DEM_fillnulls output=relief
+r.hydro.flatten input=lake_logan_1m water_elevation=lake_logan_1m_wat_elev_2dbreak water_elevation_stddev=lake_logan_1m_wat_stddev_2dbreak percentile=14 breaklines=centerlines_120_trans filled_elevation=lake_logan_1m_filled_DEM_null_above_5_stddev max_stddev=5
+r.fillnulls input=lake_logan_1m_filled_DEM_null_above_5_stddev output=lake_logan_1m_filled_DEM_final method=rst
+r.relief input=lake_logan_1m_filled_DEM_final output=relief
 ```
 
 #### Python
@@ -504,35 +546,95 @@ gs.run_command(
     water_elevation_stddev="lake_logan_1m_wat_stddev_2dbreak",
     percentile=14,
     breaklines="centerlines_120_trans",
-    filled_elevation="lake_logan_1m_filled_DEM",
+    filled_elevation="lake_logan_1m_filled_DEM_null_above_5_stddev",
     max_stddev=5,
 )
 gs.run_command(
     "r.fillnulls",
-    input="lake_logan_1m_filled_DEM",
-    output="lake_logan_1m_filled_DEM_fillnulls",
+    input="lake_logan_1m_filled_DEM_null_above_5_stddev",
+    output="lake_logan_1m_filled_DEM_final",
     method="rst",
 )
-gs.run_command("r.relief", input="lake_logan_1m_filled_DEM_fillnulls", output="relief")
+gs.run_command("r.relief", input="lake_logan_1m_filled_DEM_final", output="relief")
 ```
 
 :::::::::
 
 ::::: grid
 
-::: g-col-6
+::: g-col-4
 
-![Shaded relief of the hydro-flattened DEM](relief.webp)
+![Hydroflattened DEM before r.fillnulls](before_fillnuls.webp)
 
 :::
 
-::: g-col-6
+::: g-col-4
+
+![Shaded relief of the final hydro-flattened and filled DEM](relief.webp)
+
+:::
+
+::: g-col-4
 
 ![Zoomed-in on the dam and river segment](relief_zoom.webp)
 
 :::
 ::::::
 
+## Export to GeoTIFF
+
+The last step is to export the filled DEM to the open standard GeoTIFF file format.
+
+::::::::: {.panel-tabset group="language"}
+
+#### GUI
+
+Right click on the filled DEM layer (*lake_logan_1m_filled_DEM_final*) and select *Export*.
+This will bring up the [r.out.gdal](https://grass.osgeo.org/grass-devel/manuals/r.out.gdal.html) dialog.
+
+Click on the browse button next to the *Name for output raster file* option
+to browse to the directory where you want the geotiff file to be written.
+Keep the default file format as GTiff (GeoTIFF).
+
+![](new_routgdal1.webp)
+
+Click on the *Creation* tab. On this tab you can select the *Data type* and compression level for the output image.  From the Data type drop-down select *Float64*.
+
+Then go to the *Creation option(s) to pass to the output format driver* section.
+The different options for writing out a GeoTIFF raster can be found at the
+[GDAL GeoTiff format description page](https://gdal.org/en/latest/drivers/raster/gtiff.html).
+Type in "compress=deflate,predictor=3". Click Run.
+
+#### Command line
+
+```{bash}
+r.out.gdal input=lake_logan_1m_filled_DEM_final output=lake_logan_1m_filled_DEM_final.tif format=GTiff type=Float64 createopt="compress=deflate,predictor=3"
+```
+
+#### Python
+
+```{python}
+gs.run_command(
+    "r.out.gdal",
+    input="lake_logan_1m_filled_DEM_final",
+    output="lake_logan_1m_filled_DEM_final.tif",
+    format="GTiff",
+    type="Float64",
+    createopt="compress=deflate,predictor=3",
+)
+```
+
+:::::::::
+
+::: {.callout-note title="Compression and large datasets"}
+Deflate compression is the most recognized lossless compression for GeoTIFFs.  It is supported by other software and is relatively fast for reads.  The predictor option allows the deflate compression to be more efficient. You can leave the GeoTIFFs uncompressed, but the file size will be about 4 times larger than the deflate compressed version.  This difference adds up as you scale this process up to larger data sets.
+
+For GeoTIFFs larger than 4GB, you will need to use the BIGTIFF=YES option to successfully write an output raster. You may want to also add the num_threads=4 to enable the multi-threaded writing option as well.
+:::
+
+![](thumbnail.webp)
+
+Congratulations! You have completed this tutorial! {{< fa rocket >}}
 
 ***
 
