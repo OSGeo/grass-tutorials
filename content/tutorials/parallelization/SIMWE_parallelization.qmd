@@ -124,7 +124,7 @@ nlcd_filename, headers = urllib.request.urlretrieve(url)
 with zipfile.ZipFile(nlcd_filename, "r") as zip_ref:
     zip_ref.extractall()
 os.remove(nlcd_filename)
-nlcd_filename = Path(url).stem + ".tif"
+nlcd_filename = Path(url).with_suffix(".tif").name
 ```
 
 Create a GRASS project using the coordinate reference system (CRS) of the NLCD dataset.
@@ -156,7 +156,7 @@ hydro_filename, headers = urllib.request.urlretrieve(url)
 with zipfile.ZipFile(hydro_filename, "r") as zip_ref:
     zip_ref.extractall()
 os.remove(hydro_filename)
-hydro_filename = Path(url).stem + ".gpkg"
+hydro_filename = Path(url).with_suffix(".gpkg").name
 ```
 We will create another project, called "hydro", to do the initial processing
 of the hydrography data in the original CRS of the data
@@ -811,3 +811,8 @@ m
 
 We can now identify subwatersheds that have larger erosion values and are potentially
 the source of increased sediment loads downstream, contributing to water quality degradation and habitat disruption.
+
+
+## Acknowledgements
+
+The development of this tutorial was supported bym NSF Award #2322073, granted to Natrx, Inc. and USDA NRCS award NR233A750023C043.
