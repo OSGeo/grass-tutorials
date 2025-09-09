@@ -26,6 +26,9 @@ jupyter: python3
 
 In this tutorial, we will model overland water flow as well as erosion and
 deposition patterns along the Yadkin River in North Carolina, USA.
+Subwatersheds that have larger erosion values are potentially
+the source of increased sediment loads downstream,
+contributing to water quality degradation and habitat disruption.
 
 To simulate these processes, we will use the SIMWE model, with simplified
 runoff inputs derived from the
@@ -70,7 +73,8 @@ and [Get started with GRASS in Google Colab](../get_started/grass_gis_in_google_
 # Setup
 
 Start with importing Python packages.
-To import the grass package, you need to tell Python where the GRASS Python package is.
+To import the _grass_ package, you need to tell Python where the GRASS Python package is
+(can be skipped for some environment).
 
 ```{python}
 # import standard Python packages
@@ -78,11 +82,11 @@ import os
 import sys
 import subprocess
 
-# check where GRASS python packages are and add them to PATH
+# check where GRASS Python packages are and add them to path
 sys.path.append(
     subprocess.check_output(["grass", "--config", "python_path"], text=True).strip()
 )
-# import GRASS GIS python packages
+# import GRASS Python packages
 import grass.script as gs
 import grass.jupyter as gj
 from grass.tools import Tools
@@ -101,7 +105,7 @@ We will create a temporary folder, that will store our GRASS projects, since we 
 import tempfile
 
 tempdir = tempfile.TemporaryDirectory()
-project_path = tempdir.name
+path = tempdir.name
 ```
 
 # Input data download and processing
@@ -126,9 +130,7 @@ nlcd_filename = Path(url).stem + ".tif"
 Create a GRASS project using the coordinate reference system (CRS) of the NLCD dataset.
 
 ```{python}
-from pathlib import Path
-
-nlcd_project = f"{Path(project_path, "nlcd")}"
+nlcd_project = Path(path, "nlcd")
 # create a project
 gs.create_project(nlcd_project, filename=nlcd_filename)
 # initialize GRASS session in that project
@@ -149,8 +151,6 @@ We will use NLCD data later, now we process hydrography dataset.
 We will download and unzip [National Hydrography Dataset](https://www.usgs.gov/national-hydrography/access-national-hydrography-products) for North Carolina and create a GRASS project, in which we will extract the river and adjacent subwatersheds.
 
 ```{python}
-import zipfile
-
 url = "https://prd-tnm.s3.amazonaws.com/StagedProducts/Hydrography/NHD/State/GPKG/NHD_H_North_Carolina_State_GPKG.zip"
 hydro_filename, headers = urllib.request.urlretrieve(url)
 with zipfile.ZipFile(hydro_filename, "r") as zip_ref:
@@ -158,11 +158,12 @@ with zipfile.ZipFile(hydro_filename, "r") as zip_ref:
 os.remove(hydro_filename)
 hydro_filename = Path(url).stem + ".gpkg"
 ```
-
-Create the GRASS project called "hydro" based on the hydrography data, the data is in latitude-longitude CRS.
+We will create another project, called "hydro", to do the initial processing
+of the hydrography data in the original CRS of the data
+(latitude-longitude CRS).
 
 ```{python}
-hydro_project = f"{Path(project_path, "hydro")}"
+hydro_project = Path(path, "hydro")
 
 gs.create_project(hydro_project, filename=hydro_filename)
 session = gj.init(hydro_project)
@@ -219,7 +220,9 @@ tools.v_in_ogr(
 ```
 
 Next, we want to extract the subwatersheds along the river.
-If we simply overlap (with [v.select](https://grass.osgeo.org/grass-devel/manuals/v.select.html)) the river and the subwatersheds, we will miss some of them:
+If we simply overlap (with [v.select](https://grass.osgeo.org/grass-devel/manuals/v.select.html))
+the river and the subwatersheds, we will miss some of them
+because the river data don't always overlap or touch the subwatersheds.
 
 ```{python}
 tools.v_select(
@@ -263,8 +266,9 @@ The rest of the workflow will be done in a CRS used in North Carolina (EPSG 3358
 Since we want our project to use a different CRS more suitable for our study area (EPSG:3358 for North Carolina), we will create it now:
 
 ```{python}
-gs.create_project(path=project_path, name="NC", epsg="3358")
-session = gj.init(f"{Path(project_path, 'NC')}")
+nc_project = path / "NC"
+gs.create_project(nc_project, epsg="3358")
+session = gj.init(nc_project)
 ```
 
 We will reproject the river subwatersheds vector with [v.proj]((https://grass.osgeo.org/grass-devel/manuals/v.proj.html)):
@@ -551,23 +555,10 @@ tools.r_mapcalc(
     f"erosion_{huc12} = if(erdep_{huc12} < 0, abs(erdep_{huc12}) * {simulation_time * 60}, null())"
 )
 erosion = tools.r_univar(map=f"erosion_{huc12}", format="json")
+print(erosion["mean"])
 ```
 
-```text
- 'null_cells': 418835,
- 'cells': 599907,
- 'min': 3.4630666334578564e-08,
- 'max': 154011.390625,
- 'range': 154011.39062496537,
- 'mean': 98.83270611141184,
- 'mean_of_abs': 98.83270611141184,
- 'stddev': 1045.8673705761544,
- 'variance': 1093838.556835879,
- 'coeff_var': 1058.2199068769523,
- 'sum': 17895835.761005566}
-```
-
-Deactivate the active raster mask, restoring operations to apply across the full region.
+Deactivate the active raster mask, restoring operations to apply across the full computational region.
 
 ```{python}
 mask.deactivate()
@@ -591,16 +582,9 @@ we will use the workflow we just ran and create a
 script that uses Python's `multiprocessing` module to parallelize the workflow.
 Each subwatershed is processed independently in its own environment, which allows computations to run concurrently without interference.
 
-Each subwatershed needs to set different mask and computational region, however normally, those settings are global, and so for different mask and region for each parallel process, we will use mask and region context managers.
-
-* Masking is handled using `MaskManager`, a [context manager for setting and managing raster mask](https://grass.osgeo.org/grass-devel/manuals/libpython/grass.script.html#grass.script.MaskManager),
-making it possible to have custom mask for the current process. This feature is available only since GRASS 8.5.
-
-    ```python
-    with gs.MaskManager(mask_name=f"basin_{huc12}"):
-        # Run actual computation with active mask.
-        gs.run_command(...)
-    ```
+Each subwatershed needs to set different computational region and mask.
+However those setting are usually global for each mapset.
+So, to use different regions and masks for each parallel process, we will use the region and mask context managers.
 
 * Computational region is handled using `RegionManager`, a [context manager for setting and managing computational region](https://grass.osgeo.org/grass-devel/manuals/libpython/grass.script.html#grass.script.RegionManager),
 making it possible to have custom region for the current process. This feature is available only since GRASS 8.5.
@@ -608,7 +592,16 @@ making it possible to have custom region for the current process. This feature i
     ```python
     with gs.RegionManager(vector=f"basin_{huc12}"):
         # Run actual computation in the specified region.
-        gs.run_command(...)
+        tools.r_sim_water(...)
+    ```
+
+* Masking is handled using `MaskManager`, a [context manager for setting and managing raster mask](https://grass.osgeo.org/grass-devel/manuals/libpython/grass.script.html#grass.script.MaskManager),
+making it possible to have custom mask for the current process. This feature is available only since GRASS 8.5.
+
+    ```python
+    with gs.MaskManager(mask_name=f"basin_{huc12}"):
+        # Run actual computation with active mask.
+        tools.r_sim_water(...)
     ```
 
 ## Putting it all together
@@ -638,20 +631,31 @@ def compute(huc12):
         flags="t",
     )
     # Set the computational region to match the basin
+    # while using the NED raster cell size and alignment
     with gs.RegionManager(vector=f"basin_{huc12}", raster="ned"):
         tools.v_to_rast(
             input=f"basin_{huc12}",
             output=f"basin_{huc12}",
             use="val",
         )
+        tools.r_proj(
+            project="nlcd",
+            mapset="PERMANENT",
+            input="nlcd",
+            output=f"nlcd_{huc12}",
+        )
+        tools.r_recode(
+            input=f"nlcd_{huc12}",
+            output=f"mannings_{huc12}",
+            rules="mannings.txt",
+        )
+        tools.r_recode(
+            input=f"nlcd_{huc12}",
+            output=f"runoff_{huc12}",
+            rules="runoff.txt",
+        )
         with gs.MaskManager(mask_name=f"basin_{huc12}"):
             # Run actual computation with active mask.
-            tools.r_proj(
-                project="nlcd",
-                mapset="PERMANENT",
-                input="nlcd",
-                output=f"nlcd_{huc12}",
-            )
             tools.r_recode(
                 input=f"nlcd_{huc12}",
                 output=f"mannings_{huc12}",
@@ -713,11 +717,11 @@ def compute(huc12):
 if __name__ == "__main__":
     tools = Tools()
     # The entire workflow will run in parallel,
-    # so this limits the number of threads the tools can use to 1.
+    # so this limits the number of threads each individual tool can use to 1.
     tools.g_gisenv(set="NPROCS=1")
     basins = tools.v_db_select(format="json", map="river_basins")["records"]
     huc12s = [basin["huc12"] for basin in basins]
-    # set the number of processes:
+    # set the number of processes to be used for the computation in total
     with Pool(processes=cpu_count()) as pool:
         result = list(tqdm(pool.imap(compute, huc12s), total=len(huc12s)))
         with open("result.json", "w") as fp:
@@ -744,15 +748,20 @@ df["normalized_erosion"] = df.erosion_mean / max(df.erosion_mean)
 df
 ```
 
-Load the subwatershed layers into geopandas for visualization. Join the dataframe with the simulation values using the _huc12_ key and keep only subwatersheds that have computed erosion values.
+Load the subwatershed layers into geopandas for visualization.
+Join the dataframe with the simulation values using the _huc12_ key
+and from all NC subwatersheds filter only those we initially selected
+that have now computed erosion values.
 
 ```{python}
 import geopandas as gpd
 
 gdf = gpd.read_file(hydro_filename, layer="WBDHU12")
 gdf = gdf.merge(df, on="huc12", how="left")
-# JSON does not support Timestamp type
+# drop loaddate column because it's timestamp type
+# not supported by JSON, would later fail
 gdf = gdf.drop(columns=["loaddate"])
+# keep only subwatersheds with computed values
 gdf = gdf[gdf["erosion_total"].notna()]
 ```
 
@@ -801,4 +810,4 @@ m
 ![](SIMWE_images/webmap.webp)
 
 We can now identify subwatersheds that have larger erosion values and are potentially
-the source of the source of increased sediment loads downstream, contributing to water quality degradation and habitat disruption.
+the source of increased sediment loads downstream, contributing to water quality degradation and habitat disruption.
