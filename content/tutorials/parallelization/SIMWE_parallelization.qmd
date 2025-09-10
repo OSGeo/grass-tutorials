@@ -92,7 +92,7 @@ import grass.jupyter as gj
 from grass.tools import Tools
 ```
 
-We will switch our working directory to a directory with enough space, this is where we will download the datsets.
+We will switch our working directory to a directory with enough space, this is where we will download the datasets.
 With that, we will be able to use shorter, relative paths.
 
 ```{python}
@@ -815,4 +815,4 @@ the source of increased sediment loads downstream, contributing to water quality
 
 ## Acknowledgements
 
-The development of this tutorial was supported bym NSF Award #2322073, granted to Natrx, Inc. and USDA NRCS award NR233A750023C043.
+The development of this tutorial was supported by NSF Award #2322073, granted to Natrx, Inc. and USDA NRCS award NR233A750023C043.
