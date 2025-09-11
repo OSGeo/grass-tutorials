@@ -193,7 +193,13 @@ USGS 1 arc-second n36w077 1 x 1 degree
 We remove the flag and rerun r.in.usgs to actually download and import the data. We filter the data to only include the tiles with "degree" in the title name.
 
 ```{python}
-tools.r_in_usgs(product="ned", output_name="ned", ned_dataset="ned1sec", title_filter="degree", nprocs=2)
+tools.r_in_usgs(
+    product="ned",
+    output_name="ned",
+    ned_dataset="ned1sec",
+    title_filter="degree",
+    nprocs=2,
+)
 ```
 
 Let's look at the data we just downloaded. We will display only elevation values larger than 0:
@@ -318,18 +324,16 @@ point_fetch = tools.r_windfetch(
     step=1,
     minor_directions=9,
     minor_step=3,
-    flags="c"
+    flags="c",
 )[0]
-
 ```
 
 We convert the r.windfetch output into a Pandas DataFrame for easier inspection. Each row corresponds to a direction and its computed fetch length (in meters).
 
 ```{python}
-fetch_df = pd.DataFrame({
-    "directions": point_fetch["directions"],
-    "fetch": point_fetch["fetch"]
-})
+fetch_df = pd.DataFrame(
+    {"directions": point_fetch["directions"], "fetch": point_fetch["fetch"]}
+)
 fetch_df
 ```
 
@@ -432,7 +436,15 @@ with gs.RegionManager(vector="tract", align="land"):
 Next, we compute the wind fetch for each point in the vector map using the SPM setting.
 
 ```{python}
-points_fetch = tools.r_windfetch(input="land", points="points", format="json", step=1, minor_directions=9, minor_step=3, flags="c")
+points_fetch = tools.r_windfetch(
+    input="land",
+    points="points",
+    format="json",
+    step=1,
+    minor_directions=9,
+    minor_step=3,
+    flags="c",
+)
 ```
 
 Similarly to the previous example, we will load fetch data into a Pandas DataFrame.
@@ -467,8 +479,16 @@ Then we will export the vector map to GeoJSON, ensuring the CRS is set to EPSG:4
 
 ```{python}
 merged_df.to_csv("results.txt", index=False)
-tools.v_in_ascii(input="results.txt", output="results", separator="comma", columns="x double, y double, fetch double", skip=1)
-tools.v_out_ogr(input="results", output="results.json", format="GeoJSON", lco="RFC7946=YES")
+tools.v_in_ascii(
+    input="results.txt",
+    output="results",
+    separator="comma",
+    columns="x double, y double, fetch double",
+    skip=1,
+)
+tools.v_out_ogr(
+    input="results", output="results.json", format="GeoJSON", lco="RFC7946=YES"
+)
 ```
 
 
@@ -488,7 +508,11 @@ colormap = cm.linear.YlGnBu_07.scale(values.min(), values.max())
 colormap.caption = "Weighted Fetch"
 
 # Center map at the mean location
-m = folium.Map(location=[gdf.geometry.y.mean(), gdf.geometry.x.mean()], zoom_start=12, tiles='CartoDB positron')
+m = folium.Map(
+    location=[gdf.geometry.y.mean(), gdf.geometry.x.mean()],
+    zoom_start=12,
+    tiles="CartoDB positron",
+)
 
 # Add points
 for _, row in gdf.iterrows():
