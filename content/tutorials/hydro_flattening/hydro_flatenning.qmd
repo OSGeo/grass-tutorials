@@ -53,7 +53,9 @@ To get ready for the analysis, we will need to download lidar data, orthoimagery
 If you are not sure how to download and get started with GRASS using its graphical user interface or using Python, checkout the tutorials [Get started with GRASS GUI](../get_started/fast_track.qmd) and [Get started with GRASS & Python in Jupyter Notebooks](../get_started/fast_track_grass_and_python.qmd).
 :::
 
-To create a raster surface from LiDAR point cloud data, GRASS must be compiled with the [PDAL libraries](https://pdal.io/en/stable/). This capability is currently only available on Linux and OSX platforms and will be available on Windows when GRASS switches to the cmake-based build system (in development). In the meantime, the mean ground raster surface needed for the hydroflattening portion of the tutorial can be created on Windows using the [QGIS point cloud tools](https://docs.qgis.org/3.40/en/docs/user_manual/processing_algs/qgis/pointcloudconversion.html) (selecting classes 2,10,13 and setting the output resolution to 3.2808 ft).
+To create a raster surface from LiDAR point cloud data, GRASS must be compiled with the [PDAL libraries](https://pdal.io/en/stable/). This capability is currently only available on Linux and OSX platforms and will be available on Windows when GRASS switches to the cmake-based build system (in development). In the meantime, the mean ground raster surface needed for the hydroflattening portion of the tutorial can be created on Windows using the [QGIS point cloud tools](https://docs.qgis.org/3.40/en/docs/user_manual/processing_algs/qgis/pointclouddatamanagement.html#build-virtual-point-cloud-vpc).
+Create a virtual point cloud and then [export it to raster](https://docs.qgis.org/3.40/en/docs/user_manual/processing_algs/qgis/pointcloudconversion.html#export-to-raster)
+(selecting classes 2,10,13 and setting the output resolution to 3.2808 ft).
 
 ### Download data
 
