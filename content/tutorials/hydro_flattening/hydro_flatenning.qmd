@@ -7,6 +7,10 @@ lightbox: true
 image: thumbnail.webp
 format:
   html:
+    other-links:
+    - text: "Detailed training material"
+      href: "https://doi.org/10.5281/zenodo.17121433"
+      icon: filetype-pdf
     toc: true
     code-tools: true
     code-copy: true
@@ -637,6 +641,10 @@ For GeoTIFFs larger than 4GB, you will need to use the BIGTIFF=YES option to suc
 ![](thumbnail.webp)
 
 Congratulations! You have completed this tutorial! {{< fa rocket >}}
+
+# Resources
+
+Newcomb, D. (2025). A Tutorial on Modeling Water Voids in Airborne LiDAR Point Cloud Data to Hydroflatten Water Surfaces in Digital Elevation Models. Zenodo. [https://doi.org/10.5281/zenodo.17121432](https://doi.org/10.5281/zenodo.17121432)
 
 ***
 
