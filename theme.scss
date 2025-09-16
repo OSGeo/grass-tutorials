@@ -319,7 +319,7 @@ $important: false) {
   &::first-letter {
     text-transform: uppercase;
   }
-  // Insterted by Lua filter protect-terms
+  // Inserted by Lua filter protect-terms
   .no-transform,
   span.no-transform {
     text-transform: none !important;

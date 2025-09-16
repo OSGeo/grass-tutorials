@@ -87,7 +87,7 @@ For more examples of the different options available in this addon, see [this tu
 
 `r.series.boxplot` draws boxplots of a series of input raster maps that might 
 represent different times, spectral bands in satellite imagery or other kind
-of variation. If users are interested in e.g., ploting the spectral signature
+of variation. If users are interested in e.g., plotting the spectral signature
 of different land cover classes, they can alternatively set masks and recreate
 the boxplot series. Let's see an example for developed and forested classes.
 

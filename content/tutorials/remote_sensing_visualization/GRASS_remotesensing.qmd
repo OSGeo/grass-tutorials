@@ -533,7 +533,7 @@ In GRASS, remote sensing images are simply rasters, like DEM elevation maps or l
 
 For example, the a vector map of streams and lakes can be overlaid in the Layer Manager onto the image fusion of PCA components 1-3 created above.
 
-![Image fusion of PCA components 1, 2, & 3 overlayed by streams and lakes vectors](img_remotesensing/PCA123_streams_lakes.webp){width="50%"}
+![Image fusion of PCA components 1, 2, & 3 overlaid by streams and lakes vectors](img_remotesensing/PCA123_streams_lakes.webp){width="50%"}
 
 
 # 3D visualization of remote sensing and GIS

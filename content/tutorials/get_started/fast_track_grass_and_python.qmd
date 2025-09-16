@@ -95,7 +95,7 @@ This tutorial can be run locally. You need to have **GRASS 8.4+** and
 [Sentinel 2](https://grass.osgeo.org/sampledata/north_carolina/nc_sentinel_utm17n.zip)
 scenes and move the unzipped download into the directory where you are running
 this tutorial.
-For part B, we asume that you have downloaded the North Carolina
+For part B, we assume that you have downloaded the North Carolina
 [sample dataset](https://grass.osgeo.org/sampledata/north_carolina/nc_basic_spm_grass7.zip),
 i.e., there's an existing GRASS project.
 Be sure you also have the following Python libraries installed in your

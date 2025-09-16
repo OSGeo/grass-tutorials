@@ -591,7 +591,7 @@ This is a caution callout.
 :::
 ```
 
-### Collapsable Callout
+### Collapsible Callout
 
 ::: {.callout-caution collapse="true"}
 ## Expand To Learn About Collapse
@@ -977,7 +977,7 @@ Lipsum shortcode docs found [here](https://quarto.org/docs/authoring/lipsum.html
 
 # Custom
 
-Quarto supports several shortcodes natively which allow us to access project varibles.
+Quarto supports several shortcodes natively which allow us to access project variables.
 
 | Shortcode                                                     | Description                              |
 |---------------------------------------------------------------|------------------------------------------|
@@ -989,7 +989,7 @@ Quarto supports several shortcodes natively which allow us to access project var
 
 ## Variables
 
-You can access variables located in `_variables.yml` using pre-defined [varible shortcodes](https://quarto.org/docs/authoring/variables.html).
+You can access variables located in `_variables.yml` using pre-defined [variable shortcodes](https://quarto.org/docs/authoring/variables.html).
 
 ``` {.markdown shortcodes="false"}
 {{< var grass.website >}}

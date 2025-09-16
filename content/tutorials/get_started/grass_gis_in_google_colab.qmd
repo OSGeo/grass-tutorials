@@ -108,7 +108,7 @@ import grass.jupyter as gj
 By default we have access to the `/content` folder within Colab, and any data we
 create and download will be placed there. We can change that of course, it is just a Linux
 file system. In any case, we should bare in mind that whatever data we download
-within Colab, will disappear if the runtime gets disconected because of inactivity
+within Colab, will disappear if the runtime gets disconnected because of inactivity
 or once we close the Colab session.
 :::
 
@@ -136,7 +136,7 @@ Now you can import data and start your analysis, following the
 # Start GRASS with a sample dataset
 
 If you want to learn data analysis with GRASS, instead of creating a new project from scratch,
-you can downlaod a ready-to-use sample dataset to play with.
+you can download a ready-to-use sample dataset to play with.
 
 ## Download sample data
 
