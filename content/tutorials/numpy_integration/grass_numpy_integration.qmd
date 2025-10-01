@@ -250,4 +250,4 @@ For N-dimensional arrays, check out the new [xarray-grass](https://github.com/lr
 
 ---
 
-The development of this tutorial was supported by NSF Award #2322073, granted to Natrx, Inc.
+The development of this tutorial and the `grass.tools` package (developed by Vaclav Petras) was supported by NSF Award #2322073, granted to Natrx, Inc.
