@@ -3,7 +3,7 @@ title: "Estimating Wind Fetch"
 author: "Anna Petrasova"
 date: 2025-09-09
 date-modified: today
-categories: [Python, advanced]
+categories: [Python, advanced, ecology, engineering]
 description: >
   Wind fetch — the distance wind blows across open water — is a key factor in wave generation and shoreline exposure. We will estimate it using GRASS r.windfetch addon.
 image: images/thumbnail.webp
@@ -41,7 +41,7 @@ We will:
 This approach demonstrates how to leverage new Python API features introduced
 in GRASS 8.5—specifically, the [Tools API](https://grass.osgeo.org/grass-devel/manuals/libpython/grass.tools.html#)
 and the [RegionManager](https://grass.osgeo.org/grass-devel/manuals/libpython/grass.script.html#grass.script.RegionManager)
-context managers.
+context manager.
 
 ::: {.callout-note title="How to run this tutorial?"}
 
@@ -57,7 +57,7 @@ and [Get started with GRASS in Google Colab](../get_started/grass_gis_in_google_
 
 Start with importing Python packages.
 To import the _grass_ package, you need to tell Python where the GRASS Python package is
-(can be skipped for some environment).
+(can be skipped for some environments).
 
 ```{python}
 # import standard Python packages
@@ -157,8 +157,9 @@ tools.g_region(n=152610, s=94020, w=811200, e=876330)
 
 ## Elevation data
 
-One of the important inputs to r.windfetch is a binary raster representing land (1) and water (0). This raster can be easily derived from an elevation raster. Another option would be to download
-vector coastline data and use it to create a land/water raster, however the coastline can be incomplete and it requires more complex processing to be able to rasterize it into the desired land/water raster.
+One of the important inputs to r.windfetch is a binary raster representing land (1) and water (0).
+If the land polygons are not readily available, or they are not detailed enough,
+this raster can be easily derived from an elevation raster.
 
 We install the [r.in.usgs](https://grass.osgeo.org/grass-devel/manuals/addons/r.in.usgs.html) addon, which provides convenient access to elevation data (USGS NED/3DEP) directly from within GRASS.
 
@@ -474,8 +475,7 @@ merged_df = merged_df.groupby(["x", "y"], as_index=False)["weighted_fetch"].sum(
 
 Final step is visualizing the data in a web map.
 
-We will write the DataFrame to a text file and import them into a vector map.
-Then we will export the vector map to GeoJSON, ensuring the CRS is set to EPSG:4326 (ensured by specifying the RFC7946 standard).
+We will convert the DataFrame to GeoJSON in EPSG:4326. First, we will create a CSV text file from the DataFrame and convert it into a GRASS vector map. Then, we will convert the vector map to GeoJSON, ensuring the CRS is set to EPSG:4326 (ensured by specifying the RFC7946 standard).
 
 ```{python}
 merged_df.to_csv("results.txt", index=False)
@@ -490,7 +490,6 @@ tools.v_out_ogr(
     input="results", output="results.json", format="GeoJSON", lco="RFC7946=YES"
 )
 ```
-
 
 We will use [folium](https://python-visualization.github.io/folium/) to create an interactive map.
 The darker colors represent higher fetch values.
