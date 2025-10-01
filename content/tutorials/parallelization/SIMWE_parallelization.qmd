@@ -74,7 +74,7 @@ and [Get started with GRASS in Google Colab](../get_started/grass_gis_in_google_
 
 Start with importing Python packages.
 To import the _grass_ package, you need to tell Python where the GRASS Python package is
-(can be skipped for some environment).
+(can be skipped for some environments).
 
 ```{python}
 # import standard Python packages
@@ -82,7 +82,6 @@ import os
 import sys
 import subprocess
 
-# check where GRASS Python packages are and add them to path
 sys.path.append(
     subprocess.check_output(["grass", "--config", "python_path"], text=True).strip()
 )
