@@ -21,7 +21,7 @@ execute:
 jupyter: python3
 ---
 
-# Using GRASS, NumPy, and Landlab for Scientific Modeling
+# Introduction
 
 This short tutorial shows how to integrate NumPy arrays with GRASS tools to create a smooth workflow for scientific modeling and analysis in Python.
 
@@ -41,7 +41,7 @@ and [Get started with GRASS in Google Colab](../get_started/grass_gis_in_google_
 
 ![](logos.webp)
 
-## Generating a fractal surface in GRASS
+# Generating a fractal surface in GRASS
 
 First we will import GRASS packages:
 
@@ -87,7 +87,7 @@ resolution = 10
 tools.g_region(s=0, w=0, n=rows * resolution, e=cols * resolution, res=resolution)
 ```
 
-### Creating a fractal surface as a NumPy array
+## Creating a fractal surface as a NumPy array
 
 We will create a simple fractal surface with [r.surf.fractal](https://grass.osgeo.org/grass-stable/manuals/r.surf.fractal.html).
 
@@ -149,7 +149,7 @@ plt.show()
 
 ![Modified fractal surface](fractal_numpy_abs.webp)
 
-## From GRASS to Landlab
+# From GRASS to Landlab
 
 Now, let's use Landlab's modeling capabilities to burn in an initial drainage network using the
 Landlab's [Fastscape Eroder](https://landlab.readthedocs.io/en/latest/generated/api/landlab.components.stream_power.fastscape_stream_power.html).
@@ -192,7 +192,7 @@ plt.show()
 
 ![Eroded fractal surface with Landlab](fractal_landlab.webp)
 
-## From Landlab to GRASS
+# From Landlab to GRASS
 
 Now we will bring the eroded topography back to GRASS for additional hydrology modeling.
 We will derive streams using the [r.watershed](https://grass.osgeo.org/grass-stable/manuals/r.watershed.html) and [r.stream.extract](https://grass.osgeo.org/grass-stable/manuals/r.stream.extract.html) tools.
