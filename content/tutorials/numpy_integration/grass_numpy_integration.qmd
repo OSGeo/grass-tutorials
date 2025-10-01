@@ -8,6 +8,10 @@ description: >
   Learn how to integrate NumPy arrays with GRASS tools
   on an example using Landlab modeling framework.
 image: thumbnail.webp
+other-links:
+- text: "Check out new xarray-grass interface"
+  href: "https://github.com/lrntct/xarray-grass"
+  icon: link
 format:
   ipynb: default
   html:
@@ -236,6 +240,13 @@ grass_elevation[...] = elevation
 # Write new GRASS raster map 'elevation'
 grass_elevation.write("elevation")
 ```
+
+::: {.callout-note title="What about N-dimensional arrays?"}
+
+For 3D arrays, you can use [grass.script.array3d](https://grass.osgeo.org/grass-stable/manuals/libpython/grass.script.html#script.array.array3d) package.
+
+For N-dimensional arrays, check out the new [xarray-grass](https://github.com/lrntct/xarray-grass) bridge developed by [Laurent Courty](https://github.com/lrntct) {{< fa rocket >}}
+:::
 
 ---
 
