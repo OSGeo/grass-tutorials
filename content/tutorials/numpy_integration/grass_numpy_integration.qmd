@@ -45,7 +45,6 @@ and [Get started with GRASS in Google Colab](../get_started/grass_gis_in_google_
 
 First we will import GRASS packages:
 
-
 ```{python}
 # import standard Python packages
 import os
@@ -65,25 +64,21 @@ from grass.tools import Tools
 Create a new GRASS project called "landlab". Since we will be working with artifical data, we don't need to
 provide any coordinate reference system, resulting in a generic cartesian system.
 
-
 ```{python}
 gs.create_project("landlab")
 ```
 
 Initialize a session in this project and create a `Tools` object we will use for calling GRASS tools:
 
-
 ```{python}
 session = gj.init("landlab")
 tools = Tools()
 ```
 
-
 Since we are generating artificial data, we need to specify the dimensions (number of rows and columns).
 We also need to let GRASS know the actual coordinates; we will do that by setting
 the [computational region](https://grass.osgeo.org/grass-stable/manuals/g.region.html). Lower-left (south-west) corner of the data will be at the coordinates (0, 0),
 the coordinates of the upper-right (nort-east) corner are number of rows times cell resolution and number of columns times cell resolution.
-
 
 ```{python}
 rows = 200
@@ -99,7 +94,6 @@ We will create a simple fractal surface with [r.surf.fractal](https://grass.osge
 {{< fa wand-magic-sparkles >}} The trick is to use the `output` parameter with the value `np.array` to request a NumPy array instead of a native GRASS raster. {{< fa wand-magic-sparkles >}}
 This way GRASS provides the array as the result of the call:
 
-
 ```{python}
 import numpy as np
 
@@ -109,7 +103,7 @@ fractal = tools.r_surf_fractal(output=np.array, seed=6)
 ::: {.callout-note title="NumPy arrays in GRASS version < 8.5"}
 
 Directly passing NumPy arrays to GRASS tools and receiving them back is a new feature in GRASS v8.5.
-If you work with older versions of GRASS, you can use 
+If you work with older versions of GRASS, you can use
 [grass.script.array](https://grass.osgeo.org/grass-stable/manuals/libpython/grass.script.html#script.array.array) and [grass.script.array3d](https://grass.osgeo.org/grass-stable/manuals/libpython/grass.script.html#script.array.array3d):
 
 ```{python}
@@ -123,7 +117,6 @@ fractal = ga.array("fractal")
 :::
 
 Now we can display `fractal` array e.g., using matplotlib library:
-
 
 ```{python}
 import matplotlib.pyplot as plt
@@ -155,7 +148,7 @@ plt.show()
 ```
 
 ![Modified fractal surface](fractal_numpy_abs.webp)
-    
+
 ## From GRASS to Landlab
 
 Now, let's use Landlab's modeling capabilities to burn in an initial drainage network using the
@@ -196,9 +189,9 @@ plt.xlabel('X-coordinate')
 plt.ylabel('Y-coordinate')
 plt.show()
 ```
-    
+
 ![Eroded fractal surface with Landlab](fractal_landlab.webp)
-    
+
 ## From Landlab to GRASS
 
 Now we will bring the eroded topography back to GRASS for additional hydrology modeling.
@@ -206,14 +199,18 @@ We will derive streams using the [r.watershed](https://grass.osgeo.org/grass-sta
 
 {{< fa wand-magic-sparkles >}} The `Tools` API allows us to directly plugin the NumPy `elevation` array into the tool call. {{< fa wand-magic-sparkles >}}
 
-
 ```{python}
 tools.r_watershed(elevation=elevation, accumulation="accumulation")
-tools.r_stream_extract(elevation=elevation, accumulation="accumulation", threshold=300, stream_vector="streams")
+tools.r_stream_extract(
+    elevation=elevation,
+    accumulation="accumulation",
+    threshold=300,
+    stream_vector="streams",
+)
+
 ```
 
 And visualize them using `gj.Map` on top of shaded relief:
-
 
 ```{python}
 tools.r_relief(input=elevation, output="relief")
@@ -223,7 +220,7 @@ m.d_rast(map="relief")
 m.d_vect(map="streams", type="line", color="blue", width=2)
 m.show()
 ```
-    
+
 ![Streams derived from eroded topography in GRASS](streams.webp)
 
 Now if we want to store the eroded topography as a native GRASS raster, we can use
