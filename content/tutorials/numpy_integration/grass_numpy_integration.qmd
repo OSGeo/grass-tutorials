@@ -9,6 +9,9 @@ description: >
   on an example using Landlab modeling framework.
 image: thumbnail.webp
 other-links:
+- text: "Intro to GRASS Python API"
+  href: "https://grass.osgeo.org/grass-devel/manuals/python_intro.html"
+  icon: link
 - text: "Check out new xarray-grass interface"
   href: "https://github.com/lrntct/xarray-grass"
   icon: link
@@ -55,11 +58,12 @@ import os
 import sys
 import subprocess
 
+# for some environments, this path setup can be skipped
 sys.path.append(
     subprocess.check_output(["grass", "--config", "python_path"], text=True).strip()
 )
 
-# import GRASS python packages
+# import GRASS Python packages
 import grass.script as gs
 import grass.jupyter as gj
 from grass.tools import Tools
@@ -80,9 +84,10 @@ tools = Tools()
 ```
 
 Since we are generating artificial data, we need to specify the dimensions (number of rows and columns).
-We also need to let GRASS know the actual coordinates; we will do that by setting
+We also need to let GRASS know the actual coordinates we want to use; we will do all that by setting
 the [computational region](https://grass.osgeo.org/grass-stable/manuals/g.region.html). Lower-left (south-west) corner of the data will be at the coordinates (0, 0),
 the coordinates of the upper-right (nort-east) corner are number of rows times cell resolution and number of columns times cell resolution.
+We chose a cell resolution of 10 horizontal units, which would impact certain terrain analyses, such as slope computation, and certain hydrology processes.
 
 ```{python}
 rows = 200
@@ -108,7 +113,7 @@ fractal = tools.r_surf_fractal(output=np.array, seed=6)
 
 Directly passing NumPy arrays to GRASS tools and receiving them back is a new feature in GRASS v8.5.
 If you work with older versions of GRASS, you can use
-[grass.script.array](https://grass.osgeo.org/grass-stable/manuals/libpython/grass.script.html#script.array.array) and [grass.script.array3d](https://grass.osgeo.org/grass-stable/manuals/libpython/grass.script.html#script.array.array3d):
+[grass.script.array](https://grass.osgeo.org/grass-stable/manuals/libpython/grass.script.html#script.array.array):
 
 ```{python}
 import grass.script as gs
@@ -168,7 +173,7 @@ grid = RasterModelGrid((rows, cols), xy_spacing=resolution)
 grid.add_field("topographic__elevation", fractal.ravel(), at="node")
 ```
 
-Run the erosion of the landscape, extract the resulting NumPy array and visualize it:
+Run the erosion of the landscape:
 
 ```{python}
 from landlab.components import LinearDiffuser
@@ -182,7 +187,11 @@ for i in range(100):
     fa.run_one_step()
     fsp.run_one_step(dt=1.0)
     ld.run_one_step(dt=1.0)
+```
 
+Extract the resulting NumPy array and visualize it:
+
+```{python}
 elevation = grid.at_node['topographic__elevation'].reshape(grid.shape)
 
 plt.figure()
@@ -233,6 +242,8 @@ to create a GRASS array object with the dimensions given by the current computat
 Then we copy the NumPy array and write the raster map as GRASS native raster.
 
 ```{python}
+import grass.script.array as ga
+
 # Create a new grasss.script.array object
 grass_elevation = ga.array()
 # Copy values from elevation array
@@ -240,6 +251,29 @@ grass_elevation[...] = elevation
 # Write new GRASS raster map 'elevation'
 grass_elevation.write("elevation")
 ```
+
+Let's visualize the new GRASS elevation map with streams by setting its color
+scheme to `srtm_percent` and rendering it in 3D using the
+[grass.jupyter.Map3D](https://grass.osgeo.org/grass-stable/manuals/libpython/grass.jupyter.html?highlight=map3d#module-grass.jupyter.map3d) class:
+
+```{python}
+tools.r_colors(map="elevation", color="srtm_percent")
+elevation_3dmap = gj.Map3D()
+elevation_3dmap.render(
+    elevation_map="elevation",
+    resolution_fine=1,
+    vline="streams",
+    vline_width=3,
+    vline_color="blue",
+    vline_height=3,
+    position=[0.50, 0.00],
+    height=5600,
+    perspective=10,
+)
+elevation_3dmap.show()
+```
+
+![Resulting elevation with streams in 3D](thumbnail.webp)
 
 ::: {.callout-note title="What about N-dimensional arrays?"}
 
