@@ -252,6 +252,13 @@ grass_elevation[...] = elevation
 grass_elevation.write("elevation")
 ```
 
+::: {.callout-note title="What about N-dimensional arrays?"}
+
+For 3D arrays, you can use [grass.script.array3d](https://grass.osgeo.org/grass-stable/manuals/libpython/grass.script.html#script.array.array3d) package.
+
+For N-dimensional arrays, check out the new [xarray-grass](https://github.com/lrntct/xarray-grass) bridge developed by [Laurent Courty](https://github.com/lrntct) {{< fa rocket >}}
+:::
+
 Let's visualize the new GRASS elevation map with streams by setting its color
 scheme to `srtm_percent` and rendering it in 3D using the
 [grass.jupyter.Map3D](https://grass.osgeo.org/grass-stable/manuals/libpython/grass.jupyter.html?highlight=map3d#module-grass.jupyter.map3d) class:
@@ -273,14 +280,11 @@ elevation_3dmap.render(
 elevation_3dmap.show()
 ```
 
-![Resulting elevation with streams in 3D](thumbnail.webp)
+![Resulting elevation with streams in 3D](elevation_3d.webp)
 
-::: {.callout-note title="What about N-dimensional arrays?"}
+And now let's augment it with [Nano Banana AI](https://nanobanana.ai/):
 
-For 3D arrays, you can use [grass.script.array3d](https://grass.osgeo.org/grass-stable/manuals/libpython/grass.script.html#script.array.array3d) package.
-
-For N-dimensional arrays, check out the new [xarray-grass](https://github.com/lrntct/xarray-grass) bridge developed by [Laurent Courty](https://github.com/lrntct) {{< fa rocket >}}
-:::
+![AI edited landscape](thumbnail.webp)
 
 ---
 
