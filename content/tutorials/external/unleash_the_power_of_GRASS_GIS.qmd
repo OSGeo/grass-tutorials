@@ -1,5 +1,5 @@
 ---
-title: "Unleash the power of GRASS GIS"
+title: "Unleash the power of GRASS"
 author: "Anna Petrasova"
 date: 01/01/2023
 format: 

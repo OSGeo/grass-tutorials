@@ -1,28 +1,28 @@
-- title: Species distribution modeling using Maxent in GRASS GIS
+- title: Species distribution modeling using Maxent in GRASS
   path: https://ecodiv.earth/TutorialsNotes/sdmingrassgis/
   author: Paulo van Breugel
   image: content/tutorials/external/images/sdm_in_grass_tutorialbanner.png
   date: "2025-02-12"
   description: Species distribution models to predict the current and future distribution of the Almond-eyed Ringlet.
-  categories: ['biogeography', 'ecology', 'intermediate', 'advanced']
+  categories: ['biogeography', 'ecology', 'intermediate', 'advanced', 'external']
 - title: Density distribution map of white-tailed deer
   path: https://ecodiv.earth/TutorialsNotes/deerdensities/index.html
   author: Paulo van Breugel
   image: content/tutorials/external/images/deer-density-tile.png
   date: "2025-01-10"
   description: Habitat suitability map for the white-tailed deer using spatial multicriteria analysis and spatial disaggregation in GRASS.
-  categories: ['biogeography', 'MCDA', 'ecology', 'intermediate']
+  categories: ['biogeography', 'MCDA', 'ecology', 'intermediate', 'external']
 - title: From suitability to suitable regions
   path: https://ecodiv.earth/TutorialsNotes/SuitabilityRegions/index.html
   author: Paulo van Breugel
   image: content/tutorials/external/images/suitability-regions-tile.png
   date: "2024-05-25"
   description: Use a suitability map to identify and map regions with defined minimum suitability scores and area size.
-  categories: ['biogeography', 'MCDA', 'ecology', 'beginner']
+  categories: ['biogeography', 'MCDA', 'ecology', 'beginner', 'external']
 - title: Tree species diversity distribution
   path: https://ecodiv.earth/post/tree-species-diversity-distribution/
   author: Paulo van Breugel
   image: content/tutorials/external/images/tree-diversity-tile.png
   date: "2020-07-29"
   description: Create maps of tree species diversity across the contiguous USA, using various diversity indices.
-  categories: ['biodiversity', 'geobiogeography', 'ecology', 'beginner']
+  categories: ['biodiversity', 'geobiogeography', 'ecology', 'beginner', 'external']

@@ -127,23 +127,23 @@ You can either specify it in the YAML header (`image: image.webp`) or add `{.pre
 
 If you want to have your GRASS external tutorials listed, you can create a `.yml` file
 within the `content/tutorials/external` folder with the tutorial(s) you want to include.
-See an example below:
+See an example below (note the added `external` tag):
 
 ``` yaml
-- title: Species distribution modeling using Maxent in GRASS GIS
+- title: Species distribution modeling using Maxent in GRASS
   path: https://ecodiv.earth/TutorialsNotes/sdmingrassgis/
   author: Paulo van Breugel
   image: content/tutorials/external/images/sdm_in_grass_tutorialbanner.png
   date: "2025-02-12"
   description: Species distribution models to predict the current and future distribution of the Almond-eyed Ringlet.
-  categories: ['biogeography', 'ecology', 'intermediate', 'advanced']
+  categories: ['biogeography', 'ecology', 'intermediate', 'advanced', 'external']
 - title: Density distribution map of white-tailed deer
   path: https://ecodiv.earth/TutorialsNotes/deerdensities/index.html
   author: Paulo van Breugel
   image: content/tutorials/external/images/deer-density-tile.png
   date: "2025-01-10"
   description: Habitat suitability map for the white-tailed deer using spatial multicriteria analysis and spatial disaggregation in GRASS.
-  categories: ['biogeography', 'MCDA', 'ecology', 'intermediate']
+  categories: ['biogeography', 'MCDA', 'ecology', 'intermediate', 'external']
 ```
 
 Then, you need to add the path to your `.yml` file in the header of the
