@@ -1,5 +1,5 @@
 ---
-title: "Geoprocessamento com GRASS GIS"
+title: "Geoprocessamento com GRASS"
 lang: pt
 author: Carlos Grohmann
 date: 01/01/2021

@@ -14,7 +14,7 @@ execute:
   eval: false
 ---
 
-In this workshop, delivered at FOSS4G NA 2023, we explain and practice GRASS concepts like computational region or mask and demonstrate them on examples of efficient raster, vector, and imagery processing. The workshop runs in a JupyterLab environment, introducing Python scripting for workflow automation. We also take advantage of the latest GRASS GIS Python features for Jupyter, including 2D, 3D, web map, and temporal visualizations. This workshop is suitable for both new and experienced GRASS GIS users. While you can run the workshop locally if desired, you can also use a cloud environment so no installation is required.
+In this workshop, delivered at FOSS4G NA 2023, we explain and practice GRASS concepts like computational region or mask and demonstrate them on examples of efficient raster, vector, and imagery processing. The workshop runs in a JupyterLab environment, introducing Python scripting for workflow automation. We also take advantage of the latest GRASS Python features for Jupyter, including 2D, 3D, web map, and temporal visualizations. This workshop is suitable for both new and experienced GRASS users. While you can run the workshop locally if desired, you can also use a cloud environment so no installation is required.
 
 Workshop instructions and material:\
 <https://github.com/ncsu-geoforall-lab/grass-gis-workshop-foss4gna-2023>

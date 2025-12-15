@@ -254,7 +254,7 @@ for example this
 manual.
 Furthermore, tools such as 
 [i.modis.import](https://grass.osgeo.org/grass-stable/manuals/addons/i.modis.import.html)
-will create the registration file for you after importing products into GRASS GIS.
+will create the registration file for you after importing products into GRASS.
 
 A similar case occurs when handling imagery data. Usually, they
 represent time instances (not intervals, i.e., no end date). Hence, to register
@@ -262,7 +262,7 @@ imagery data, we might also need to create a text file. In this case, with map
 names and start time only. Tools like
 [i.sentinel.import](https://grass.osgeo.org/grass-stable/manuals/addons/i.sentinel.import.html) or
 [i.landsat.import](https://grass.osgeo.org/grass-stable/manuals/addons/i.landsat.import.html) 
-can create this file for you when you import data into GRASS GIS. 
+can create this file for you when you import data into GRASS.
 
 
 ::: {.callout-note}

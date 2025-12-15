@@ -26,7 +26,7 @@ find patterns of change both in space and time.
 
 ::: {.callout-note title="Setup"}
 This tutorial can be run locally or in Google Colab. However, make sure you
-install GRASS GIS 8.4+, download the sample data and set up your project
+install GRASS 8.4+, download the sample data and set up your project
 as explained in the [first](time_series_management_and_visualization.qmd)
 time series tutorial.
 :::

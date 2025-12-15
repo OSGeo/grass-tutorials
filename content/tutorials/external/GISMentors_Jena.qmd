@@ -9,7 +9,7 @@ format:
     code-copy: true
     code-fold: false
 categories: [beginner, intermediate, advanced, GUI, Python, course, external, R, ecology, time series]
-description: Advanced geospatial analysis with GRASS GIS
+description: Advanced geospatial analysis with GRASS
 execute: 
   eval: false
 ---
@@ -24,7 +24,7 @@ The idea of this course is to teach about spatio-temporal data processing with a
 
 Authors: Martin Landa
 
-# GRASS GIS IRSAE winter course 2018
+# GRASS IRSAE winter course 2018
 
 This 3-days intense workshop on GIS in Applied Ecology from 24.09.2018 to 27.09.2018 at the cosy Studenterhytta in Oslo has been offered by IRSAE members NINA and FEM.
 Topic of the course is Advanced Geospatial Analysis with an emphasis on handling of Earth Observation and Time Series data using Free and Open Source Software. Based on a set of 29 course units, final content for the 3 days event was tailored according to participants interest as well as prior knowledge and experience.

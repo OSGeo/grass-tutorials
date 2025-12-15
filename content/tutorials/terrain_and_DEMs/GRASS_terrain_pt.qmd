@@ -47,7 +47,7 @@ Este tutorial foi criado para que você possa concluí-lo usando a interface **g
 :::
 
 ::: {.callout-note title="Don't know how to get started?"}
-Se você não tem certeza de como começar a usar o GRASS usando sua interface gráfica de usuário ou usando Python, confira os tutoriais [Comece com o GRASS GIS GUI](https://grass-tutorials.osgeo.org/content/tutorials/get_started/fast_track.html) e [Comece a usar GRASS e Python no Jupyter Notebooks.](https://grass-tutorials.osgeo.org/content/tutorials/get_started/JupyterOnWindows_OSGeo4W_Tutorial.html)
+Se você não tem certeza de como começar a usar o GRASS usando sua interface gráfica de usuário ou usando Python, confira os tutoriais [Comece com o GRASS GUI](https://grass-tutorials.osgeo.org/content/tutorials/get_started/fast_track.html) e [Comece a usar GRASS e Python no Jupyter Notebooks.](https://grass-tutorials.osgeo.org/content/tutorials/get_started/JupyterOnWindows_OSGeo4W_Tutorial.html)
 :::
 
 # Terreno, MDE e SIG Raster

@@ -34,7 +34,7 @@ This tutorial is designed so that you can complete it using the **GRASS GUI**, G
 :::
 
 ::: {.callout-note title="Don't know how to get started?"}
-If you are not sure how to get started with GRASS using its graphical user interface or using Python, checkout the tutorials [Get started with GRASS GIS GUI](../get_started/fast_track.qmd) and [Get started with GRASS & Python in Jupyter Notebooks](../get_started/fast_track_grass_and_python.qmd).  
+If you are not sure how to get started with GRASS using its graphical user interface or using Python, checkout the tutorials [Get started with GRASS GUI](../get_started/fast_track.qmd) and [Get started with GRASS & Python in Jupyter Notebooks](../get_started/fast_track_grass_and_python.qmd).
 :::
 
 ## What is a cost surface?
