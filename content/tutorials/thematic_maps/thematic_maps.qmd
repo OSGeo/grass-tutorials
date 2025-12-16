@@ -26,687 +26,19 @@ funding: "Creation of this tutorial was supported in part by US National Science
 
 Thematic maps are the most common form of analytical visualization done in GIS software. A thematic map uses color, or object shape or size, to represent geographic variation in some property, represented by categorical or numerical values in spatial data.
 
-Most GIS software supports the creation of thematic maps from vector objects (points, lines, and areas). GRASS likewise enables the creation of thematic maps from vector data. It also supports the creation of thematic maps from rasters, which represent space a a grid of cells or pixels.
+Most GIS software supports the creation of thematic maps from vector objects (points, lines, and areas). GRASS likewise enables the creation of thematic maps from vector data. It also supports the creation of thematic maps from rasters, which represent space a grid of cells or pixels.
 
-In this tutorial, we will explore the creation of thematic maps from both raster and vector geospatial data.
+In this tutorial, we will explore the creation of thematic maps from both vector and raster geospatial data.
 
 ::: {.callout-note title="Dataset"}
-This tutorial uses one of the standard GRASS sample data sets: nc_basic_spm_grass7. We will refer to place names in that data set, but it can be completed with any of the [standard sample data sets](https://grass.osgeo.org/download/data/) for any region. Keep in mind that the specific vector map attribute columns may not be available for a map from a different location, and you may need to use other attribute columns.
+This tutorial uses one of the standard GRASS sample data sets: nc_basic_spm_grass7. We will refer to place names in that data set, but it can be completed with any of the [standard sample data sets](https://grass.osgeo.org/download/data/) for any region. Keep in mind that the specific vector map attribute columns may not be available for a map from a different location, and you may need to use other attribute columns. 
 
 This tutorial is designed so that you can complete it using the **GRASS GUI**, GRASS commands from the **console or terminal**, or using GRASS commands in a **Jupyter Notebook** environment.
 :::
 
 ::: {.callout-note title="Don't know how to get started?"}
-If you are not sure how to get started with GRASS using its graphical user interface or using Python, checkout the tutorials [Get started with GRASS GIS GUI](../get_started/fast_track.qmd) and [Get started with GRASS & Python in Jupyter Notebooks](../get_started/fast_track_grass_and_python.qmd).
+If you are not sure how to get started with GRASS using its graphical user interface or using Python, checkout the tutorials [Get started with GRASS GUI](../get_started/fast_track.qmd) and [Get started with GRASS & Python in Jupyter Notebooks](../get_started/fast_track_grass_and_python.qmd).
 :::
-
-# Raster Thematic Maps
-
-Raster thematic maps use color to represent varying land cover, land use, or terrain characteristics across a map. This can be characteristics like slope, represented in degrees, that varies continuously or like land cover, represented by areas of a map encoded with distinct categories.
-
-## Rasters with continuous variation: terrain slope
-
-Terrain slope is an example of a characteristic represented by numeric values (in degrees) that vary continuously across a landscape. A map of slope can be created from an elevation map using the [r.slope.aspect](https://grass.osgeo.org/grass-stable/manuals/r.slope.aspect.html) tool.
-
-This will produce a map of continuously varying slope across the entire map. Colors can be assigned to raster cells according to their slope values to visualize areas of high and low slope. The slope that each color represents can be shown in a legend to help users interpret the map.
-
-::: {.callout-note title="Modeling terrain in GRASS"}
-To learn more about modeling and visualizing slope and other terrain characteristics in GRASS, see the[Visualizing and Modeling Terrain from DEMs in GRASS](https://grass-tutorials.osgeo.org/content/tutorials/terrain_and_DEMs/GRASS_terrain.html) tutorial. For more information about rasters in GRASS, see [Raster data processing in GRASS GIS](https://grass.osgeo.org/grass-stable/manuals/rasterintro.html#raster-map-operations).
-:::
-
-Create a slope map from the *elevation* DEM map
-
-::::::::: {.panel-tabset group="language"}
-
-#### GUI
-
-::::: grid
-::: g-col-6
-
-1. Open r.slope.aspect tool from the Raster/Terrain analysis/Slope and aspect menu.
-
-2. Set elevation raster layer as the "Name of input elevation raster map".  
-:::
-
-::: g-col-6
-![](img_thematic/r.slope1.webp){fig-align="right"}
-:::
-:::::
-
-::::: grid
-::: g-col-6
-3. Enter name *slope* for "Name for output slope raster map".  
-
-4. Click Run.  
-:::
-
-::: g-col-6
-![](img_thematic/r.slope2.webp){fig-align="right"}
-:::
-:::::
-
-#### Command line
-
-```{bash}
-r.slope.aspect elevation=elevation slope=slope
-```
-
-#### Python
-
-```{python}
-gs.run_command("r.slope.aspect",  
-                elevation="elevation", 
-                slope="slope")
-```
-
-:::::::::
-
-Here is the resulting slope map.
-
-![slope raster map](img_thematic/slope.webp)
-
-### Selecting a color table
-
-The default colors of the slope map we created vary from pale yellow to violet as slope changes from flat to steep. We can assign different *color tables* to represent variation in slope with different colors.
-
-- For example, we could change the **intensity** of a color to represent slope: pale color for low slopes and intense color for steep slopes.
-
-- Color tables can be assigned, and custom color tables defined, using the [r.colors](https://grass.osgeo.org/grass-stable/manuals/r.colors.html) module.
-
-- Let's apply the *reds* color table to the slope map so that the slope is represented by the intensity of the red color.
-
-::::::::: {.panel-tabset group="language"}
-
-#### GUI
-
-::::: grid
-::: g-col-6
-
-1. Select [r.colors](https://grass.osgeo.org/grass-stable/manuals/r.colors.html) tool from the Raster/Manage colors menu.  
-
-2. In the "Map" tab, select the *slope* map in the "Name of raster map(s)" entry box.  
-:::
-
-::: g-col-6
-![](img_thematic/r.colors1.webp){fig-align="right"}
-:::
-:::::
-
-3. In the Define tab, select *reds* as the color table.  
-
-::::: grid
-::: g-col-6
-![](img_thematic/r.colors2.webp){fig-align="right"}
-:::
-
-::: g-col-6
-![](img_thematic/r.colors2menu.webp){fig-align="left" width="60%"}
-:::
-:::::
-
-4. Click Run.
-
-#### Command line
-
-```{bash}
-r.colors -e map=slope color=reds
-```
-
-#### Python
-
-```{python}
-gs.run_command("r.colors", 
-                map="slope", 
-                color="reds")
-```
-
-:::::::::
-
-![slope represented by intensity of red color](img_thematic/slope_reds.webp)
-
-Try out some other color tables. The original default color is the *slope* color table. Try the *gyr* (green to yellow to red) color table with *histogram equalization* checked. You can also make a custom color table, as we describe later in this tutorial.  
-
-### Creating a legend
-
-A **legend** can help you determine what the range of values present in your map and how the colors correspond to these values. The raster [d.legend](https://grass.osgeo.org/grass-stable/manuals/d.legend.html) tool lets you easily make a highly informative legend for this map.
-
-:::::::::::::::::::::::: {.panel-tabset group="language"}
-
-#### GUI
-
-::::: grid
-::: g-col-6
-The raster *d.legend* tool can be accessed from the display window tool bar. This tool has many options. We'll explore several of them.  
-:::
-
-::: g-col-6
-![](img_thematic/legend_tool.webp){fig-align="right"}
-:::
-:::::
-
-::::: grid
-::: g-col-6
-
-1. Under the Input tab, enter *slope* as the "Name of raster map".  
-:::
-
-::: g-col-6
-![](img_thematic/d.legend1.webp){fig-align="right"}
-:::
-:::::
-
-::::: grid
-::: g-col-6
-2.  Under the Title tab, enter "Slope" as the "Legend title", and enter 14 as the "Title font size".  
-:::
-
-::: g-col-6
-![](img_thematic/d.legend2.webp){fig-align="right"}
-:::
-:::::
-
-::::: grid
-::: g-col-6
-3.  Under the Advanced tab, enter the degree symbol (°) or the word "deg" as "Units to display".  
-:::
-
-::: g-col-6
-![](img_thematic/d.legend3.webp){fig-align="right"}
-:::
-:::::
-
-::::: grid
-::: g-col-6
-4.  Under the Gradient tab, check the "Add histogram to smoothed legend" box. Also enter *0,10,20,30* in the "Specific values to draw ticks" to display these evenly spaced values as legend ticks.  
-:::
-
-::: g-col-6
-![](img_thematic/d.legend4.webp){fig-align="right"}
-:::
-:::::
-
-::::: grid
-::: g-col-6
-6.  Under the Font settings tab, enter 12 as the "Font size" for the legend.  
-:::
-
-::: g-col-6
-![](img_thematic/d.legend5.webp){fig-align="right"}
-:::
-:::::
-
-::::: grid
-::: g-col-6
-6.  Finally, under the Background tab, check the box to show the background.
-
-7. Click OK to see the legend. You can reposition and resize the legend with a mouse or numerically under the Options tab.  
-:::
-
-::: g-col-6
-![](img_thematic/d.legend6.webp){fig-align="right"}
-:::
-:::::
-
-#### Command line
-
-- A legend can be generated using the [d.legend](https://grass.osgeo.org/grass-stable/manuals/d.legend.html) command.
-
-- A scale bar and north arrow can be generated using the [d.barscale](https://grass.osgeo.org/grass-stable/manuals/d.barscale.html) command.
-
-```{bash}
-d.legend -d -b raster=slope title=Slope title_fontsize=14 units=° label_values=0,10,20,30 fontsize=12 border_color=0:0:0:255
-
-d.barscale -n length=2 units=kilometers segment=5 bgcolor=none width_scale=2
-```
-
-#### Python
-
-- A legend can be generated using the [d.legend](https://grass.osgeo.org/grass-stable/manuals/d.legend.html) command.
-
-- A scale bar and north arrow can be generated using the [d.barscale](https://grass.osgeo.org/grass-stable/manuals/d.barscale.html) command.
-
-```{python}
-gs.run_command("d.legend", 
-                map="slope", 
-                title="Slope", 
-                title_fontsize=14, 
-                units="°", 
-                label_values="0,10,20,30", 
-                fontsize=12, 
-                border_color="0:0:0:255", 
-                flags="db")
-                
-gs.run_command("d.barscale",
-                length=2, 
-                units="kilometers", 
-                segment=5, 
-                bgcolor="none", 
-                width_scale=2, 
-                flags="n"
-```
-
-::::::::::::::::::::::::
-
-Here is the result.
-
-- It not only shows the range of slope values and colors of different slope values, but also the histogram shows the number of cells for each slope value.  
-
-- You can also add a scale bar and north arrow from the same menu bar item in the display window where you selected the legend tool.  
-
-![Slope map with legend, scale bar and north arrow](img_thematic/slope&legend.webp)  
-
-## Categorizing continuous variation
-
-Sometimes it is useful to divide continuous variation into a set of distinct categories for analysis or communication. For example, the slope map we created previously might be displayed as areas of low slope and high slope, rather than a continuum of slope values. For raster maps, this is done in GRASS through *reclassification* of the cell values. While there are several ways to do this, the easiest is with the [r.reclass](https://grass.osgeo.org/grass-stable/manuals/r.reclass.html) tool, found under the Raster/Change category menu. Below, we will use *r.reclass* to create a map of distinct slope categories from the slope map we produced previously.  
-
-### Statistics for categories
-
-How should we group slope into categories? One way is to use statistical analysis to divide slope statistically into quartiles, each of which represents the same number of raster cells. GRASS has numerous tools for [statistical analyses](https://grass.osgeo.org/grass-stable/manuals/topic_statistics.html) of raster and vector maps.
-
-- The [r.univar](https://grass.osgeo.org/grass-stable/manuals/r.univar.html) tool can be used to find the cutoff values for the 1st, 2nd, 3rd, and 4th quartiles.  
-
-- We could define the 1st quartile (25% of raster cells with the lowest slopes) as 'low slope', the 4th quartile (25% of cells with the highest slopes) as 'high slope', and the remaining cells as 'intermediate slope' (3rd and 4th quartiles, representing the 50% of cells with intermediate slopes).  
-
-::: {.panel-tabset group="language"}
-
-#### GUI
-
-1. Open *r.univar* from the Raster/Reports and Statistics menu.  
-
-2. Enter *slope* as the "Name of the raster map(s)" under the Required tab.  
-
-3. Click run.  
-
-#### Command line
-
-```{bash}
-r.univar map=slope percentile=25,50,75
-```
-
-#### Python
-
-```{python}
-gs.run_command("r.univar", 
-                map="slope")
-```
-
-:::
-
-::::: grid
-::: g-col-5
-Here is the result:  
-
-```
-n: 2019304  
-minimum: 0   
-maximum: 38.6894  
-range: 38.6894  
-mean: 3.86452  
-mean of absolute values: 3.86452  
-standard deviation: 3.00791  
-variance: 9.04755  
-variation coefficient: 77.834  
-% sum: 7803645.55388512  
-1st quartile: 1.85464  
-median (even number of cells): 3.21512  
-3rd quartile: 5.02421
-```
-
-:::
-
-::: g-col-7
-To divide slope into quartiles, we need to create the following slope groups:  
-
-|   slope   |   quartile   | slope category |
-|:---------:|:------------:|:------------:|
-|  0-1.85   | 1st quartile | low slope |
-| 1.86-5.02 | 2nd & 3rd quartiles | intermediate slope |
-| 5.03-38.7 | 4th quartile | high slope |
-:::
-:::::
-
-### Reclassification
-
-Now we can use the results of the above statistical analysis to reclassify slope into four categories, each of which represents 1/4 of the total raster cells in the map.  
-
-:::::: {.panel-tabset group="language"}
-
-## GUI
-
-The [r.reclass](https://grass.osgeo.org/grass-stable/manuals/r.reclass.html) tool is found under the Raster/Change category menu.  
-
-::::: grid
-::: g-col-6
-
-1. Enter *slope* for the raster to be reclassified.  
-
-2. Enter *slope_quartiles* for the output reclassified map.  
-
-3. Enter the reclass rules directly in the text box or from a saved text file. Use and \* symbol to represent everything not covered by the specific reclass rules.  
-
-4. Click run.  
-
-```
-0 thru 1.85 = 1 low slope 
-1.86 thru 5.02 = 2 intermediate slope  
-5.03 thru 38.7 = 3 high slope  
-```
-
-:::
-
-::: g-col-6
-![](img_thematic/r.reclass.webp){fig-align="right"}
-:::
-:::::
-
-## Command line
-
-```{bash}
-r.reclass input=slope output=slope_quartiles rules=- << EOF
-0 thru 1.85 = 1 low slope 
-1.86 thru 5.02 = 2 intermediate slope  
-5.03 thru 38.7 = 3 high slope  
-EOF
-```
-
-## Python
-
-```{python}
-rules = """\
-0 thru 1.85 = 1 low slope 
-1.86 thru 5.02 = 2 intermediate slope  
-5.03 thru 38.7 = 3 high slope  
-"""
-gs.write_command("r.reclass",
-                 input="slope",
-                 output="slope_quartiles",
-                 rules="-",
-                 stdin=rules)
-```
-
-::::::
-
-This creates a new map named *slope_quartiles* with slope divided into three categories.
-
-![](img_thematic/slope_quartiles&legend.webp)
-
-### Assigning a custom color table
-
-This map is helpful for showing areas with different slope categories. But it might be more interpretable with a different set of colors. We could pick a different pre-defined color table using the *r.colors* tool demonstrated previously. We can also define a custom color table using the same tool.
-
-Creating a custom color table is as easy as specifying a category number followed by a color.  
-
-- The color can be one of the named colors that GRASS recognizes (*red,orange,yellow,green,blue,indigo,violet,white,black,gray,brown,magenta,aqua,grey,cyan,purple*) or  
-
-- the color can be specified as RGB values (0-255 for red:green:blue).  
-
-- For example, to create a color table using aqua, yellow, and red for categories 1-3 in the *slope_quartiles* map, you simply need to list them as:  
-
-```
-1 aqua
-2 yellow
-3 red
-```
-
-- To specify the same colors as RGB, you would write the rules as:
-
-```
-1 100:128:255
-2 255:255:0
-3 255:0:0
-```
-
-You can save this to a plain text *rules file* and upload it in *r.colors* or you can specify it directly within the *r.colors* tool.
-
-:::::::::::: {.panel-tabset group="language"}
-
-#### GUI
-
-::::: grid
-::: g-col-6
-
-1. Specify *slope_quartiles* as the map you want to assign the color table to
-:::
-
-::: g-col-6
-![](img_thematic/r.colors3.webp){fig-align="right"}
-:::
-:::::
-
-::::: grid
-::: g-col-6
-2.  Enter the color rules in the "enter values directly" box
-
-3. Press run
-:::
-
-::: g-col-6
-![](img_thematic/r.colors4.webp)
-:::
-:::::
-
-::::: grid
-::: g-col-6
-You can also specify color rules interactively by selecting Raster/Manage colors/Manage color rules interactively
-:::
-
-::: g-col-6
-![](img_thematic/r.colors.interactive.webp){fig-align="right"}
-:::
-:::::
-
-#### Command line
-
-```{bash}
-r.colors -e map=slope_quartiles rules=- << EOF
-1 aqua
-2 yellow
-3 red
-EOF
-```
-
-#### Python
-
-```{python}
-rules = """\
-1 aqua
-2 yellow
-3 red
-"""
-gs.write_command("r.colors",
-                 map="slope_quartiles",
-                 rules="-",
-                 stdin=rules)
-```
-
-::::::::::::
-
-Here is the resulting Slope quartile categories map with a custom color table.
-
-![](img_thematic/slope_quartiles&legend_customcolors.webp)
-
-## Rasters with distinct categories: land cover
-
-In addition to contiuous values, raster cells can represent distinct categories, encoded with an integer value and a text label. When these categories are assigned different colors, this kind of thematic map is also called a *choropleth* map.
-
-- The *landuse96_28m* map is an example of such a raster map. Load the *landuse96_28m* map into the layer manager.
-
-- Because the colors vary according to category, it can already be seen as a raster thematic map. All that is lacking is an interpretive legend.  
-
-- You can make a legend for the *landuse96_28m* map in the same way we made a legend for the slope map, with a few minor differences.  
-
-::: {.panel-tabset group="language"}
-
-#### GUI
-
-1. In the *d.legend tool* select *landuse96_28m* for the map to create a legend from.  
-
-2. Put "Land Use" in the title and set the title font size to 14.  
-
-3. Under the Advanced tab, check the "Do not show categories number" box (you might want to show the numbers for a different map, however).  
-
-4. Set the font size to 12.  
-
-5. Check the "Show background" box.  
-
-6. Click "OK".  
-
-#### Command line
-
-```{bash}
-d.legend -c -b raster=landuse title="Land Use" title_fontsize=14 fontsize=12 border_color=0:0:0:255
-```
-
-#### Python
-
-```{python}
-gs.run_command("d.legend",
-                raster="landuse", 
-                title="Land Use", 
-                title_fontsize=14, 
-                fontsize=12, 
-                border_color="0:0:0:255", 
-                flags="cb")
-```
-
-:::
-
-Here is the land use thematic map.  
-
-![Land use map with legend, scale bar and north arrow](img_thematic/landuse96&legend.webp)
-
-::: {.callout-note title="Tip"}:
-If you have a category map with very many categories, they may not be readable or even display as distinct categories. If you have a map with too many categories to create a readable legend, you may want to combine some categories or focus on a smaller geographic area to produce a useful thematic map.
-:::
-
-### Aggregating categories with reclassification
-
-This thematic map might be more informative if the many land use and land cover categories could be condensed into fewer. As with the slope map, this can be done through reclassification to assign new values and labels to the existing landuse categories.  
-
-We an make a new reclass map with aggregated categories, named *landcover*. Using [*r.reclass*](https://grass.osgeo.org/grass-stable/manuals/r.reclass.html) as described previously, we can reduce the 21 original categories to 7 by combining all the developed land into a single category, all the herbaceous vegetation, all the shrub vegetation, and all the tree cover.  
-
-:::::: {.panel-tabset group="language"}
-
-## GUI
-
-1. Enter *landuse96_28m* for the raster to be reclassified.  
-
-2. Enter *landcover* for the output reclassified map.  
-
-3. Enter the reclass rules directly in the text box or from a saved text file.  
-
-```
-1 2 = 1 developed
-3 = 2 agriculture      
-4 6 = 3 herbaceous
-7 thru 9 = 4 shrubland
-10 thru 18 = 5 forest
-20 = 6 water
-21 = 7 sediment
-```
-
-## Command line
-
-```{bash}
-r.reclass input=landuse output=friction_landcover rules=- << EOF
-1 2 = 1 developed
-3 = 2 agriculture      
-4 6 = 3 herbaceous
-7 thru 9 = 4 shrubland
-10 thru 18 = 5 forest
-20 = 6 water
-21 = 7 sediment
-EOF
-```
-
-## Python
-
-```{python}
-rules = """\
-1 2 = 1 developed
-3 = 2 agriculture      
-4 6 = 3 herbaceous
-7 thru 9 = 4 shrubland
-10 thru 18 = 5 forest
-20 = 6 water
-21 = 7 sediment
-"""
-gs.write_command("r.reclass",
-                 input="landuse",
-                 output="friction_landcover",
-                 rules="-",
-                 stdin=rules)
-```
-
-::::::
-
-Here is the result with a legend.
-
-![The reclassified *landcover* map](img_thematic/landcover.webp)  
-
-### Custom colors for reclassified thematic map
-
-Finally, we might want to change the colors from the default *viridis* color table to one that better shows land cover categories. This can be done using the [r.colors](https://grass.osgeo.org/grass-stable/manuals/r.colors.html) described previously for the reclassified slope map.  
-
-Here are some possible color assignments. Developed land (1) is orange, agricultural land (2) is yellow, other vegetation (3-5) is colored shades of green, water (6) is blue, and sediment (7) is brown. Assign these colors using *r.colors* as done previously for reclassified slope.  
-
-:::::::::::: {.panel-tabset group="language"}
-
-#### GUI
-
-1. Specify *landcover* as the map you want to assign the color table to
-
-2. Enter the color rules in the "enter values directly" box
-
-```
-1 255:127:0
-2 255:255:0
-3 200:255:0
-4 0:255:0
-5 20:130:70
-6 0:191:191
-7 191:127:63
-```
-
-3. Press run
-
-#### Command line
-
-```{bash}
-r.colors -e map=slope_quartiles rules=- << EOF
-1 255:127:0
-2 255:255:0
-3 200:255:0
-4 0:255:0
-5 20:130:70
-6 0:191:191
-7 191:127:63
-EOF
-```
-
-#### Python
-
-```{python}
-rules = """\
-1 255:127:0
-2 255:255:0
-3 200:255:0
-4 0:255:0
-5 20:130:70
-6 0:191:191
-7 191:127:63
-"""
-gs.write_command("r.colors",
-                 map="slope_quartiles",
-                 rules="-",
-                 stdin=rules)
-```
-
-::::::::::::
-
-Here is the resulting reclassified and recolored land cover map.
-
-![Landcover map](img_thematic/landcover_reclassed_recolored.webp)
 
 # Vector Thematic Maps
 
@@ -820,7 +152,7 @@ A legend can help you and other users better interpret the colored circles on th
 
 ![](img_thematic/addvectorlegend.webp)
 
-The vector legend tool will create a legend with entries for all layers that are visible in a display. We can set a title and font, and control the background. But there are fewer options than the raster legend tool.
+The vector legend tool will create a legend with entries for all layers that are visible in a display. We can set a title and font, and control the background. But there are fewer options than the raster legend tool described in the section below for raster thematic maps.
 
 ::: {.panel-tabset group="language"}
 
@@ -962,10 +294,10 @@ We can use the thematic mapping tool to generate a new map of household size fro
 
 4. Select **4 colors** to use to visualize the standard deviation units. The example shown uses the interactive color picker (button to the right of the "Colors" entry box) to select:
 
-- light blue (RGB 193:202:255:255) for 2-SD below the mean,
-- dark blue (RGB 0:0:255:255) for 1-SD below the mean,
-- dark red (RGB 251:2:7:255) for 1-SD above the mean, and
-- light red (RGB 254:201:193:255) for 2-SD above the mean.
+  - light blue (RGB 193:202:255:255) for 2-SD below the mean,
+  - dark blue (RGB 0:0:255:255) for 1-SD below the mean,
+  - dark red (RGB 251:2:7:255) for 1-SD above the mean, and
+  - light red (RGB 254:201:193:255) for 2-SD above the mean.
 :::
 
 ::: g-col-6
@@ -1264,11 +596,11 @@ We can use thematic charts to display the equipment available at fire stations u
 
 8. Enter **4 colors** to represent the 4 columns that are being displayed in the chart.
 
-- You can use the color picker button to the right of the entry box.
+  - You can use the color picker button to the right of the entry box.
   
-- Or you can enter them manually as RGB color values or one of the named GRASS colors (*red, orange, yellow, green, blue, indigo, violet, white, black, gray, brown, magenta, aqua, grey,cyan, purple*). The colors should be separated by commas with no spaces.
+  - Or you can enter them manually as RGB color values or one of the named GRASS colors (*red, orange, yellow, green, blue, indigo, violet, white, black, gray, brown, magenta, aqua, grey,cyan, purple*). The colors should be separated by commas with no spaces.
   
-- The 4 colors used in this tutorial are:  **255:0:0:255,0:0:255:255,204:102:255:255,254:204:102:255**.  
+  - The 4 colors used in this tutorial are:  **255:0:0:255,0:0:255:255,204:102:255:255,254:204:102:255**.  
 
 9. Finally, make sure that the "Create legend information" box is checked under the Optional tab.  
 
@@ -1430,6 +762,683 @@ The thematic charts tool can represent data as bar graphs instead of pie charts.
 
 ![](img_thematic/thematic_chart&legend_bar.webp)
 
+# Raster Thematic Maps
+
+Raster thematic maps use color to represent varying land cover, land use, or terrain characteristics across a map. This can be characteristics like slope, represented in degrees, that varies continuously or like land cover, represented by areas of a map encoded with distinct categories.
+
+## Rasters with continuous variation: terrain slope
+
+Terrain slope is an example of a characteristic represented by numeric values (in degrees) that vary continuously across a landscape. A map of slope can be created from an elevation map using the [r.slope.aspect](https://grass.osgeo.org/grass-stable/manuals/r.slope.aspect.html) tool.
+
+This will produce a map of continuously varying slope across the entire map. Colors can be assigned to raster cells according to their slope values to visualize areas of high and low slope. The slope that each color represents can be shown in a legend to help users interpret the map.
+
+::: {.callout-note title="Modeling terrain in GRASS"}
+To learn more about modeling and visualizing slope and other terrain characteristics in GRASS, see the [Visualizing and Modeling Terrain from DEMs in GRASS](../GRASS_terrain.html) tutorial. For more information about rasters in GRASS, see [Raster data processing in GRASS](https://grass.osgeo.org/grass-stable/manuals/rasterintro.html#raster-map-operations).
+:::
+
+Create a slope map from the *elevation* DEM map
+
+::::::::: {.panel-tabset group="language"}
+
+#### GUI
+
+::::: grid
+::: g-col-6
+
+1. Open r.slope.aspect tool from the Raster/Terrain analysis/Slope and aspect menu.
+
+2. Set elevation raster layer as the "Name of input elevation raster map".  
+:::
+
+::: g-col-6
+![](img_thematic/r.slope1.webp){fig-align="right"}
+:::
+:::::
+
+::::: grid
+::: g-col-6
+3.  Enter name *slope* for "Name for output slope raster map".
+
+4. Click Run.
+:::
+
+::: g-col-6
+![](img_thematic/r.slope2.webp){fig-align="right"}
+:::
+:::::
+
+#### Command line
+
+```{bash}
+r.slope.aspect elevation=elevation slope=slope
+```
+
+#### Python
+
+```{python}
+gs.run_command("r.slope.aspect",  
+                elevation="elevation", 
+                slope="slope")
+```
+
+:::::::::
+
+Here is the resulting slope map.
+
+![slope raster map](img_thematic/slope.webp)
+
+### Selecting a color table
+
+The default colors of the slope map we created vary from pale yellow to violet as slope changes from flat to steep. We can assign different *color tables* to represent variation in slope with different colors.
+
+- For example, we could change the **intensity** of a color to represent slope: pale color for low slopes and intense color for steep slopes.
+
+- Color tables can be assigned, and custom color tables defined, using the [r.colors](https://grass.osgeo.org/grass-stable/manuals/r.colors.html) module.
+
+- Let's apply the *reds* color table to the slope map so that the slope is represented by the intensity of the red color.
+
+::::::::: {.panel-tabset group="language"}
+
+#### GUI
+
+::::: grid
+::: g-col-6
+
+1. Select [r.colors](https://grass.osgeo.org/grass-stable/manuals/r.colors.html) tool from the Raster/Manage colors menu.
+
+2. In the "Map" tab, select the *slope* map in the "Name of raster map(s)" entry box.  
+:::
+
+::: g-col-6
+![](img_thematic/r.colors1.webp){fig-align="right"}
+:::
+:::::
+
+3. In the Define tab, select *reds* as the color table.
+
+::::: grid
+::: g-col-6
+![](img_thematic/r.colors2.webp){fig-align="right"}
+:::
+
+::: g-col-6
+![](img_thematic/r.colors2menu.webp){fig-align="left" width="60%"}
+:::
+:::::
+
+4. Click Run.
+
+#### Command line
+
+```{bash}
+r.colors -e map=slope color=reds
+```
+
+#### Python
+
+```{python}
+gs.run_command("r.colors", 
+                map="slope", 
+                color="reds")
+```
+
+:::::::::
+
+![slope represented by intensity of red color](img_thematic/slope_reds.webp)
+
+Try out some other color tables. The original default color is the *slope* color table. Try the *gyr* (green to yellow to red) color table with *histogram equalization* checked. You can also make a custom color table, as we describe later in this tutorial.  
+
+### Creating a legend
+
+A **legend** can help you determine what the range of values present in your map and how the colors correspond to these values. The raster [d.legend](https://grass.osgeo.org/grass-stable/manuals/d.legend.html) tool lets you easily make a highly informative legend for this map.
+
+:::::::::::::::::::::::: {.panel-tabset group="language"}
+
+#### GUI
+
+::::: grid
+::: g-col-6
+The raster *d.legend* tool can be accessed from the display window tool bar. This tool has many options. We'll explore several of them.  
+:::
+
+::: g-col-6
+![](img_thematic/legend_tool.webp){fig-align="right"}
+:::
+:::::
+
+::::: grid
+::: g-col-6
+
+1. Under the Input tab, enter *slope* as the "Name of raster map".  
+:::
+
+::: g-col-6
+![](img_thematic/d.legend1.webp){fig-align="right"}
+:::
+:::::
+
+::::: grid
+::: g-col-6
+2.  Under the Title tab, enter "Slope" as the "Legend title", and enter 14 as the "Title font size".  
+:::
+
+::: g-col-6
+![](img_thematic/d.legend2.webp){fig-align="right"}
+:::
+:::::
+
+::::: grid
+::: g-col-6
+3.  Under the Advanced tab, enter the degree symbol (°) or the word "deg" as "Units to display".  
+:::
+
+::: g-col-6
+![](img_thematic/d.legend3.webp){fig-align="right"}
+:::
+:::::
+
+::::: grid
+::: g-col-6
+4.  Under the Gradient tab, check the "Add histogram to smoothed legend" box. Also enter *0,10,20,30* in the "Specific values to draw ticks" to display these evenly spaced values as legend ticks.  
+:::
+
+::: g-col-6
+![](img_thematic/d.legend4.webp){fig-align="right"}
+:::
+:::::
+
+::::: grid
+::: g-col-6
+6.  Under the Font settings tab, enter 12 as the "Font size" for the legend.  
+:::
+
+::: g-col-6
+![](img_thematic/d.legend5.webp){fig-align="right"}
+:::
+:::::
+
+::::: grid
+::: g-col-6
+6.  Finally, under the Background tab, check the box to show the background.
+
+7. Click OK to see the legend. You can reposition and resize the legend with a mouse or numerically under the Options tab.  
+:::
+
+::: g-col-6
+![](img_thematic/d.legend6.webp){fig-align="right"}
+:::
+:::::
+
+#### Command line
+
+- A legend can be generated using the [d.legend](https://grass.osgeo.org/grass-stable/manuals/d.legend.html) command.
+
+- A scale bar and north arrow can be generated using the [d.barscale](https://grass.osgeo.org/grass-stable/manuals/d.barscale.html) command.
+
+```{bash}
+d.legend -d -b raster=slope title=Slope title_fontsize=14 units=° label_values=0,10,20,30 fontsize=12 border_color=0:0:0:255
+
+d.barscale -n length=2 units=kilometers segment=5 bgcolor=none width_scale=2
+```
+
+#### Python
+
+- A legend can be generated using the [d.legend](https://grass.osgeo.org/grass-stable/manuals/d.legend.html) command.
+
+- A scale bar and north arrow can be generated using the [d.barscale](https://grass.osgeo.org/grass-stable/manuals/d.barscale.html) command.
+
+```{python}
+gs.run_command("d.legend", 
+                map="slope", 
+                title="Slope", 
+                title_fontsize=14, 
+                units="°", 
+                label_values="0,10,20,30", 
+                fontsize=12, 
+                border_color="0:0:0:255", 
+                flags="db")
+                
+gs.run_command("d.barscale",
+                length=2, 
+                units="kilometers", 
+                segment=5, 
+                bgcolor="none", 
+                width_scale=2, 
+                flags="n")
+```
+
+::::::::::::::::::::::::
+
+Here is the result.
+
+- It not only shows the range of slope values and colors of different slope values, but also the histogram shows the number of cells for each slope value.  
+
+- You can also add a scale bar and north arrow from the same menu bar item in the display window where you selected the legend tool.  
+
+![Slope map with legend, scale bar and north arrow](img_thematic/slope&legend.webp)  
+
+## Categorizing continuous variation
+
+Sometimes it is useful to divide continuous variation into a set of distinct categories for analysis or communication. For example, the slope map we created previously might be displayed as areas of low slope and high slope, rather than a continuum of slope values. For raster maps, this is done in GRASS through *reclassification* of the cell values. While there are several ways to do this, the easiest is with the [r.reclass](https://grass.osgeo.org/grass-stable/manuals/r.reclass.html) tool, found under the Raster/Change category menu. Below, we will use *r.reclass* to create a map of distinct slope categories from the slope map we produced previously.  
+
+### Statistics for categories
+
+How should we group slope into categories? One way is to use statistical analysis to divide slope statistically into quartiles, each of which represents the same number of raster cells. GRASS has numerous tools for [statistical analyses](https://grass.osgeo.org/grass-stable/manuals/topic_statistics.html) of raster and vector maps.
+
+- The [r.univar](https://grass.osgeo.org/grass-stable/manuals/r.univar.html) tool can be used to find the cutoff values for the 1st, 2nd, 3rd, and 4th quartiles.  
+
+- We could define the 1st quartile (25% of raster cells with the lowest slopes) as 'low slope', the 4th quartile (25% of cells with the highest slopes) as 'high slope', and the remaining cells as 'intermediate slope' (3rd and 4th quartiles, representing the 50% of cells with intermediate slopes).  
+
+::: {.panel-tabset group="language"}
+
+#### GUI
+
+1. Open *r.univar* from the Raster/Reports and Statistics menu.  
+
+2. Enter *slope* as the "Name of the raster map(s)" under the Required tab.  
+
+3. Click run.  
+
+#### Command line
+
+```{bash}
+r.univar map=slope percentile=25,50,75
+```
+
+#### Python
+
+```{python}
+gs.run_command("r.univar", 
+               map="slope")
+```
+
+:::
+
+::::: grid
+::: g-col-5
+Here is the result:  
+
+```
+n: 2019304  
+minimum: 0   
+maximum: 38.6894  
+range: 38.6894  
+mean: 3.86452  
+mean of absolute values: 3.86452  
+standard deviation: 3.00791  
+variance: 9.04755  
+variation coefficient: 77.834  
+% sum: 7803645.55388512  
+1st quartile: 1.85464  
+median (even number of cells): 3.21512  
+3rd quartile: 5.02421
+```
+
+:::
+
+::: g-col-7
+To divide slope into quartiles, we need to create the following slope groups:  
+
+|   slope   |   quartile   | slope category |
+|:---------:|:------------:|:------------:|
+|  0-1.85   | 1st quartile | low slope |
+| 1.86-5.02 | 2nd & 3rd quartiles | intermediate slope |
+| 5.03-38.7 | 4th quartile | high slope |
+:::
+:::::
+
+### Reclassification
+
+Now we can use the results of the above statistical analysis to reclassify slope into four categories, each of which represents 1/4 of the total raster cells in the map.  
+
+:::::: {.panel-tabset group="language"}
+
+## GUI
+
+The [r.reclass](https://grass.osgeo.org/grass-stable/manuals/r.reclass.html) tool is found under the Raster/Change category menu.  
+
+::::: grid
+::: g-col-6
+
+1. Enter *slope* for the raster to be reclassified.  
+
+2. Enter *slope_quartiles* for the output reclassified map.  
+
+3. Enter the reclass rules directly in the text box or from a saved text file. Use and \* symbol to represent everything not covered by the specific reclass rules.  
+
+4. Click run.  
+
+```
+0 thru 1.85 = 1 low slope 
+1.86 thru 5.02 = 2 intermediate slope  
+5.03 thru 38.7 = 3 high slope  
+```
+
+:::
+
+::: g-col-6
+![](img_thematic/r.reclass.webp){fig-align="right"}
+:::
+:::::
+
+## Command line
+
+```{bash}
+r.reclass input=slope output=slope_quartiles rules=- << EOF
+0 thru 1.85 = 1 low slope 
+1.86 thru 5.02 = 2 intermediate slope  
+5.03 thru 38.7 = 3 high slope  
+EOF
+```
+
+## Python
+
+```{python}
+rules = """\
+0 thru 1.85 = 1 low slope 
+1.86 thru 5.02 = 2 intermediate slope  
+5.03 thru 38.7 = 3 high slope  
+"""
+gs.write_command("r.reclass",
+                 input="slope",
+                 output="slope_quartiles",
+                 rules="-",
+                 stdin=rules)
+```
+
+::::::
+
+This creates a new map named *slope_quartiles* with slope divided into three categories.
+
+![](img_thematic/slope_quartiles&legend.webp)
+
+### Assigning a custom color table
+
+This map is helpful for showing areas with different slope categories. But it might be more interpretable with a different set of colors. We could pick a different pre-defined color table using the *r.colors* tool demonstrated previously. We can also define a custom color table using the same tool.
+
+Creating a custom color table is as easy as specifying a category number followed by a color.  
+
+- The color can be one of the named colors that GRASS recognizes (*red,orange,yellow,green,blue,indigo,violet,white,black,gray,brown,magenta,aqua,grey,cyan,purple*) or  
+
+- the color can be specified as RGB values (0-255 for red:green:blue).  
+
+- For example, to create a color table using aqua, yellow, and red for categories 1-3 in the *slope_quartiles* map, you simply need to list them as:  
+
+```
+1 aqua
+2 yellow
+3 red
+```
+
+- To specify the same colors as RGB, you would write the rules as:
+
+```
+1 100:128:255
+2 255:255:0
+3 255:0:0
+```
+
+You can save this to a plain text *rules file* and upload it in *r.colors* or you can specify it directly within the *r.colors* tool.
+
+:::::::::::: {.panel-tabset group="language"}
+
+#### GUI
+
+::::: grid
+::: g-col-6
+
+1. Specify *slope_quartiles* as the map you want to assign the color table to
+:::
+
+::: g-col-6
+![](img_thematic/r.colors3.webp){fig-align="right"}
+:::
+:::::
+
+::::: grid
+::: g-col-6
+2.  Enter the color rules in the "enter values directly" box
+
+3. Press run
+:::
+
+::: g-col-6
+![](img_thematic/r.colors4.webp)
+:::
+:::::
+
+::::: grid
+::: g-col-6
+You can also specify color rules interactively by selecting Raster/Manage colors/Manage color rules interactively
+:::
+
+::: g-col-6
+![](img_thematic/r.colors.interactive.webp){fig-align="right"}
+:::
+:::::
+
+#### Command line
+
+```{bash}
+r.colors -e map=slope_quartiles rules=- << EOF
+1 aqua
+2 yellow
+3 red
+EOF
+```
+
+#### Python
+
+```{python}
+rules = """\
+1 aqua
+2 yellow
+3 red
+"""
+gs.write_command("r.colors",
+                 map="slope_quartiles",
+                 rules="-",
+                 stdin=rules)
+```
+
+::::::::::::
+
+Here is the resulting Slope quartile categories map with a custom color table.
+
+![](img_thematic/slope_quartiles&legend_customcolors.webp)
+
+
+## Rasters with distinct categories: land cover
+
+In addition to contiuous values, raster cells can represent distinct categories, encoded with an integer value and a text label. When these categories are assigned different colors, this kind of thematic map is also called a *choropleth* map.
+
+- The *landuse96_28m* map is an example of such a raster map. Load the *landuse96_28m* map into the layer manager.
+
+- Because the colors vary according to category, it can already be seen as a raster thematic map. All that is lacking is an interpretive legend.  
+
+- You can make a legend for the *landuse96_28m* map in the same way we made a legend for the slope map, with a few minor differences.  
+
+::: {.panel-tabset group="language"}
+
+#### GUI
+
+1. In the *d.legend tool* select *landuse96_28m* for the map to create a legend from.  
+
+2. Put "Land Use" in the title and set the title font size to 14.  
+
+3. Under the Advanced tab, check the "Do not show categories number" box (you might want to show the numbers for a different map, however).  
+
+4. Set the font size to 12.  
+
+5. Check the "Show background" box.  
+
+6. Click "OK".  
+
+#### Command line
+
+```{bash}
+d.legend -c -b raster=landuse title="Land Use" title_fontsize=14 fontsize=12 border_color=0:0:0:255
+```
+
+#### Python
+
+```{python}
+gs.run_command("d.legend",
+               raster="landuse", 
+               title="Land Use", 
+               title_fontsize=14, 
+               fontsize=12, 
+               border_color="0:0:0:255", 
+               flags="cb")
+```
+
+:::
+
+Here is the land use thematic map.  
+
+![Land use map with legend, scale bar and north arrow](img_thematic/landuse96&legend.webp)
+
+::: {.callout-note title="Tip"}:
+If you have a category map with very many categories, they may not be readable or even display as distinct categories. If you have a map with too many categories to create a readable legend, you may want to combine some categories or focus on a smaller geographic area to produce a useful thematic map.
+:::
+
+### Aggregating categories with reclassification
+
+This thematic map might be more informative if the many land use and land cover categories could be condensed into fewer. As with the slope map, this can be done through reclassification to assign new values and labels to the existing landuse categories. 
+
+We an make a new reclass map with aggregated categories, named *landcover*. Using [*r.reclass*](https://grass.osgeo.org/grass-stable/manuals/r.reclass.html) as described previously, we can reduce the 21 original categories to 7 by combining all the developed land into a single category, all the herbaceous vegetation, all the shrub vegetation, and all the tree cover. 
+
+:::::: {.panel-tabset group="language"}
+
+## GUI
+
+1.  Enter *landuse96_28m* for the raster to be reclassified.  
+
+2.  Enter *landcover* for the output reclassified map.  
+
+3.  Enter the reclass rules directly in the text box or from a saved text file. 
+
+```
+1 2 = 1 developed
+3 = 2 agriculture      
+4 6 = 3 herbaceous
+7 thru 9 = 4 shrubland
+10 thru 18 = 5 forest
+20 = 6 water
+21 = 7 sediment
+```
+
+## Command line
+
+```{bash}
+r.reclass input=landuse output=friction_landcover rules=- << EOF
+1 2 = 1 developed
+3 = 2 agriculture      
+4 6 = 3 herbaceous
+7 thru 9 = 4 shrubland
+10 thru 18 = 5 forest
+20 = 6 water
+21 = 7 sediment
+EOF
+```
+
+## Python
+
+```{python}
+rules = """\
+1 2 = 1 developed
+3 = 2 agriculture      
+4 6 = 3 herbaceous
+7 thru 9 = 4 shrubland
+10 thru 18 = 5 forest
+20 = 6 water
+21 = 7 sediment
+"""
+gs.write_command("r.reclass",
+                 input="landuse",
+                 output="friction_landcover",
+                 rules="-",
+                 stdin=rules)
+```
+
+::::::
+
+Here is the result with a legend.
+
+![The reclassified *landcover* map](img_thematic/landcover.webp)  
+
+### Custom colors for reclassified thematic map
+
+Finally, we might want to change the colors from the default *viridis* color table to one that better shows land cover categories. This can be done using the [r.colors](https://grass.osgeo.org/grass-stable/manuals/r.colors.html) described previously for the reclassified slope map. 
+
+Here are some possible color assignments. Developed land (1) is orange, agricultural land (2) is yellow, other vegetation (3-5) is colored shades of green, water (6) is blue, and sediment (7) is brown. Assign these colors using *r.colors* as done previously for reclassified slope. 
+
+:::::::::::: {.panel-tabset group="language"}
+
+#### GUI
+
+1. Specify *landcover* as the map you want to assign the color table to
+
+2.  Enter the color rules in the "enter values directly" box
+
+```
+1 255:127:0
+2 255:255:0
+3 200:255:0
+4 0:255:0
+5 20:130:70
+6 0:191:191
+7 191:127:63
+```
+
+3. Press run
+
+#### Command line
+
+```{bash}
+r.colors -e map=slope_quartiles rules=- << EOF
+1 255:127:0
+2 255:255:0
+3 200:255:0
+4 0:255:0
+5 20:130:70
+6 0:191:191
+7 191:127:63
+EOF
+```
+
+#### Python
+
+```{python}
+rules = """\
+1 255:127:0
+2 255:255:0
+3 200:255:0
+4 0:255:0
+5 20:130:70
+6 0:191:191
+7 191:127:63
+"""
+gs.write_command("r.colors",
+                 map="slope_quartiles",
+                 rules="-",
+                 stdin=rules)
+```
+
+::::::::::::
+
+Here is the resulting reclassified and recolored land cover map.
+
+![Landcover map](img_thematic/landcover_reclassed_recolored.webp)
+
 # Summary
 
-Besides the approaches presented here, there are other ways of creating thematic maps in GRASS. Graduate points and lines, with point size and line width proportional to a numeric variable, can be created in the vector properties tool (d.vect). Color tables can be assigned to a numeric vector column in the same way as color tables can be assigned to raster maps. In both cases, it will be necessary to create custom legends following procedures described above. The important point is that GRASS can be used to create sophisticated, high-quality thematic maps from both raster and vector geospatial data.
+Besides the approaches presented here, there are other ways of creating thematic maps in GRASS. For vector maps, graduated points and lines, with point size and line width proportional to a numeric variable, can be created in the vector properties tool (d.vect). Color tables can be assigned to a numeric vector column in the same way as color tables can be assigned to raster maps. In both cases, it will be necessary to create custom legends for these vector thematic maps following procedures described above. The important point is that GRASS can be used to create sophisticated, high-quality thematic maps from both raster and vector geospatial data.
+
+---
+
+:::{.smaller}
+*The development of this tutorial was funded in partby the US
+[National Science Foundation (NSF)](https://www.nsf.gov/),
+award [2303651](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2303651).*
+:::
