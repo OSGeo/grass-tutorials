@@ -14,7 +14,7 @@ format:
     code-copy: true
     code-fold: false
 page-layout: article
-categories: [beginner, intermediate, raster, vector, thematic maps, charts, legend]
+categories: [beginner, intermediate, GUI, raster, vector, thematic maps, legend]
 description: This tutorial guides a user through multiple ways of creating thematic maps with raster and vector GIS data.
 execute: 
   eval: false
@@ -64,7 +64,7 @@ For example, we can display the *schools* vector points map—overlaying a vecto
 
 2. Display the *schools* map so it is above the *streets* map in the layer manager.
 
-3. Open the vector properties tool for the *schools* map. Under the Selection tab, put the following query statement in the WHERE box. **GLEVEL='H'**. This will cause this layer to **only** display schools where the grade level is high school. You can also generate a query interactively by using the query builder button to the right of the entry box.
+3. Open the vector properties tool for the *schools* map. Under the Selection tab, put the following query statement in the "Where" box. **GLEVEL='H'**. This will cause this layer to **only** display schools where the grade level is high school. You can also generate a query interactively by using the query builder button to the right of the entry box.
 
 4. Click Apply (to display selected schools but not close the vector properties tool). Now you should only see the points representing high schools.
 
@@ -74,19 +74,19 @@ For example, we can display the *schools* vector points map—overlaying a vecto
 
 7. Under Legend tab, set the "Label to display after symbol..." to **high schools**.  
 
-7. Click OK. Now you will see high schools represented by large red circles.
+8. Click OK. Now you will see high schools represented by large red circles.
 
-8. Display the *schools* map again in a new layer above the high schools layer in the layer manager.
+9. Display the *schools* map again in a new layer above the high schools layer in the layer manager.
 
-9. In the vector properties for this new *schools* layer, enter **GLEVEL='M'** (for middle schools) in the Selection WHERE box, set the "Area fill color" to **yellow**, and set the "Symbol size" to **20**.
+10. In the vector properties for this new *schools* layer, enter **GLEVEL='M'** (for middle schools) in the Selection WHERE box, set the "Area fill color" to **yellow**, and set the "Symbol size" to **20**.
 
-10. Click OK. Now, along with high schools, you will see middle schools represented by slightly smaller, yellow circles.
+11. Click OK. Now, along with high schools, you will see middle schools represented by slightly smaller, yellow circles.
 
-11. Finally, display *schools* a third time in a new layer above the middle schools layer in the layer manager.  
+12. Finally, display *schools* a third time in a new layer above the middle schools layer in the layer manager.  
 
-12. In the vector properties for this layer, enter **GLEVEL='E'** (for elementary schools) in the Selection WHERE box, set the "Area fill color" to **blue**, and set the "Symbol size" to **15**.  
+13. In the vector properties for this layer, enter **GLEVEL='E'** (for elementary schools) in the Selection WHERE box, set the "Area fill color" to **blue**, and set the "Symbol size" to **15**.  
 
-13. Click OK. Now, along with high schools and middle schools, you will also see elementary schools represented by even smaller, blue circles.  
+14. Click OK. Now, along with high schools and middle schools, you will also see elementary schools represented by even smaller, blue circles.  
 
 #### Command line
 
@@ -773,10 +773,10 @@ Terrain slope is an example of a characteristic represented by numeric values (i
 This will produce a map of continuously varying slope across the entire map. Colors can be assigned to raster cells according to their slope values to visualize areas of high and low slope. The slope that each color represents can be shown in a legend to help users interpret the map.
 
 ::: {.callout-note title="Modeling terrain in GRASS"}
-To learn more about modeling and visualizing slope and other terrain characteristics in GRASS, see the [Visualizing and Modeling Terrain from DEMs in GRASS](../GRASS_terrain.html) tutorial. For more information about rasters in GRASS, see [Raster data processing in GRASS](https://grass.osgeo.org/grass-stable/manuals/rasterintro.html#raster-map-operations).
+To learn more about modeling and visualizing slope and other terrain characteristics in GRASS, see the[Visualizing and Modeling Terrain from DEMs in GRASS](..../terrain_and_DEMs/GRASS_terrain_pt.qmd) tutorial. For more information about rasters in GRASS, see [Raster data processing in GRASS](https://grass.osgeo.org/grass-stable/manuals/rasterintro.html#raster-map-operations).
 :::
 
-Create a slope map from the *elevation* DEM map
+First, create a slope map from the *elevation* DEM map.
 
 ::::::::: {.panel-tabset group="language"}
 
@@ -871,7 +871,7 @@ The default colors of the slope map we created vary from pale yellow to violet a
 #### Command line
 
 ```{bash}
-r.colors -e map=slope color=reds
+r.colors map=slope color=reds
 ```
 
 #### Python
@@ -1027,17 +1027,19 @@ How should we group slope into categories? One way is to use statistical analysi
 
 - The [r.univar](https://grass.osgeo.org/grass-stable/manuals/r.univar.html) tool can be used to find the cutoff values for the 1st, 2nd, 3rd, and 4th quartiles.  
 
-- We could define the 1st quartile (25% of raster cells with the lowest slopes) as 'low slope', the 4th quartile (25% of cells with the highest slopes) as 'high slope', and the remaining cells as 'intermediate slope' (3rd and 4th quartiles, representing the 50% of cells with intermediate slopes).  
+- We could define the 1st quartile (25% of raster cells with the lowest slopes) as 'low slope', the 4th quartile (25% of cells with the highest slopes) as 'high slope', and the remaining cells as 'intermediate slope' (2nd and 3rd quartiles, representing the 50% of cells with intermediate slopes).  
 
 ::: {.panel-tabset group="language"}
 
 #### GUI
 
-1. Open *r.univar* from the Raster/Reports and Statistics menu.  
+1. Open *r.univar* ("Univariate raster statistics") from the Raster/Reports and Statistics menu.  
 
 2. Enter *slope* as the "Name of the raster map(s)" under the Required tab.  
 
-3. Click run.  
+3. Under the Extended tab, enter **25,50,75** for "Percentile to calculate". 
+
+4. Click run.  
 
 #### Command line
 
@@ -1049,7 +1051,8 @@ r.univar map=slope percentile=25,50,75
 
 ```{python}
 gs.run_command("r.univar", 
-               map="slope")
+               map="slope",
+               percentile="25,50,75")
 ```
 
 :::
@@ -1081,15 +1084,15 @@ To divide slope into quartiles, we need to create the following slope groups:
 
 |   slope   |   quartile   | slope category |
 |:---------:|:------------:|:------------:|
-|  0-1.85   | 1st quartile | low slope |
-| 1.86-5.02 | 2nd & 3rd quartiles | intermediate slope |
-| 5.03-38.7 | 4th quartile | high slope |
+|  0-1.85464 | 1st quartile | low slope |
+| 1.85465-5.02421 | 2nd & 3rd quartiles | intermediate slope |
+| 5.02422-38.6894 | 4th quartile | high slope |
 :::
 :::::
 
 ### Reclassification
 
-Now we can use the results of the above statistical analysis to reclassify slope into four categories, each of which represents 1/4 of the total raster cells in the map.  
+Now we can use the results of the above statistical analysis to reclassify slope into three categories Two of these categories each represent 25% of the cells with the highest and lowest slopes; the third, intermediate category represents 50% of the total cells.  
 
 :::::: {.panel-tabset group="language"}
 
@@ -1109,9 +1112,9 @@ The [r.reclass](https://grass.osgeo.org/grass-stable/manuals/r.reclass.html) too
 4. Click run.  
 
 ```
-0 thru 1.85 = 1 low slope 
-1.86 thru 5.02 = 2 intermediate slope  
-5.03 thru 38.7 = 3 high slope  
+0 thru 1.85464 = 1 low slope 
+1.85465 thru 5.02421 = 2 intermediate slope  
+5.02422 thru 38.6894 = 3 high slope  
 ```
 
 :::
@@ -1125,9 +1128,9 @@ The [r.reclass](https://grass.osgeo.org/grass-stable/manuals/r.reclass.html) too
 
 ```{bash}
 r.reclass input=slope output=slope_quartiles rules=- << EOF
-0 thru 1.85 = 1 low slope 
-1.86 thru 5.02 = 2 intermediate slope  
-5.03 thru 38.7 = 3 high slope  
+0 thru 1.85464 = 1 low slope 
+1.85465 thru 5.02421 = 2 intermediate slope  
+5.02422 thru 38.6894 = 3 high slope  
 EOF
 ```
 
@@ -1135,9 +1138,9 @@ EOF
 
 ```{python}
 rules = """\
-0 thru 1.85 = 1 low slope 
-1.86 thru 5.02 = 2 intermediate slope  
-5.03 thru 38.7 = 3 high slope  
+0 thru 1.85464 = 1 low slope 
+1.85465 thru 5.02421 = 2 intermediate slope  
+5.02422 thru 38.6894 = 3 high slope  
 """
 gs.write_command("r.reclass",
                  input="slope",
@@ -1160,7 +1163,7 @@ Creating a custom color table is as easy as specifying a category number followe
 
 - The color can be one of the named colors that GRASS recognizes (*red,orange,yellow,green,blue,indigo,violet,white,black,gray,brown,magenta,aqua,grey,cyan,purple*) or  
 
-- the color can be specified as RGB values (0-255 for red:green:blue).  
+- the color can be specified as RGB values (0-255 for red:green:blue) or as hex number.  
 
 - For example, to create a color table using aqua, yellow, and red for categories 1-3 in the *slope_quartiles* map, you simply need to list them as:  
 
@@ -1176,6 +1179,14 @@ Creating a custom color table is as easy as specifying a category number followe
 1 100:128:255
 2 255:255:0
 3 255:0:0
+```
+
+- As hex color values, you would write the rules as:
+
+```
+1 #6480ff
+2 #ffff00
+3 #ff0000
 ```
 
 You can save this to a plain text *rules file* and upload it in *r.colors* or you can specify it directly within the *r.colors* tool.
@@ -1304,7 +1315,7 @@ If you have a category map with very many categories, they may not be readable o
 
 ### Aggregating categories with reclassification
 
-This thematic map might be more informative if the many land use and land cover categories could be condensed into fewer. As with the slope map, this can be done through reclassification to assign new values and labels to the existing landuse categories. 
+This thematic map might be more informative if the many land use and land cover categories could be condensed into fewer. As with the slope map, this can be done through reclassification to assign new values and labels to the existing land use categories. 
 
 We an make a new reclass map with aggregated categories, named *landcover*. Using [*r.reclass*](https://grass.osgeo.org/grass-stable/manuals/r.reclass.html) as described previously, we can reduce the 21 original categories to 7 by combining all the developed land into a single category, all the herbaceous vegetation, all the shrub vegetation, and all the tree cover. 
 
@@ -1331,7 +1342,7 @@ We an make a new reclass map with aggregated categories, named *landcover*. Usin
 ## Command line
 
 ```{bash}
-r.reclass input=landuse output=friction_landcover rules=- << EOF
+r.reclass input=landuse output=landcover rules=- << EOF
 1 2 = 1 developed
 3 = 2 agriculture      
 4 6 = 3 herbaceous
@@ -1356,7 +1367,7 @@ rules = """\
 """
 gs.write_command("r.reclass",
                  input="landuse",
-                 output="friction_landcover",
+                 output="landcover",
                  rules="-",
                  stdin=rules)
 ```
@@ -1396,7 +1407,7 @@ Here are some possible color assignments. Developed land (1) is orange, agricult
 #### Command line
 
 ```{bash}
-r.colors -e map=slope_quartiles rules=- << EOF
+r.colors map=landcover rules=- << EOF
 1 255:127:0
 2 255:255:0
 3 200:255:0
@@ -1420,7 +1431,7 @@ rules = """\
 7 191:127:63
 """
 gs.write_command("r.colors",
-                 map="slope_quartiles",
+                 map="landcover",
                  rules="-",
                  stdin=rules)
 ```
