@@ -90,7 +90,7 @@ For example, we can display the *schools* vector points map—overlaying a vecto
 
 3. Click OK. Now, along with high schools, you will see middle schools represented by slightly smaller, yellow circles.
 
-**Middle school layer**  
+**Elementary school layer**  
 
 1. Finally, display *schools* a third time in a new layer above the middle schools layer in the layer manager.  
 
