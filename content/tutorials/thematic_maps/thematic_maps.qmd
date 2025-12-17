@@ -96,7 +96,7 @@ For example, we can display the *schools* vector points map—overlaying a vecto
 
 2. In the vector properties for this layer, enter **GLEVEL='E'** (for elementary schools) in the Selection WHERE box, set the "Area fill color" to **blue**, set the "Symbol size" to **15**, and the legend lable to **elementary schools**..  
 
-3 Click OK. Now, along with high schools and middle schools, you will also see elementary schools represented by even smaller, blue circles.  
+3. Click OK. Now, along with high schools and middle schools, you will also see elementary schools represented by even smaller, blue circles.  
 
 #### Command line
 
