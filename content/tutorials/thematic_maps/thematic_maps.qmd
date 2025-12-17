@@ -4,7 +4,7 @@ author: "Michael Barton"
 date: 2025-06-25
 date-modified: today
 lightbox: true
-engine: knitter
+engine: knitr
 image: img_thematic/thumbnail.webp
 format: 
   html:
@@ -26,7 +26,7 @@ funding: "Creation of this tutorial was supported in part by US National Science
 
 Thematic maps are the most common form of analytical visualization done in GIS software. A thematic map uses color, or object shape or size, to represent geographic variation in some property, represented by categorical or numerical values in spatial data.
 
-Most GIS software supports the creation of thematic maps from vector objects (points, lines, and areas). GRASS likewise enables the creation of thematic maps from vector data. It also supports the creation of thematic maps from rasters, which represent space a grid of cells or pixels.
+Most GIS software supports the creation of thematic maps from vector objects (points, lines, and areas). GRASS likewise enables the creation of thematic maps from vector data. It also supports the creation of thematic maps from rasters, which represent space as a grid of cells or pixels.
 
 In this tutorial, we will explore the creation of thematic maps from both vector and raster geospatial data.
 
@@ -60,33 +60,43 @@ For example, we can display the *schools* vector points map—overlaying a vecto
 
 #### GUI
 
-1. Display the *streets* map in the layer manager. In the vector properties, set the feature (line) color to grey to make it easier to see the school symbols. Click the layer properties button (or right click on the layer) for a contextual menu and select "Zoom to selected map(s)".
+**Streets layer**  
 
-2. Display the *schools* map so it is above the *streets* map in the layer manager.
+1. Display the *streets* map in the layer manager. In the vector properties, set the feature (line) color to **grey** to make it easier to see the school symbols. Click the layer properties button (or right click on the layer) for a contextual menu and select "Zoom to selected map(s)".
 
-3. Open the vector properties tool for the *schools* map. Under the Selection tab, put the following query statement in the "Where" box. **GLEVEL='H'**. This will cause this layer to **only** display schools where the grade level is high school. You can also generate a query interactively by using the query builder button to the right of the entry box.
+2. Under Legend tab, set the "Label to display after symbol..." to **Wake Forest streets**.  
 
-4. Click Apply (to display selected schools but not close the vector properties tool). Now you should only see the points representing high schools.
+**High school layer**  
 
-5. Under the vector properties Colors tab, set the "Area fill color" to **red**.
+1. Display the *schools* map so it is above the *streets* map in the layer manager.
 
-6. Under the vector properties Symbols tab, set the "Point and centroid symbol" to **basic/circle** and the "Symbol size" to **25**.  
+2. Open the vector properties tool for the *schools* map. Under the Selection tab, put the following query statement in the "Where" box. **GLEVEL='H'**. This will cause this layer to **only** display schools where the grade level is high school. You can also generate a query interactively by using the query builder button to the right of the entry box.
 
-7. Under Legend tab, set the "Label to display after symbol..." to **high schools**.  
+3. Click Apply (to display selected schools but not close the vector properties tool). Now you should only see the points representing high schools.
 
-8. Click OK. Now you will see high schools represented by large red circles.
+4. Under the vector properties Colors tab, set the "Area fill color" to **red**.
 
-9. Display the *schools* map again in a new layer above the high schools layer in the layer manager.
+5. Under the vector properties Symbols tab, set the "Point and centroid symbol" to **basic/circle** and the "Symbol size" to **25**.  
 
-10. In the vector properties for this new *schools* layer, enter **GLEVEL='M'** (for middle schools) in the Selection WHERE box, set the "Area fill color" to **yellow**, and set the "Symbol size" to **20**.
+6. Under Legend tab, set the "Label to display after symbol..." to **high schools**.  
 
-11. Click OK. Now, along with high schools, you will see middle schools represented by slightly smaller, yellow circles.
+7. Click OK. Now you will see high schools represented by large red circles.  
 
-12. Finally, display *schools* a third time in a new layer above the middle schools layer in the layer manager.  
+**Middle school layer**  
 
-13. In the vector properties for this layer, enter **GLEVEL='E'** (for elementary schools) in the Selection WHERE box, set the "Area fill color" to **blue**, and set the "Symbol size" to **15**.  
+1. Display the *schools* map again in a new layer above the high schools layer in the layer manager.
 
-14. Click OK. Now, along with high schools and middle schools, you will also see elementary schools represented by even smaller, blue circles.  
+2. In the vector properties for this new *schools* layer, enter **GLEVEL='M'** (for middle schools) in the Selection WHERE box, set the "Area fill color" to **yellow**, set the "Symbol size" to **20**, and the legend lable to **middle schools**.
+
+3. Click OK. Now, along with high schools, you will see middle schools represented by slightly smaller, yellow circles.
+
+**Middle school layer**  
+
+1. Finally, display *schools* a third time in a new layer above the middle schools layer in the layer manager.  
+
+2. In the vector properties for this layer, enter **GLEVEL='E'** (for elementary schools) in the Selection WHERE box, set the "Area fill color" to **blue**, set the "Symbol size" to **15**, and the legend lable to **elementary schools**..  
+
+3 Click OK. Now, along with high schools and middle schools, you will also see elementary schools represented by even smaller, blue circles.  
 
 #### Command line
 
@@ -97,7 +107,7 @@ d.vect map=schools where="GLEVEL='H'" color=0:29:57:255 fill_color=255:0:0:255 w
 
 d.vect map=schools where="GLEVEL='M'" color=0:29:57:255 fill_color=255:255:0:255 width=1 icon=basic/circle size=20 legend_label="middle schools"  
 
-d.vect map=schools where="GLEVEL='E'" color=0:29:57:255 fill_color=0:0:255:255 width=1 icon=basic/circle size=15 legend_label="high schools"
+d.vect map=schools where="GLEVEL='E'" color=0:29:57:255 fill_color=0:0:255:255 width=1 icon=basic/circle size=15 legend_label="elementary schools"
 ```
 
 #### Python
@@ -136,7 +146,7 @@ gs.run_command("d.vect",
                 width=1, 
                 icon="basic/circle",
                 size=15, 
-                legend_label="high schools")
+                legend_label="elementary schools")
                 
 ```
 
@@ -237,7 +247,7 @@ d.vect map=census@PERMANENT where="HH_SIZE>0 AND HH_SIZE<2" color=0:29:57:255 fi
 
 d.vect map=census@PERMANENT where="HH_SIZE>=2 AND HH_SIZE <= 4" color=0:29:57:255 fill_color=178:188:255:255 width=1 icon=basic/circle legend_label="2-4 people per household"
 
-d.vect map=census@PERMANENT type=line,boundary,area,face where="HH_SIZE">4 color=0:0:0:255 fill_color=0:0:255:255 width=1 icon=basic/circle legend_label="> 4 people per household"
+d.vect map=census@PERMANENT type=line,boundary,area,face where="HH_SIZE>4" color=0:0:0:255 fill_color=0:0:255:255 width=1 icon=basic/circle legend_label="> 4 people per household"
 
 d.legend.vect -b at=75,25 title="Median Household Size" fontsize=12 title_fontsize=14
 
@@ -248,7 +258,7 @@ d.barscale -n at=70.5,10 length=4 units=kilometers segment=4 width_scale=2
 
 ### Thematic mapping tool for choropleth maps
 
-It can be useful to group continuous numerical values of a column into categories using various statistical measures of variability. The thematic mapping tool, [d.vect.thematic](https://grass.osgeo.org/grass-stable/manuals/d.vect.html), can do this using several statistical approaches, as well as supporting custom divisions. This tool only makes choropleth (i.e. using colors rather than symbol size for visualizing numerical values).  
+It can be useful to group continuous numerical values of a column into categories using various statistical measures of variability. The thematic mapping tool, [d.vect.thematic](https://grass.osgeo.org/grass-stable/manuals/d.vect.html), can do this using several statistical approaches, as well as supporting custom divisions. This tool only makes choropleth maps (i.e. using colors rather than symbol size for visualizing numerical values).  
 
 ::::: grid
 ::: g-col-6
@@ -358,7 +368,7 @@ gs.run_command("d.vect.thematic",
                 
 gs.run_command("d.legend.vect", 
                 at="76,40", 
-                title="Schools by Grade Level", 
+                title="Median Household Size", 
                 fontsize=12, 
                 title_fontsize=14, 
                 flags="b")
@@ -1317,7 +1327,7 @@ If you have a category map with very many categories, they may not be readable o
 
 This thematic map might be more informative if the many land use and land cover categories could be condensed into fewer. As with the slope map, this can be done through reclassification to assign new values and labels to the existing land use categories. 
 
-We an make a new reclass map with aggregated categories, named *landcover*. Using [*r.reclass*](https://grass.osgeo.org/grass-stable/manuals/r.reclass.html) as described previously, we can reduce the 21 original categories to 7 by combining all the developed land into a single category, all the herbaceous vegetation, all the shrub vegetation, and all the tree cover. 
+We can make a new reclass map with aggregated categories, named *landcover*. Using [*r.reclass*](https://grass.osgeo.org/grass-stable/manuals/r.reclass.html) as described previously, we can reduce the 21 original categories to 7 by combining all the developed land into a single category, all the herbaceous vegetation, all the shrub vegetation, and all the tree cover. 
 
 :::::: {.panel-tabset group="language"}
 
@@ -1449,7 +1459,7 @@ Besides the approaches presented here, there are other ways of creating thematic
 ---
 
 :::{.smaller}
-*The development of this tutorial was funded in partby the US
+*The development of this tutorial was funded in part by the US
 [National Science Foundation (NSF)](https://www.nsf.gov/),
 award [2303651](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2303651).*
 :::
