@@ -199,9 +199,9 @@ gs.run_command("d.legend.vect",
 gs.run_command("d.barscale", 
                 at="70,10", 
                 length=10, 
-                units="kilometers"
+                units="kilometers",
                 segment=5, 
-                idth_scale=2, 
+                width_scale=2, 
                 flags="n")
 ```
 
@@ -210,7 +210,7 @@ gs.run_command("d.barscale",
 Here is the map with a legend. A scale bar has been added using the scale bar tool, [d.barscale](https://grass.osgeo.org/grass-stable/manuals/d.barscale.html), from the same button bar location as the vector legend tool.
 ![](img_thematic/school_grade_color&legend.webp)
 
-::: {.callout-note title="Tip"}:
+::: {.callout-note title="Tip"}
 If you want to regenerate this thematic map in the future, you can do so quickly using GRASS commands.
 
 - Open the vector properties tool for each layer, click the Copy button and then paste the command generated into a text file.
@@ -240,7 +240,7 @@ You can use this same approach to create thematic area and line vector maps. Her
 
 ![](img_thematic/census_layers&legend.webp)
 
-::: {.callout-note title="Commands with settings to generate map"}:
+::: {.callout-note title="Commands with settings to generate map"}
 d.vect map=census@PERMANENT where=HH_SIZE=0 color=0:29:57:255 fill_color=255:255:102:255 width=1 icon=basic/circle legend_label="no households"
 
 d.vect map=census@PERMANENT where="HH_SIZE>0 AND HH_SIZE<2" color=0:29:57:255 fill_color=230:234:255:255 width=1 icon=basic/circle legend_label="< 2 people per household"
@@ -376,9 +376,9 @@ gs.run_command("d.legend.vect",
 gs.run_command("d.barscale", 
                 at="72,21", 
                 length=10, 
-                units="kilometers"
+                units="kilometers",
                 segment=5, 
-                idth_scale=2, 
+                width_scale=2, 
                 flags="n")                
 ```
 
@@ -536,9 +536,9 @@ gs.run_command("d.legend.vect",
 gs.run_command("d.barscale", 
                 at="73,10", 
                 length=10, 
-                units="kilometers"
+                units="kilometers",
                 segment=5, 
-                idth_scale=2, 
+                width_scale=2, 
                 flags="n")    
 ```
 
@@ -749,7 +749,7 @@ The thematic charts map with a custom legend:
 
 ![](img_thematic/thematic_chart&legend.webp)
 
-::: {.callout-note title="More legend customization"}:
+::: {.callout-note title="More legend customization"}
 How could you add more lines to the custom legend to indicate the relationship between circle size and fire equipment inventory?
 
 Remember that we scaled the circle size as 15x[total equipment]. The totals range from 0 to 7. So you could make new legend lines for 2, 4, & 6 equipment totals. To calculate the point size of each, simply multiply times 15, so that 2 engines = 30 pts, 4 engines = 60 pts, and 6 engines = 90 pts.
@@ -1319,7 +1319,7 @@ Here is the land use thematic map.
 
 ![Land use map with legend, scale bar and north arrow](img_thematic/landuse96&legend.webp)
 
-::: {.callout-note title="Tip"}:
+::: {.callout-note title="Tip"}
 If you have a category map with very many categories, they may not be readable or even display as distinct categories. If you have a map with too many categories to create a readable legend, you may want to combine some categories or focus on a smaller geographic area to produce a useful thematic map.
 :::
 
