@@ -1,7 +1,7 @@
 ---
 title: "Making Thematic Maps"
 author: "Michael Barton"
-date: 2025-06-25
+date: 2025-12-19
 date-modified: today
 lightbox: true
 engine: knitr
@@ -783,7 +783,7 @@ Terrain slope is an example of a characteristic represented by numeric values (i
 This will produce a map of continuously varying slope across the entire map. Colors can be assigned to raster cells according to their slope values to visualize areas of high and low slope. The slope that each color represents can be shown in a legend to help users interpret the map.
 
 ::: {.callout-note title="Modeling terrain in GRASS"}
-To learn more about modeling and visualizing slope and other terrain characteristics in GRASS, see the[Visualizing and Modeling Terrain from DEMs in GRASS](..../terrain_and_DEMs/GRASS_terrain_pt.qmd) tutorial. For more information about rasters in GRASS, see [Raster data processing in GRASS](https://grass.osgeo.org/grass-stable/manuals/rasterintro.html#raster-map-operations).
+To learn more about modeling and visualizing slope and other terrain characteristics in GRASS, see the [Visualizing and Modeling Terrain from DEMs in GRASS](../terrain_and_DEMs/GRASS_terrain.qmd) tutorial. For more information about rasters in GRASS, see [Raster data processing in GRASS](https://grass.osgeo.org/grass-stable/manuals/rasterintro.html#raster-map-operations).
 :::
 
 First, create a slope map from the *elevation* DEM map.
