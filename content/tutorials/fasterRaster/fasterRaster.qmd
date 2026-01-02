@@ -4,13 +4,12 @@ author: "Adam B. Smith"
 date: 2025-05-20
 date-modified: today
 format:
-  ipynb: default
   html:
     toc: true
     code-tools: true
     code-copy: true
     code-fold: false
-categories: [R]
+categories: [R, rgrass, raster, intermediate]
 description: Learn how to use GRASS in R with the fasterRaster package
 engine: knitr
 execute:
@@ -19,44 +18,68 @@ execute:
 
 ![](images/fasterRaster_logo.png){.preview-image width=25%}
 
-This tutorial introduces the **fasterRaster** package for **R**, which uses the **GRASS** engine for geospatial processing.
+This tutorial introduces the [**fasterRaster** package](https://github.com/adamlilith/fasterRaster)
+for **R**, which uses the **GRASS** engine for geospatial processing.
 
-**fasterRaster** interfaces with **GRASS** to process rasters and spatial vector data. It is intended as an add-on to the **terra** and **sf** packages, and relies heavily upon them. For most rasters and vectors that are small or medium-sized in memory/disk, those packages will almost always be faster. They may also be faster for very large objects.  But when they aren't, **fasterRaster** can step in.
+**fasterRaster** interfaces with **GRASS** to process rasters and spatial vector data.
+It is intended as an add-on to the **terra** and **sf** packages, and relies heavily upon them.
+For most rasters and vectors that are small or medium-sized in memory/disk, those packages will almost always be faster.
+They may also be faster for large objects. But when they aren't, **fasterRaster** can step in.
 
 ## Installing **fasterRaster**
 
-You probably already have **fasterRaster** installed on your computer, but if not, start **R** and install the latest release version from CRAN using:
+You probably already have **fasterRaster** installed on your computer,
+but if not, start **R** and install the latest release version from CRAN using:
+
 ```{r install, eval = FALSE}
 install.packages("fasterRaster")
 ```
+
 or the latest development version using:
+
 ```{r install_dev, eval = FALSE}
 remotes::install_github("adamlilith/fasterRaster", dependencies = TRUE)
 ```
+
 (You may need to install the `remotes` package first.)
 
-## Installing **GRASS**
+## Installing GRASS
 
-**fasterRaster** uses **GRASS** to do its operations. You will need to install **GRASS** using the "stand-alone" installer, available through the [GRASS](https://grass.osgeo.org/). *Be sure to use the "stand-alone" installer, not the "OSGeo4W" installer!*
+**fasterRaster** uses **GRASS** to do its operations.
+On Windows you will need to install GRASS using the "stand-alone" installer,
+available through the [GRASS](https://grass.osgeo.org/).
+*Be sure to use the "stand-alone" installer, not the "OSGeo4W" installer!*
 
-Optional: A few functions in **fasterRaster** require **GRASS** "addon" modules, which do not come bundled with **GRASS**. You do not need to install these addons if you do not use functions that call them. A list of functions that require addons can be seen in the "addons" vignette (in **R**, use `vignette("addons", package = "fasterRaster")`). This vignette also explains how to install addons.
+::: {.callout-note title="What about GRASS addons?"}
+A few functions in **fasterRaster** require GRASS addon tools, which do not come bundled with GRASS.
+You do not need to install these addons if you do not use functions that call them.
+A list of functions that require addons can be seen in the "addons" vignette
+(in R, use `vignette("addons", package = "fasterRaster")`). This vignette also explains how to install addons.
+:::
+
 
 ## Starting a **fasterRaster** session
 
-I recommend attaching the **data.table**, **terra**, and **sf** packages before attaching **fasterRaster** package to avoid function conflicts. The **data.table** package is not required, but you most surely will use at least one of the other two.
+You should attach the **data.table**, **terra**, and **sf** packages before attaching **fasterRaster** package to avoid function conflicts.
+The **data.table** package is not required, but you most surely will use at least one of the other two.
+
 ```{r packages}
 library(terra)
 library(sf)
 library(data.table)
 library(fasterRaster)
 ```
-To begin, you need to tell **fasterRaster** the full file path of the folder where **GRASS** is installed on your system. Where this is well depend on your operating system and the version of **GRASS** installed.  Three examples below show you what this might look like, but you may need to change the file path to match your case:
+
+To begin, you need to tell **fasterRaster** the full file path of the folder where **GRASS** is installed on your system.
+Where this is will depend on your operating system and the version of **GRASS** installed.
+Three examples below show you what this might look like, but you may need to change the file path to match your case:
 
 ```{r grassDir_examples, eval = FALSE}
 grassDir <- "C:/Program Files/GRASS GIS 8.4" # Windows
 grassDir <- "/Applications/GRASS-8.4.app/Contents/Resources" # Mac OS
 grassDir <- "/usr/local/grass" # Linux
 ```
+
 ```{r grassDir, echo = FALSE}
 grassDir <- "C:/Program Files/GRASS GIS 8.4" # Windows
 ```
@@ -65,17 +88,19 @@ To tell **fasterRaster** where **GRASS** is installed, use the `faster()` functi
 ```{r faster_grassDir, eval = FALSE}
 faster(grassDir = grassDir)
 ```
-You can also use the [`faster()`](https://adamlilith.github.io/fasterRaster/reference/faster.html) function to set options that affect how **fasterRaster** functions run. This includes setting the amount of maximum memory and number of computer cores allocated to operations.
 
-Importantly, some **fasterRaster** functions require addons (**GRASS** modules that are optional and are not included with teh **GRASS** download). To see how to set up addons so functions that use them can operate, see `vignette("addons", package = "fasterRaster").
+You can also use the [`faster()`](https://adamlilith.github.io/fasterRaster/reference/faster.html) function to set options that affect how **fasterRaster** functions run. This includes setting the amount of maximum memory and number of computer cores allocated to operations.
 
 ## Importing spatial objects into **fasterRaster** `GRaster`s and `GVector`s
 
-In **fasterRaster**, rasters are called `GRaster`s and vectors are called `GVector`s. The easiest (but not always fastest) way to start using a `GRaster` or `GVector` is to convert it from one already in **R**. In the example below, we use a raster that comes with the **fasterRaster** package. The raster represents elevation of a portion of eastern Madagascar. We first load the `SpatRaster` using [`fastData()`](https://adamlilith.github.io/fasterRaster/reference/fastData.html), a helper function for loading example data objects that come with the **fasterRaster** package.
+In **fasterRaster**, rasters are called `GRaster`s and vectors are called `GVector`s. The easiest (but not always fastest) way to start using a `GRaster` or `GVector` is to convert it from one already in **R**. In the example below, we use a raster that comes with the **fasterRaster** package. The raster represents elevation of a portion of eastern Madagascar. We first load the `SpatRaster` using [`fastData()`](https://adamlilith.github.io/fasterRaster/reference/fastData.html), a helper function for loading example data objects that comes with the **fasterRaster** package.
+
 ```{r madElev, eval = FALSE}
 madElev <- fastData("madElev") # example SpatRaster
 madElev
+```
 
+```
 class       : SpatRaster 
 dimensions  : 1024, 626, 1  (nrow, ncol, nlyr)
 resolution  : 59.85157, 59.85157  (x, y)
@@ -88,10 +113,13 @@ max value   :     570
 ```
 
 Now, we do the conversion to a `GRaster` and a `GVector` using [`fast()`](https://adamlilith.github.io/fasterRaster/reference/fast.html). This function can create a `GRaster` or `GVector` from a `SpatRaster` or a file representing a raster.
+
 ```{r elev, eval = FALSE}
 elev <- fast(madElev)
 elev
+```
 
+```
 class       : GRaster
 topology    : 2D 
 dimensions  : 1024, 626, NA, 1 (nrow, ncol, ndepth, nlyr)
@@ -112,10 +140,13 @@ elev2 <- fast(rastFile)
 ```
 
 Now, let's create a `GVector`. The `fast()` function can take a `SpatVector` from the **terra** package, an `sf` object from the **sf** package, or a string representing the file path and file name of a vector file (e.g., a GeoPackage file or a shapefile).
+
 ```{r madRivers, eval = FALSE}
 madRivers <- fastData("madRivers") # sf vector
 madRivers
+```
 
+```
 Simple feature collection with 11 features and 5 fields
 Geometry type: LINESTRING
 Dimension:     XY
@@ -138,7 +169,9 @@ First 10 features:
 ```{r rivers, eval = FALSE}
 rivers <- fast(madRivers)
 rivers
+```
 
+```
 class       : GVector
 geometry    : 2D lines 
 dimensions  : 11, 11, 5 (geometries, sub-geometries, columns)
@@ -159,14 +192,16 @@ You can do operations on `GRaster`s and `GVector`s as if they were `SpatRaster`s
 plot(elev)
 plot(rivers, col = 'lightblue', add = TRUE)
 ```
-![Elevation and rivers](./images/elev_rivers.png){.preview-image width=50%}
+![Elevation and rivers](./images/elev_rivers.png){width=50%}
 
 You can use mathematical operators and functions:
 
 ```{r multiplication, eval = FALSE}
 elev_feet <- elev * 3.28084
 elev_feet
+```
 
+```
 class       : GRaster
 topology    : 2D 
 dimensions  : 1024, 626, NA, 1 (nrow, ncol, ndepth, nlyr)
@@ -182,7 +217,9 @@ max. value  : 1870.056
 ```{r log, eval = FALSE}
 log10_elev <- log10(elev)
 log10_elev
+```
 
+```
 class       : GRaster
 topology    : 2D 
 dimensions  : 1024, 626, NA, 1 (nrow, ncol, ndepth, nlyr)
@@ -197,11 +234,15 @@ max. value  : 2.75587485567249
 
 You can also use the many **fasterRaster** functions. In general, these functions have the same names as their **terra** counterparts and often the same arguments. Note that even many **terra** and **fasterRaster** functions have the same name, they do not necessarily produce the exact same output. Much care has been taken to ensure they do, but sometimes there are multiple ways to do the same task, so choices made by the authors of **terra** and **GRASS** can lead to differences.
 
-The following code 1) creates a raster where cell values reflect the distance between them and the nearest river; b) makes a buffer around the rivers; then c) plots the output:
+The following code 1) creates a raster where cell values reflect the distance between them and the nearest river;
+2) makes a buffer around the rivers; then 3) plots the output:
+
 ```{r distance_buffers, eval = FALSE}
 dist <- distance(elev, rivers)
 dist
+```
 
+```
 class       : GRaster
 topology    : 2D 
 dimensions  : 1024, 626, NA, 1 (nrow, ncol, ndepth, nlyr)
@@ -213,42 +254,47 @@ datatype    :           double
 min. value  :                0 
 max. value  : 21310.9411762729 
 ```
-```{r buffer, eval = FALSE}
 
+```{r buffer, eval = FALSE}
 river_buff <- buffer(rivers, 2000)
 river_buff
+```
 
+```
 class       : GVector
 geometry    : 2D polygons 
 dimensions  : 1, 5, 0 (geometries, sub-geometries, columns)
 extent      : 729629.19151, 764989.97343, 1022544.92079, 1087580.24979 (xmin, xmax, ymin, ymax)
 coord ref.  : Tananarive (Paris) / Laborde Grid 
-
 ```
+
 ```{r plot_rivers_buffer, eval = FALSE}
 plot(dist)
 plot(rivers, col = 'lightblue', add = TRUE)
 plot(river_buff, border = 'white', add = TRUE)
 ```
-![Distance between each cell and nearest major river](./images/dist_to_rivers.png){.preview-image width=50%}
 
-And that's how you get started! Now that you have a raster and a vector in your **fasterRaster** "location", you can start doing manipulations and analyses using any of the **fasterRaster** functions!  To see an annotated list of these functions, use `?fasterRaster`.
+![Distance between each cell and the nearest major river](./images/dist_to_rivers.png){width=50%}
+
+And that's how you get started! Now that you have a raster and a vector in your **fasterRaster** "project", you can start doing manipulations and analyses using any of the **fasterRaster** functions!  To see an annotated list of these functions, use `?fasterRaster`.
 
 ## Converting and saving `GRaster`s and `GVector`s
 
 You can convert a `GRaster` to a `SpatRaster` raster using [`rast()`](https://adamlilith.github.io/fasterRaster/reference/rast.html):
+
 ```{r rast, eval = FALSE}
 terra_elev <- rast(elev)
 ```
 
 To convert a `GVector` to the **terra** package's `SpatVector` format or to an `sf` vector, use [`vect()`](https://adamlilith.github.io/fasterRaster/reference/vect.html) or [`st_as_sf()`](https://adamlilith.github.io/fasterRaster/reference/st_as_sf.html):
+
 ```{r vect, eval = FALSE}
 terra_rivers <- vect(rivers)
 sf_rivers <- st_as_sf(rivers)
 ```
 
-
 Finally, you can use [`writeRaster()`](https://adamlilith.github.io/fasterRaster/reference/writeRaster.html) and [`writeVector()`](https://adamlilith.github.io/fasterRaster/reference/writeVector.html) to save `GRaster`s and `GVector`s directly to disk. This will always be faster than using `rast()`, `vect()`, or `st_as_sf()` then saving the result from those functions.
+
 ```{r write, eval = FALSE}
 elev_temp_file <- tempfile(fileext = ".tif") # save as GeoTIFF
 writeRaster(elev, elev_temp_file)
@@ -261,17 +307,17 @@ There are several ways to speed up **fasterRaster** functions. These are listed 
 
 # Making fasterRaster faster
 
-1. **Load rasters and vectors directly from disk**: Use [`fast()`](https://adamlilith.github.io/fasterRaster/reference/fast.html) to load rasters and vectrors directly from disk. Converting `terra` or `sf` objects to `GRaster`s and `GVector`s can be slower. Why? Because if the object does not have a file to which the `R` object points, Use [`fast()`](https://adamlilith.github.io/fasterRaster/reference/fast.html) has to save it to disk first as a GeoTIFF or GeoPackage file, then load it into `GRASS`.
+1. **Load rasters and vectors directly from disk**: Use [`fast()`](https://adamlilith.github.io/fasterRaster/reference/fast.html) to load rasters and vectors directly from disk. Converting `terra` or `sf` objects to `GRaster`s and `GVector`s can be slower. Why? Because if the object does not have a file to which the `R` object points, use [`fast()`](https://adamlilith.github.io/fasterRaster/reference/fast.html) has to save it to disk first as a GeoTIFF or GeoPackage file, then load it into `GRASS`.
 
-2. **Save `GRaster`s and `GVector`s directly to disk**: Converting `GRaster`s and `GVector`s to `SpatRaster`s or `SpatVector` using [`rast()`](https://adamlilith.github.io/fasterRaster/reference/rast.html) or [`vect()`](https://adamlilith.github.io/fasterRaster/reference/vect.html), then saving them is much slower than just saving them. Why? Because these functions actually save the file to disk then uses the respective function from the respective package to connect to the file.
+2. **Save `GRaster`s and `GVector`s directly to disk**: Converting `GRaster`s and `GVector`s to `SpatRaster`s or `SpatVector` using [`rast()`](https://adamlilith.github.io/fasterRaster/reference/rast.html) or [`vect()`](https://adamlilith.github.io/fasterRaster/reference/vect.html), then saving them is much slower than just saving them. Why? Because these functions save the file to disk, they then use the respective function from the respective package to connect to the file.
 
-3. **Increase memory and the number of cores usable by GRASS:** By default, `fasterRaster` use 2 cores and 2048 MB (2 GB) of memory for `GRASS` modules that allow users to specify these values. You can set these to higher values using [`faster()`](https://adamlilith.github.io/fasterRaster/reference/faster.html) and thus potentially speed up some calculations. Functions in newer versions of `GRASS` have more capacity to use these options, so updating `GRASS` to the latest version can help, too.
+3. **Increase memory and the number of cores usable by GRASS:** By default, `fasterRaster` uses 2 cores and 2048 MB (2 GB) of memory for `GRASS` modules that allow users to specify these values. You can set these to higher values using [`faster()`](https://adamlilith.github.io/fasterRaster/reference/faster.html) and thus potentially speed up some calculations. Functions in newer versions of `GRASS` have more capacity to use these options, so updating `GRASS` to the latest version can help, too.
 
 4. **Do operations on `GRaster`s and `GVector`s in the same coordinate reference system together:** Every time you switch between using a `GRaster` or `GVector` with a different coordinate reference system (CRS), `GRASS` has to spend a few seconds changing to that CRS. You can save some time by doing as much work as possible with objects in one CRS, then switching to work on objects in another CRS.
 
 # Known issues
 
-* Comparability between **terra** and **fasterRaster**: As much as possible, **fasterRaster** functions were written to recreate the output that functions in **terra** produce.  However, owing to implementation choices made by the respective developers of **terra** and **GRASS**, outputs are not always the same.
+* Comparability between **terra** and **fasterRaster**: As much as possible, **fasterRaster** functions were written to recreate the output that functions in **terra** produce. However, owing to implementation choices made by the respective developers of **terra** and **GRASS**, outputs are not always the same.
 
 * **fasterRaster** can crash when the temporary folder is cleaned: Some operating systems have automated procedures that clean out the system's temporary folders when they get too large. This can remove files **GRASS** is using and **fasterRaster** is pointing to, rendering them broken. In Windows, this setting can be changed by going to `Settings`, then `Storage`, then `Storage Sense`. Turn off the setting "Keep Windows running smoothly by automatically cleaning up temporary system and app files".
 
