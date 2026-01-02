@@ -18,6 +18,9 @@ written for OSGeo/grass repository, so just adjust it for this repository.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for more details.
 
+Please note that all contributors are expected to follow the [Code of Conduct](CODE_OF_CONDUCT.md)
+to ensure a respectful and inclusive environment.
+
 ## License
 
 The content in this repository is dual-licensed under the

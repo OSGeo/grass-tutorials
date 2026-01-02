@@ -4,6 +4,7 @@ author: "Caitlin Haedrich"
 date: 2024-06-15
 image: images/getting_started_grass_jupyternotebook.png
 date-modified: today
+lightbox: true
 format:
   html:
     toc: true
@@ -44,7 +45,7 @@ following packages for install (switching from "Skip" to the version number):
 * `python3-jupyterlab`
 * `python3-ipywidgets`
 
-![Install GRASS with OSGeo4W installer](images/osgeo4w_install_grass.png){width=60%}
+![Install GRASS with OSGeo4W installer](images/osgeo4w_install_grass.png){.lightbox width=60%}
 
 #### 3. Go make a cup of tea
 

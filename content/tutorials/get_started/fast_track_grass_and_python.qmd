@@ -3,6 +3,7 @@ title: "Get started with GRASS & Python in Jupyter Notebooks"
 author: "Veronica Andreo"
 date: 2024-03-25
 date-modified: today
+lightbox: true
 format:
   ipynb: default
   html:
@@ -94,15 +95,15 @@ This tutorial can be run locally. You need to have **GRASS 8.4+** and
 [Sentinel 2](https://grass.osgeo.org/sampledata/north_carolina/nc_sentinel_utm17n.zip)
 scenes and move the unzipped download into the directory where you are running
 this tutorial.
-For part B, we asume that you have downloaded the North Carolina
+For part B, we assume that you have downloaded the North Carolina
 [sample dataset](https://grass.osgeo.org/sampledata/north_carolina/nc_basic_spm_grass7.zip),
 i.e., there's an existing GRASS project.
 Be sure you also have the following Python libraries installed in your
 environment: `folium` or `ipyleaflet`, `numpy`, `seaborn`, `matplotlib`, `pandas`.
 
-The first thing we need to do is to
-*import GRASS python packages*. In order to do so, we need to
-*add GRASS python package to PATH*. Let's see how we do that.
+The first thing we need to do (for some environments) is to
+*import GRASS Python packages*. In order to do so, we need to
+*add GRASS Python package to path*. Let's see how we do that.
 
 ```{python}
 # import standard Python packages
@@ -113,14 +114,14 @@ from pathlib import Path
 ```
 
 ```{python}
-# check where GRASS python packages are and add them to PATH
+# check where GRASS Python packages are and add them to path
 sys.path.append(
     subprocess.check_output(["grass", "--config", "python_path"], text=True).strip()
 )
 ```
 
 ```{python}
-# import GRASS python packages
+# import GRASS Python packages
 import grass.script as gs
 import grass.jupyter as gj
 ```

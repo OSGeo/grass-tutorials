@@ -1,0 +1,443 @@
+---
+title: "Earthworks: Terrain Synthesis"
+author: "Brendan Harmon"
+date: 2025-06-30
+date-modified: today
+categories: [earthworks, terrain, raster, intermediate]
+description: Learn how to synthesize terrain with r.earthworks.
+image: images/synthesis_07.webp
+links:
+  g_extension: "[g.extension](https://grass.osgeo.org/grass-stable/manuals/g.extension.html)"
+  r_earthworks: "[r.earthworks](https://grass.osgeo.org/grass-stable/manuals/addons/r.earthworks.html)"
+  g_region: "[g.region](https://grass.osgeo.org/grass-stable/manuals/g.region.html)"
+  r_surf_fractal: "[r.surf.fractal](https://grass.osgeo.org/grass-stable/manuals/r.surf.fractal.html)"
+  r_mapcalc: "[r.mapcalc](https://grass.osgeo.org/grass-stable/manuals/r.mapcalc.html)"
+  r_geomorphon: "[r.geomorphon](https://grass.osgeo.org/grass-stable/manuals/r.geomorphon.html)"
+  r_clump: "[r.clump](https://grass.osgeo.org/grass-stable/manuals/r.clump.html)"
+  r_stats_zonal: "[r.stats.zonal](https://grass.osgeo.org/grass-stable/manuals/r.stats.zonal.html)"
+code-links:
+  - text: Jupyter notebook
+    href: synthesis.ipynb
+    icon: file-code
+    target: _blank
+resources: synthesis.ipynb
+format:
+  html:
+    toc: true
+    code-tools: true
+    code-copy: true
+    code-fold: false
+tbl-colwidths: [33,33,33]
+engine: jupyter
+execute:
+  eval: false
+jupyter: python3
+---
+
+![Volumetric change during terrain synthesis](images/synthesis_07.webp)
+
+Learn how to synthesize terrain with 
+{{< meta links.r_earthworks >}}.
+In terrain synthesis, 
+landforms from one terrain are applied to another, 
+creating a hybrid landscape.
+This technique is used in computer graphics to model landscapes 
+that are challenging to create with procedural noise and erosion simulations
+([Zhou et al. 2007](https://doi.org/10.1109/TVCG.2007.1027),
+[Tasse et al. 2012](https://doi.org/10.1111/j.1467-8659.2012.03076.x),
+[Gain et al. 2015](https://doi.org/10.1111/cgf.12545)).
+Landforms that are hard to model, for example, 
+can be sampled from real terrain 
+and grafted onto synthetic terrain.
+In this tutorial, we will use fractal terrain 
+for simplicity's sake. Our process will be to:
+
+* Setup our environment
+* Generate a fractal terrain
+* Generate a fractal texture
+* Classify landforms in the texture map
+* Extract textures for select landforms
+* Shift clumps of texture to the same base elevation
+* Synthesize the terrain and extracted textures
+
+::: {#tbl-panel layout-ncol=1}
+| Terrain | Texture | Synthesis |
+|---------|---------|-----------|
+| ![Terrain](images/synthesis_08.webp) | ![Texture](images/synthesis_09.webp) | ![Synthesis](images/synthesis_10.webp)|
+
+Terrain Synthesis
+:::
+
+::: {.callout-note title="Computational notebook"}
+This tutorial can be run as a 
+[computational notebook](https://grass-tutorials.osgeo.org/content/tutorials/earthworks/synthesis.ipynb).
+Learn how to work with notebooks with the tutorial
+[Get started with GRASS & Python in Jupyter Notebooks](../get_started/fast_track_grass_and_python.qmd).
+:::
+
+# Setup
+
+## Project
+
+Start a GRASS session in a new project
+with a Cartesian (XY) coordinate system.
+
+::: {.panel-tabset group="language"}
+
+## Command line
+
+```{bash}
+grass --tmp-project XY
+```
+
+## Python
+
+```{python}
+# Import libraries
+import os
+import sys
+import subprocess
+from pathlib import Path
+
+# Find GRASS Python packages
+sys.path.append(
+  subprocess.check_output(
+    ["grass", "--config", "python_path"],
+    text=True
+    ).strip()
+  )
+
+# Import GRASS packages
+import grass.script as gs
+import grass.jupyter as gj
+
+# Create a temporary folder
+import tempfile
+temporary = tempfile.TemporaryDirectory()
+
+# Create a project in the temporary directory
+gs.create_project(path=temporary.name, name="xy")
+
+# Start GRASS in this project
+session = gj.init(Path(temporary.name, "xy"))
+```
+
+:::
+
+## Installation
+
+Install {{< meta links.r_earthworks >}} with
+{{< meta links.g_extension >}}. 
+
+::: {.panel-tabset group="language"}
+
+## Command line
+
+```{bash}
+g.extension extension=r.earthworks
+```
+
+## Python
+
+```{python}
+# Install extension
+gs.run_command("g.extension", extension="r.earthworks")
+```
+
+:::
+
+## Region
+
+Use {{< meta links.g_region >}}
+to set the extent and resolution of the computational region.
+Create a region starting at the origin
+and extending two hundred units north and eight hundred units east.
+Set the resolution to ten. 
+
+::: {.panel-tabset group="language"}
+
+## Command line
+
+```{bash}
+g.region n=200 e=800 s=0 w=0 res=1
+```
+
+## Python
+
+```{python}
+# Set region
+gs.run_command("g.region", n=200, e=800, s=0, w=0, res=10)
+```
+
+:::
+
+# Fractals
+
+## Terrain
+
+Generate a fractal terrain with {{< meta links.r_surf_fractal >}}.
+For reproducible results, set the `seed` to one. 
+Then use the raster calculator {{< meta links.r_mapcalc >}}
+to take the absolute value of the fractal
+and divide by a vertical scale factor.
+Taking the absolute value of the fractal terrain 
+will raise cells with negative elevation values,
+turning low points into high points
+and transforming slopes near zero into valleys.
+
+::: {.panel-tabset group="language"}
+
+## Command line
+
+```{bash}
+r.surf.fractal output=fractal dimension=2.25 seed=1
+r.mapcalc expression="fractal = abs(fractal) / 10"
+```
+
+## Python
+
+```{python}
+# Generate fractal surface
+gs.run_command(
+    "r.surf.fractal",
+    output="fractal",
+    dimension=2.25,
+    seed=1
+    )
+gs.mapcalc("fractal = abs(fractal) / 10")
+
+# Visualize
+m = gj.Map(width=800)
+m.d_rast(map="fractal")
+m.d_legend(raster="fractal", at=(5, 95, 1, 3))
+m.show()
+```
+
+:::
+
+![Fractal terrain](images/synthesis_01.webp)
+
+## Texture
+
+Repeat this process to generate a fractal texture
+that will be grafted onto the original terrain. 
+Set a different `seed` for {{< meta links.r_surf_fractal >}}
+to generate a new fractal raster. 
+If you wish to work with real
+rather than synthetic elevation data,
+simply substitute these fractal rasters
+with digital elevation models for real landscapes. 
+
+::: {.panel-tabset group="language"}
+
+## Command line
+
+```{bash}
+r.surf.fractal output=texture dimension=2.25 seed=3
+r.mapcalc expression="texture = abs(texture) / 10"
+```
+
+## Python
+
+```{python}
+# Generate fractal surface
+gs.run_command(
+    "r.surf.fractal",
+    output="texture",
+    dimension=2.25,
+    seed=3
+    )
+gs.mapcalc("texture = abs(texture) / 10")
+
+# Visualize
+m = gj.Map(width=800)
+m.d_rast(map="texture")
+m.d_legend(raster="texture", at=(5, 95, 1, 3))
+m.show()
+```
+
+:::
+
+![Fractal texture](images/synthesis_02.webp)
+
+# Landforms
+
+Classify the landforms in the fractal texture map
+with {{< meta links.r_geomorphon >}}.
+Experiment with the `search` and `skip` parameters
+to classify different scales of landforms.
+
+::: {.panel-tabset group="language"}
+
+## Command line
+
+```{bash}
+r.geomorphon elevation=texture forms=forms search=9
+```
+
+## Python
+
+```{python}
+# Classify landforms
+gs.run_command(
+    "r.geomorphon",
+    elevation="texture",
+    forms="forms",
+    search=9
+    )
+
+# Visualize
+m.d_rast(map="forms", flags="n")
+m.d_legend(raster="forms", at=(5, 95, 1, 3))
+m.show()
+```
+
+:::
+
+![Landforms](images/synthesis_03.webp)
+
+# Extraction
+
+Extract textures for the peaks, ridges, shoulders, and spurs
+with the raster calculator {{< meta links.r_mapcalc >}}.
+Write the map algebra expression 
+`ridges = if(forms > 1 && forms < 6, texture, null())`.
+All cells with landforms classes greater than one and less than six 
+will be assigned elevation values from the texture map,
+while all others will be assigned null values.
+
+::: {.panel-tabset group="language"}
+
+## Command line
+
+```{bash}
+r.mapcalc expression="ridges = if(forms > 1 && forms < 6, texture, null())"
+```
+
+## Python
+
+```{python}
+# Extract ridge texture
+gs.mapcalc("ridges = if(forms > 1 && forms < 6, texture, null())")
+
+# Visualize
+m.d_rast(map="ridges", flags="n")
+m.d_legend(raster="ridges", at=(5, 95, 1, 3))
+m.show()
+```
+
+:::
+
+![Ridge elevation](images/synthesis_04.webp)
+
+# Shift
+
+The map of extracted textures has elevation values 
+that are relative to vertical datum such as mean sea level.
+Because we will be grafting these textures onto another terrain,
+we will reset the base elevation for each clump of texture to zero.
+Find clumps of texture with {{< meta links.r_clump >}}. 
+Then use {{< meta links.r_stats_zonal >}}
+to find the minimum value - the base elevation - for each clump.
+Use the raster calculator {{< meta links.r_mapcalc >}}
+to subtract the minimum value for each clump
+in the map of extracted textures.
+This will set the lowest elevation for each clump to zero,
+so that all clumps share the same base elevation. 
+
+::: {.panel-tabset group="language"}
+
+## Command line
+
+```{bash}
+r.clump input=ridges output=clumps threshold=0.5
+r.stats.zonal base=clumps cover=ridges method=min output=minimum
+r.mapcalc expression="ridges = ridges - minimum"
+```
+
+## Python
+
+```{python}
+# Find clumps
+gs.run_command(
+    "r.clump",
+    input="ridges",
+    output="clumps",
+    threshold=0.5
+    )
+
+# Calculate zonal statistics
+gs.run_command(
+    "r.stats.zonal",
+    base="clumps",
+    cover="ridges",
+    method="min",
+    output="minimum"
+    )
+
+# Subtract base elevation
+gs.mapcalc("ridges = ridges - minimum")
+
+# Visualize
+m.d_rast(map="ridges", flags="n")
+m.d_legend(raster="ridges", at=(5, 95, 1, 3))
+m.show()
+```
+
+:::
+
+![Shifted elevation](images/synthesis_05.webp)
+
+# Synthesis
+
+Synthesize the terrain and texture with 
+{{< meta links.r_earthworks >}}.
+Model a fill operation 
+with the extracted textures
+relative to the fractal terrain.
+Try setting an exponential rate of decay
+such as `exponential=0.025`.
+Add a `volume` output to visualize
+the volumetric change. 
+
+::: {.panel-tabset group="language"}
+
+## Command line
+
+```{bash}
+r.earthworks elevation=fractal earthworks=synthesis volume=volume mode=relative operation=fill function=exponential raster=ridges exponential=0.025
+```
+
+## Python
+
+```{python}
+# Synthesize ridges
+gs.run_command(
+    "r.earthworks",
+    elevation="fractal",
+    earthworks="synthesis",
+    volume="volume",
+    mode="relative",
+    operation="fill",
+    function="exponential",
+    raster="ridges",
+    exponential=0.025
+    )
+
+# Visualize
+m.d_rast(map="synthesis")
+m.d_legend(raster="synthesis", at=(5, 95, 1, 3))
+m.show()
+
+# Visualize
+gs.run_command("r.colors", map="volume", color="inferno")
+m.d_rast(map="volume")
+m.d_legend(raster="volume", color="white", at=(5, 95, 1, 3))
+m.show()
+```
+
+:::
+
+![Terrain synthesis](images/synthesis_06.webp)
+
+![Volumetric change](images/synthesis_07.webp)

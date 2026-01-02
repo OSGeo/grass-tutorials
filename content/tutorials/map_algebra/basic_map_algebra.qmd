@@ -1,0 +1,607 @@
+---
+title: "Basics of map algebra"
+author: "Brendan Harmon"
+date: 2025-06-18
+date-modified: today
+categories: [map algebra, raster, terrain, beginner]
+description: >
+  Learn the basics of map algebra in GRASS
+  including arithmetic, functions, and logic. 
+  Use map algebra to model a landscape.
+image: images/map_algebra_01.webp
+links:
+  g_region: "[g.region](https://grass.osgeo.org/grass-stable/manuals/g.region.html)"
+  r_mapcalc: "[r.mapcalc](https://grass.osgeo.org/grass-stable/manuals/r.mapcalc.html)"
+  r_mapcalc_simple: "[r.mapcalc.simple](https://grass.osgeo.org/grass-stable/manuals/r.mapcalc.simple.html)"
+  r_series: "[r.series](https://grass.osgeo.org/grass-stable/manuals/r.series.html)"
+  r_neighbors: "[r.neighbors](https://grass.osgeo.org/grass-stable/manuals/r.neighbors.html)"
+  r_mfilter: "[r.mfilter](https://grass.osgeo.org/grass-stable/manuals/r.mfilter.html)"
+  r_clump: "[r.clump](https://grass.osgeo.org/grass-stable/manuals/r.clump.html)"
+  r_univar: "[r.univar](https://grass.osgeo.org/grass-stable/manuals/r.univar.html)"
+  r_statistics: "[r.statistics](https://grass.osgeo.org/grass-stable/manuals/r.statistics.html)"
+  r_stats: "[r.stats](https://grass.osgeo.org/grass-stable/manuals/r.stats.html)"
+  r_stats_zonal: "[r.stats.zonal](https://grass.osgeo.org/grass-stable/manuals/r.stats.zonal.html)"
+  r_info: "[r.info](https://grass.osgeo.org/grass-stable/manuals/r.info.html)"
+  r_report: "[r.report](https://grass.osgeo.org/grass-stable/manuals/r.report.html)"
+  r_colors: "[r.colors](https://grass.osgeo.org/grass-stable/manuals/r.colors.html)"
+  r_surf_fractal: "[r.surf.fractal](https://grass.osgeo.org/grass-stable/manuals/r.surf.fractal.html)"
+code-links:
+  - text: Jupyter notebook
+    href: basic_map_algebra.ipynb
+    icon: file-code
+    target: _blank
+resources: basic_map_algebra.ipynb
+format:
+  html:
+    toc: true
+    code-tools: true
+    code-copy: true
+    code-fold: false
+engine: jupyter
+execute:
+  eval: false
+jupyter: python3
+---
+
+![Terrain modeled with map algebra](images/map_algebra_01.webp)
+
+::: {.callout-note title="Computational notebook"}
+This tutorial can be run as a 
+[computational notebook](https://grass-tutorials.osgeo.org/content/tutorials/map_algebra/basic_map_algebra.ipynb).
+Learn how to work with notebooks with the tutorial
+[Get started with GRASS & Python in Jupyter Notebooks](../get_started/fast_track_grass_and_python.qmd).
+:::
+
+# Introduction
+This tutorial is a gentle introduction 
+to the basics of map algebra in GRASS. 
+You will begin to learn how to think procedurally 
+about space using math, logic, and flow control. 
+Map algebra is an algebraic approach
+to modeling fields of data such as rasters.
+It can be used to create, summarize, transform, 
+or combine multiple rasters. 
+Algebraic operations on raster maps can be classified 
+as local, focal, zonal, or global.
+Local operations act on each raster cell in isolation.
+Focal operations act on a neighborhood around each cell.
+Zonal operations act on groups of cells. 
+Global operations act on all cells in the raster.
+While there are many tools for map algebra in GRASS, 
+this tutorial focuses on local algebraic operations 
+using the raster map calculator
+{{< meta links.r_mapcalc >}}. 
+It also briefly introduces focal operations with
+{{< meta links.r_neighbors >}},
+zonal operations using conditional statements with
+{{< meta links.r_mapcalc >}},
+and global operations with
+{{< meta links.r_info >}}. 
+
+::: {#tbl-panel layout-ncol=1}
+| Types  | Scope                          | Tools                                                                                                                              |
+|--------|--------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
+| Local  | Each cell individually         | {{< meta links.r_mapcalc >}}, {{< meta links.r_mapcalc_simple >}}, {{< meta links.r_series >}}, etc...                             |
+| Focal  | Each cell and its neighborhood | {{< meta links.r_mapcalc >}}, {{< meta links.r_neighbors >}}, {{< meta links.r_mfilter >}}, etc...                                 |
+| Zonal  | Groups of cells                | {{< meta links.r_mapcalc >}}, {{< meta links.r_clump >}}, {{< meta links.r_univar >}}, {{< meta links.r_stats_zonal >}}, etc... |
+| Global | All cells                      | {{< meta links.r_info >}}, {{< meta links.r_univar >}}, {{< meta links.r_stats >}}, {{< meta links.r_report >}}, etc...            |
+
+Types of map algebra operations
+:::
+
+## Raster Calculator
+The raster map calculator
+{{< meta links.r_mapcalc >}}
+uses map algebra expressions to transform rasters. 
+The left side of the expression is the output raster map,
+while the right side is the input syntax including
+rasters, operators, functions, and variables.
+The raster map calculator can be run
+from the graphical user interface (GUI),
+from the command line, or with Python.
+
+::: {.panel-tabset group="language"}
+## GUI
+![r.mapcalc](images/map_algebra_02.webp)
+
+## Command line
+```{bash}
+r.mapcalc expression="output = input"
+```
+## Python
+```{python}
+gs.mapcalc("output = input")
+```
+:::
+
+The raster calculator can be used for the simplest of tasks such as 
+copying rasters, creating constant rasters, scaling rasters,
+patching rasters together, or adding rasters together.
+It can also be used for more sophisticated tasks such as 
+normalizing rasters,
+processing imagery,
+calculating vegetation indices,
+implementing mathematical models,
+and generating synthetic data. 
+In this tutorial, we will use map algebra to generate terrain
+with mountains, valleys, weathering, forest, plateaus, and rivers. 
+We will use the following operators, functions, and internal variables:
+
+::: {#tbl-panel layout-ncol=3}
+| Operator     | Syntax |
+|--------------|--------|
+| Addition     | `+`    |
+| Division     | `\`    |
+| Greater than | `>`    |
+| Less than    | `<`    |
+
+| Function       | Syntax      |
+|----------------|-------------|
+| Absolute value | `abs(x)`    |
+| Random         | `rand(a,b)` |
+| If             | `if(x)`     |
+| If then else   | `if(x,a,b)` |
+
+| Variable | Syntax   |
+|----------|----------|
+| Null     | `null()` |
+
+Map algebra operators, functions, and variables in this tutorial
+:::
+
+# Setup
+Start a GRASS session in a new project with a Cartesian (XY) coordinate system.
+Use {{< meta links.g_region >}}
+to set the extent and resolution of the computational region.
+Since we are working in a Cartesian coordinate system,
+we can simply create a region starting at the origin
+and extending two hundred units north and eight hundred units east.  
+
+::: {.panel-tabset group="language"}
+## Command line
+```{bash}
+g.region n=200 e=800 s=0 w=0 res=1
+```
+## Python
+```{python}
+# Import libraries
+import os
+import sys
+import subprocess
+from pathlib import Path
+
+# Find GRASS Python packages
+sys.path.append(
+  subprocess.check_output(
+    ["grass", "--config", "python_path"],
+    text=True
+    ).strip()
+  )
+
+# Import GRASS packages
+import grass.script as gs
+import grass.jupyter as gj
+
+# Create a temporary folder
+import tempfile
+temporary = tempfile.TemporaryDirectory()
+
+# Create a project in the temporary directory
+gs.create_project(path=temporary.name, name="xy")
+
+# Start GRASS in this project
+session = gj.init(Path(temporary.name, "xy"))
+
+# Set region
+gs.run_command("g.region", n=200, e=800, s=0, w=0, res=1)
+```
+:::
+
+# Constants
+We will be modeling a landscape, 
+so let's start with the simplest of landforms - 
+a flat plain.
+We can represent a flat plain with a constant raster
+that has the same elevation value for every cell.
+It is very easy to create constant rasters like this with map algebra. 
+We will use the raster map calculator
+{{< meta links.r_mapcalc >}}
+to create a new raster with a constant value of zero,
+representing flat terrain at mean sea level. 
+In the raster map calculator,
+simply write the expression `elevation=0`
+to create a new elevation raster
+set to a constant height of zero.
+
+::: {.panel-tabset group="language"}
+## Command line
+```{bash}
+r.mapcalc expression="elevation = 0"
+```
+## Python
+```{python}
+# Map algebra
+gs.mapcalc("elevation = 0")
+
+# Visualize
+m = gj.Map(width=800)
+m.d_rast(map="elevation")
+m.show()
+```
+:::
+
+![Plains](images/map_algebra_03.webp)
+
+# Fractals
+Now let's model more interesting mountainous terrain
+as a base for the rest of the tutorial. 
+Use {{< meta links.r_surf_fractal >}}
+to generate a fractal surface that simulates mountainous terrain.
+If you want reproducible results, set a seed. 
+Find the height of the mountains by printing the elevation range with 
+{{< meta links.r_info >}}.
+This report is an example of a global map algebra operation 
+that acts on the entire raster.
+
+::: {.panel-tabset group="language"}
+## Command line
+```{bash}
+r.surf.fractal output=fractal dimension=2.25
+r.info -r map=fractal
+```
+## Python
+```{python}
+# Generate fractal surface
+gs.run_command("r.surf.fractal", output="fractal", dimension=2.25)
+
+# Visualize
+m.d_rast(map="fractal")
+m.d_legend(raster="fractal", at=(5, 95, 1, 3))
+m.show()
+
+# Print range
+info = gs.read_command("r.info", map="fractal", flags="r")
+print(info)
+```
+:::
+
+![Fractal](images/map_algebra_04.webp)
+
+# Arithmetic
+
+## Operations
+Next let's try arithmetic with map algebra.
+Since our fractal mountains are too high, 
+rescale them with the raster map calculator
+{{< meta links.r_mapcalc >}}.
+Write the expression `elevation = fractal / 10`
+to create a new elevation raster
+equal to the fractal surface divided by ten. 
+This is a local map algebra operation using simple arithmetic.
+Print the rescaled elevation range with 
+{{< meta links.r_info >}}.
+
+::: {.panel-tabset group="language"}
+## Command line
+```{bash}
+r.mapcalc expression="elevation = fractal / 10"
+r.colors map=elevation color=elevation
+r.info -r map=elevation
+```
+## Python
+```{python}
+# Map algebra
+gs.mapcalc("elevation = fractal / 10")
+gs.run_command("r.colors", map="elevation", color="elevation")
+
+# Visualize
+m.d_rast(map="elevation")
+m.d_legend(raster="elevation", at=(5, 95, 1, 3))
+m.show()
+
+# Print range
+info = gs.read_command("r.info", map="elevation", flags="r")
+print(info)
+```
+:::
+
+![Mountains](images/map_algebra_05.webp)
+
+## Functions
+Map algebra has arithmetic functions as well as operators.
+Let's take the absolute value of our terrain 
+to model river valleys winding through our fractal mountains. 
+In the raster map calculator
+{{< meta links.r_mapcalc >}},
+write the expression `elevation = abs(elevation)`
+to create a new elevation raster
+equal to absolute value of the fractal surface.
+Because our fractal terrain has values
+both below and above mean sea level, i.e. zero, 
+taking its absolute value 
+will raise the low-lying valleys into mountains. 
+The elevation gradient close to zero will become river valleys
+at the feet of the mountains. 
+Use {{< meta links.r_colors >}}
+to assign a color gradient to the elevation raster,
+ensuring that the gradient fits rescaled elevation range of the raster.
+
+::: {.panel-tabset group="language"}
+## Command line
+```{bash}
+r.mapcalc expression="elevation = abs(elevation)" --overwrite
+r.colors map=elevation color=elevation
+```
+## Python
+```{python}
+# Map algebra
+gs.mapcalc("elevation = abs(elevation)", overwrite=True)
+gs.run_command("r.colors", map="elevation", color="elevation")
+
+# Visualize
+m.d_rast(map="elevation")
+m.d_legend(raster="elevation", at=(5, 95, 1, 3))
+m.show()
+```
+:::
+
+![Valleys](images/map_algebra_06.webp)
+
+# Neighborhoods
+Let's try a focal map algebra operation that acts on a neighborhood of cells.
+The easiest way to do this is with nearest neighbors analysis with 
+{{< meta links.r_neighbors >}},
+but it can also be done by 
+[defining a moving window](https://grasswiki.osgeo.org/wiki/GRASS_Python_Scripting_Library#r.mapcalc_example:_defining_a_moving_window)
+for r.mapcalc. 
+Use
+{{< meta links.r_neighbors >}}
+to smooth the elevation raster, 
+simulating the weathering of old mountains. 
+Set the input raster to our `elevation` raster, 
+the output raster to a new `weathering` raster,
+the neighborhood size to `9`,
+the method to `average`,
+and flag `c` for a circular neighborhood.
+This will create a circular moving window nine pixels wide
+that moves from cell to cell across the raster.
+The moving window will calculate the average value
+of the neighborhood of cells around each cell,
+smoothing the raster. 
+The size of the moving window,
+which must be an odd integer value of three or greater,
+determines the degree of smoothing. 
+
+::: {.panel-tabset group="language"}
+## Command line
+```{bash}
+r.neighbors -c input=elevation output=weathering size=9
+```
+## Python
+```{python}
+# Nearest neighbors
+gs.run_command(
+  "r.neighbors",
+  input="elevation",
+  output="weathering",
+  size=9,
+  method="average",
+  flags="c",
+  overwrite=True
+  )
+
+# Visualize
+m.d_rast(map="weathering")
+m.d_legend(raster="weathering", at=(5, 95, 1, 3))
+m.show()
+```
+:::
+
+![Weathering](images/map_algebra_07.webp)
+
+# Randomness
+We can use map algebra to inject randomness in our raster data. 
+Use the raster map calculator
+{{< meta links.r_mapcalc >}}
+to generate a random surface,
+simulating the height of the forest canopy.
+Write the expression `random = rand(0.0, 10.0)`
+to create a new random raster
+with random floating point values between zero and ten
+assigned to each cell. 
+For easily reproducible results,
+set a fixed seed for the pseudo-random number generator. 
+
+::: {.panel-tabset group="language"}
+## Command line
+```{bash}
+r.mapcalc expression="random = rand(0.0, 10.0)" seed=0
+```
+## Python
+```{python}
+# Generate random surface
+gs.mapcalc("random = rand(0.0, 10.0)", seed=0)
+
+# Visualize
+m.d_rast(map="random")
+m.d_legend(raster="random", at=(5, 95, 1, 3))
+m.show()
+```
+:::
+
+![Randomness](images/map_algebra_08.webp)
+
+Use the raster map calculator
+{{< meta links.r_mapcalc >}}
+to add the height of the forest canopy to the elevation gradient,
+simulating the forested terrain. 
+Write the expression `forest = elevation + random`
+to create a new raster equal to 
+the sum of the elevation raster
+and the random surface.
+This is a local map algebra operation
+using basic arithmetic 
+between two rasters.
+
+::: {.panel-tabset group="language"}
+## Command line
+```{bash}
+r.mapcalc expression="forest = elevation + random"
+```
+## Python
+```{python}
+# Map algebra
+gs.mapcalc("forest = elevation + random")
+
+# Visualize
+m.d_rast(map="forest")
+m.d_legend(raster="forest", at=(5, 95, 1, 3))
+m.show()
+```
+:::
+
+![Forests](images/map_algebra_09.webp)
+
+# Logic
+We can use logical statements in map algebra
+that test whether given conditions are true or false.
+In the raster map calculator, 
+we can use the function `if(x,a,b)`
+to evaluate **if** cells meet condition `x`,
+**then** do `a`, **else** do `b`. 
+In this tutorial,
+we will use `if then else` statements
+to model plateaus and rivers. 
+
+![Logic in map algebra](images/map_algebra_01.svg)
+
+::: {#tbl-panel layout-ncol=1}
+| Logical Operator      | Syntax |
+|-----------------------|--------|
+| Greater than          | `>`    |
+| Less than             | `<`    |
+| Greater than or equal | `>=`   |
+| Less than or equal    | `<=`   |
+| Equal                 | `=`    |
+| Not equal             | `!=`   |
+| Logical and           | `&&`   |
+| Logical or            | `||`   |
+
+Logical operators
+:::
+
+## If statements
+Let's use logic in map algebra to transform the mountain peaks into plateaus.
+First use the raster map calculator
+{{< meta links.r_mapcalc >}}
+with an `if` statement to find all cells with an elevation above thirty. 
+Write the expression `plateaus = if(elevation > 30)`.
+Simple if statements with the form `if(x)`
+- where `x` is an equality or inequality statement -
+return a raster with ones where the statement is true
+and zeros where it is false.
+So this expression will return a new raster 
+with ones where the plateaus will be
+and zeros elsewhere. 
+This is a zonal map algebra operation
+using logic to isolate a zone of cells.
+
+![If statement diagram](images/map_algebra_02.svg)
+
+::: {.panel-tabset group="language"}
+## Command line
+```{bash}
+r.mapcalc expression="plateaus = if(elevation > 30)"
+```
+## Python
+```{python}
+# Map algebra
+gs.mapcalc("plateaus = if(elevation > 30)")
+
+# Visualize
+m.d_rast(map="plateaus")
+m.show()
+```
+:::
+
+![Zones](images/map_algebra_10.webp)
+
+## If then else statements
+Now use the raster map calculator
+{{< meta links.r_mapcalc >}}
+to model the plateaus using an `if then else` statement. 
+In map algebra, the syntax for these logical statements is `if(x, a, b)` 
+where if the relational statement `x` is true, then do `a`, else do `b`.
+Write the expression `elevation = if(elevation > 30, 30, elevation)`.
+All cells with elevation values greater than 30
+will be assigned a value of 30, 
+while all other cells will keep their original values.
+This will flatten all of the mountain peaks above the threshold of 30,
+forming plateaus. 
+
+![If then else statement diagram](images/map_algebra_03.svg)
+
+::: {.panel-tabset group="language"}
+## Command line
+```{bash}
+r.mapcalc expression="elevation = if(elevation > 30, 30, elevation)" --overwrite
+r.colors map=elevation color=elevation
+```
+## Python
+```{python}
+# Map algebra
+gs.mapcalc("elevation = if(elevation > 30, 30, elevation)", overwrite=True)
+gs.run_command("r.colors", map="elevation", color="elevation")
+
+# Visualize
+m.d_rast(map="elevation")
+m.d_legend(raster="elevation", at=(5, 95, 1, 3))
+m.show()
+```
+:::
+
+![Plateaus](images/map_algebra_11.webp)
+
+## Complex expressions
+Use map algebra to model a river that fills the valleys.
+With the raster map calculator
+{{< meta links.r_mapcalc >}}
+write the expression `river = if(elevation < 6, 6 - elevation, null())`
+to simulate the depth of the river. 
+This is a more complicated map algebra expression
+that combines logic with an `if then else` statement,
+arithmetical operations between rasters,
+and the internal variable `null()`.
+If cells in the elevation raster 
+have values less than six,
+then they will be assigned the difference
+between six and the elevation raster, 
+else they will be assigned null values. 
+Then use {{< meta links.r_colors >}}
+to assign the `water` color gradient to the river raster.
+The null cells will be transparent, 
+so the river depth raster can be layered over the elevation raster.
+
+![Complex expression diagram](images/map_algebra_04.svg)
+
+::: {.panel-tabset group="language"}
+## Command line
+```{bash}
+r.mapcalc expression="rivers = if(elevation < 6, 6 - elevation, null())"
+r.colors map=rivers color=water
+```
+## Python
+```{python}
+# Map algebra
+gs.mapcalc("rivers = if(elevation < 6, 6 - elevation, null())")
+gs.run_command("r.colors", map="rivers", color="water")
+
+# Visualize
+m.d_rast(map="elevation")
+m.d_rast(map="rivers")
+m.d_legend(raster="rivers", at=(5, 95, 1, 3))
+m.show()
+```
+:::
+
+![Rivers](images/map_algebra_12.webp)

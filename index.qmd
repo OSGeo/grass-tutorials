@@ -10,6 +10,7 @@ listing:
       contents: 
         - content/tutorials    
         - content/tutorials/external/ecodiv.yml
+        - content/tutorials/external/huidae_courses.yml
       sort: "date desc"
       type: grid
       categories: true

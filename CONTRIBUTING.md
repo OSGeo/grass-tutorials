@@ -81,8 +81,8 @@ title: "Computing slope from elevation data in Python"
 author: "Your Name"
 date: "2025-05-15"
 description: "Learn how to derive slope from elevation data in GRASS in a Jupyter Notebook."
-categories: ["beginner", "geomorphometry", Python]
-thumbnail: slope_thumbnail.webp
+categories: [beginner, geomorphometry, Python]
+image: slope_thumbnail.webp
 format:
   ipynb: default
   html:
@@ -117,11 +117,46 @@ At the same time, their size should not be too big to load quickly, try to keep 
 ```
 
 Each tutorial needs to have at least one image that can be used on the main page as a thumbnail.
-You can either specify it in the YAML header (`thumbnail: image.webp`) or add `{.preview-image}` to the image.
+You can either specify it in the YAML header (`image: image.webp`) or add `{.preview-image}` to the image.
 
 ``` markdown
 ![Slope map](slope.webp){.preview-image}
 ```
+
+## External tutorials
+
+If you want to have your GRASS external tutorials listed, you can create a `.yml` file
+within the `content/tutorials/external` folder with the tutorial(s) you want to include.
+See an example below:
+
+``` yaml
+- title: Species distribution modeling using Maxent in GRASS GIS
+  path: https://ecodiv.earth/TutorialsNotes/sdmingrassgis/
+  author: Paulo van Breugel
+  image: content/tutorials/external/images/sdm_in_grass_tutorialbanner.png
+  date: "2025-02-12"
+  description: Species distribution models to predict the current and future distribution of the Almond-eyed Ringlet.
+  categories: ['biogeography', 'ecology', 'intermediate', 'advanced']
+- title: Density distribution map of white-tailed deer
+  path: https://ecodiv.earth/TutorialsNotes/deerdensities/index.html
+  author: Paulo van Breugel
+  image: content/tutorials/external/images/deer-density-tile.png
+  date: "2025-01-10"
+  description: Habitat suitability map for the white-tailed deer using spatial multicriteria analysis and spatial disaggregation in GRASS.
+  categories: ['biogeography', 'MCDA', 'ecology', 'intermediate']
+```
+
+Then, you need to add the path to your `.yml` file in the header of the
+`index.qmd` file in the root directory.
+
+``` yaml
+contents: 
+  - content/tutorials    
+  - content/tutorials/external/your_tutorials.yml
+```
+
+Do not forget to also include the image that will be used as thumbnail within
+`content/tutorials/external/images`. 
 
 ## Submitting your contribution
 
@@ -133,6 +168,8 @@ You should **only commit the .qmd file and images**.
 Once you sumbmit a PR, the CI pipeline will build your
 tutorial, so you and a reviewer can check if everything is ok.
 When a reviewer approves, your PR will be merged soon.
+
+Please note that maintainers may make minor edits to improve clarity, consistency, or visual style.
 
 ---
 Thanks for helping us build better educational resources for the GRASS community!

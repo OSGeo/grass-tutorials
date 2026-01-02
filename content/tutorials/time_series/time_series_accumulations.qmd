@@ -1,0 +1,392 @@
+---
+title: "Time series accumulations"
+author: "Veronica Andreo"
+date: 2024-07-26
+date-modified: today
+image: images/north_italy_LST_Aedes_albopictus.png
+format:
+  ipynb: default
+  html:
+    toc: true
+    code-tools: true
+    code-copy: true
+    code-fold: false
+categories: [time series, raster, advanced, Python]
+description: Tutorial on accumulation of time series values to identify suitable areas for mosquitoes and the number and duration of their cycles.
+engine: jupyter
+execute:
+  eval: false
+---
+
+In this fourth tutorial on time series, we will go through data
+accumulation. We'll mostly follow a modified version of the example
+presented in the
+[t.rast.accumulate](https://grass.osgeo.org/grass-stable/manuals/t.rast.accumulate.html)
+and [t.rast.accdetect](https://grass.osgeo.org/grass-stable/manuals/t.rast.accdetect.html)
+tools.
+
+::: {.callout-note title="Setup"}
+This tutorial can be run locally or in Google Colab. However, make sure you
+install GRASS 8.4+, download the LST sample data and set up your project
+as explained in the [first](time_series_management_and_visualization.qmd)
+time series tutorial.
+:::
+
+```{python}
+#| echo: false
+
+import os
+import sys
+import subprocess
+
+# Ask GRASS where its Python packages are
+sys.path.append(
+    subprocess.check_output(["grass", "--config", "python_path"], text=True).strip()
+)
+# Import the GRASS packages we need
+import grass.script as gs
+import grass.jupyter as gj
+
+path_to_project = "italy_eu_laea/italy_LST_daily"
+
+# Start the GRASS Session
+session = gj.init(path_to_project)
+```
+
+
+## Temporal data accumulation
+
+[t.rast.accumulate](https://grass.osgeo.org/grass-stable/manuals/t.rast.accumulate.html)
+performs temporal accumulations of raster time series. Data
+accumulations are common in ecology or agriculture, especially temperature
+accumulation. Usually, to determine if insects or plants can survive in a
+certain place, a measure of accumulated temperature is used. For example, a
+certain plant species might need x growing degree days (GDD) to bloom, or a
+mosquito species might need x GDD to complete their development from egg to
+adult. Therefore, it is usual to accumulate temperature data, but other
+variables can be accumulated too, e.g. chlorophyll concentration to determine
+algal bloom occurrences in water bodies.
+
+*t.rast.accumulate* expects a raster time series (STRDS) as input that will be
+sampled with a given granularity. All maps that have the start time during the
+actual granule will be accumulated with the predecessor granule accumulation
+result using the raster tool
+[r.series.accumulate](https://grass.osgeo.org/grass-stable/manuals/r.series.accumulate.html).
+The default granularity is one day, but any temporal granularity can be set.
+The start and end time of the accumulation process must be set. In
+addition, a cycle can be specified to defines after which interval of time
+the accumulation process restarts. The offset option specifies the time that
+should be skipped between two cycles.
+
+The lower and upper limits of the accumulation process can be set either by
+using space time raster datasets or by using fixed values for all raster cells
+and time steps by means of the limits option is used, eg. `limits=10,30`. The
+upper limit is only used in the Biologically Effective Degree Days (BEDD)
+calculation.
+
+The output is a new space time raster dataset with the provided start time,
+end time and granularity containing the accumulated raster maps.
+
+
+### Accumulation using BEDD
+
+Let's consider the mosquito *Aedes albopictus*. Adults require a minimum average
+temperature of 11 °C to survive. We will compute the Biologically Effective
+Degree Days (BEDD) from 2014 until 2018 for each year with a granularity of
+one day.
+The base temperature will be 11°C, and the upper limit 30°C where adult mosquito
+survival is known to decrease. Hence the accumulation will start at 11°C and stop
+at 30°C.
+
+```{python}
+# Accumulation of degree days
+gs.run_command("t.rast.accumulate",
+               input="lst_daily",
+               output="mosq_daily_bedd",
+               basename="mosq_daily_bedd",
+               suffix="gran",
+               start="2014-01-01",
+               stop="2019-01-01",
+               cycle="12 months",
+               method="bedd",
+               limits="11,30")
+```
+
+```{python}
+# Get basic info
+gs.run_command("t.info", input="mosq_daily_bedd")
+```
+
+
+### Suitable areas for mosquitos
+
+According to Kobashayi et al (2002), populations of *Aedes albopictus*
+establish where at least 1350 DD are accumulated. These DD should be reached
+before October 1st to consider a place as suitable. Let's find out when and where
+that condition is met.
+
+We will first discard all cells with BEDD < 1350 from our accumulated time
+series, and then we will save the day of the year (DOY) where BEDD >=
+1350.
+
+```{python}
+exp="doy_bedd_higher_1350 = if(mosq_daily_bedd >= 1350, start_doy(mosq_daily_bedd, 0), null())"
+
+gs.run_command("t.rast.algebra",
+               expression=exp,
+               basename="doy_bedd_higher_1350",
+               suffix="gran",
+               nprocs=4)
+```
+
+Then, we aggregate the `doy_bedd_higher_1350` STRDS on an annual basis, as we want
+to see possible changes among years. We use `method=minimum` to get the earliest
+day on which the condition is met each year.
+
+```{python}
+gs.run_command("t.rast.aggregate",
+               input="doy_bedd_higher_1350",
+               method="minimum",
+               granularity="1 year",
+               output="annual_doy_bedd_higher_1350",
+               basename="annual_doy_bedd_higher_1350",
+               suffix="gran",
+               nprocs=4)
+```
+
+```{python}
+gs.run_command("t.rast.list",
+                input="annual_doy_bedd_higher_1350",
+                columns="id,min,max")
+```
+
+Following Neteler et al (2013), if the 1350 DD are achieved on or before August
+1st, a place is considered highly suitable for *Aedes albopictus*, while if the
+condition is met after October 1st, the place is not suitable.
+Everything in between is defined as a linear function of DOY. Once again, we use
+the temporal algebra to create yearly suitability maps. Note we are using a
+nested if statement.
+
+```{python}
+expression="suitability = if(annual_doy_bedd_higher_1350 <= 214, 1, if(annual_doy_bedd_higher_1350 > 214 && annual_doy_bedd_higher_1350 <= 274, (274 - annual_doy_bedd_higher_1350)/60.0, if(annual_doy_bedd_higher_1350 > 274, 0)))"
+
+gs.run_command("t.rast.algebra",
+               expression=expression,
+               basename="suitability",
+               suffix="gran",
+               nprocs=4)
+```
+
+Let's see how suitable area and suitability values change with time by means of
+an animation.
+
+```{python}
+# Animation of annual anomalies
+suitability = gj.TimeSeriesMap()
+suitability.add_raster_series("suitability", fill_gaps=False)
+suitability.d_legend(at=(6, 10, 5, 45))
+suitability.show()
+```
+
+Let's do some basic math to quantify the suitable area increase
+from 2014 to 2018. We use `r.univar` to get the number of non-null cells in each
+map.
+
+```{python}
+land_cells = gs.parse_command("r.univar", map="lst_2014.001_avg", flags="g")['n']
+suit_2014 = gs.parse_command("r.univar", map="suitability_2014", flags="g")['n']
+suit_2018 = gs.parse_command("r.univar", map="suitability_2018", flags="g")['n']
+change = ((float(suit_2018) - float(suit_2014))/float(land_cells))*100.0
+print(f"The increase in suitable area was {change: .1f} %")
+```
+
+
+## Detection of cycles
+
+[t.rast.accdetect](https://grass.osgeo.org/grass-stable/manuals/t.rast.accdetect.html)
+is used to detect accumulation patterns in temporally
+accumulated STDRS created by *t.rast.accumulate*. The start and end time do not
+need to be the same but the cycle and offset options must be exactly the same
+that were used in the accumulation process that generated the input STRDS.
+Minimum and maximum values for pattern detection can be set either by using
+STRDS or fixed values for all raster cells and time steps (`range` option).
+
+Using a STRDS would allow specifying minimum and maximum values for each raster
+cell and each time step. For example, if you want to detect the germination
+(minimum value) and harvesting (maximum value) dates for different crops using
+the growing-degree-day (GDD) method for several years. Different crops may
+grow in different raster cells and change with time because of crop rotation.
+Hence we need to specify different GDD germination/harvesting (minimum/maximum)
+values for different raster cells and different years.
+
+The *t.rast.accdetect* tool produces two output STRDS:
+
+- **occurrence**: The occurrence STRDS stores the time in days from the
+  beginning of a given cycle for each raster. These values can be used to
+  compute the duration of the recognized accumulation pattern.
+- **indicator**: The indicator STRDS uses three integer values to mark raster
+  cells as beginning (1), intermediate state (2) or end (3) of an accumulation
+  pattern. These values can be used to identify places with complete cycles.
+
+
+### Detection of mosquito generations
+
+Following Kobashayi et al (2002), each mosquito generation might take around
+365 DD. Let's use this reference value to identify how many mosquito
+generations we could expect over our study area.
+
+```{python}
+cycle = list(range(1, 10))
+cycle_beg = list(range(1, 3286, 365))
+cycle_end = list(range(365, 3286, 365))
+
+for i in range(len(cycle)):
+    print(f"cycle: {cycle[i]} - {cycle_beg[i]} {cycle_end[i]}")
+
+    # Identify generations
+    gs.run_command("t.rast.accdetect",
+                    input="mosq_daily_bedd",
+                    occurrence=f"mosq_occurrence_gen_{cycle[i]}",
+                    indicator=f"mosq_indicator_gen_{cycle[i]}",
+                    basename=f"mosq_gen_{cycle[i]}",
+                    start="2014-01-01",
+                    stop="2019-01-01",
+                    cycle="12 months",
+                    range=f"{cycle_beg[i]},{cycle_end[i]}")
+
+    gs.run_command("t.rast.aggregate",
+                    input=f"mosq_indicator_gen_{cycle[i]}",
+                    output=f"mosq_gen{cycle[i]}_yearly",
+                    basename=f"mosq_gen{cycle[i]}_yearly",
+                    granularity="1 year",
+                    method="maximum",
+                    suffix="gran")
+
+    # Keep only complete generations
+    exp = f"if(mosq_gen{cycle[i]}_yearly == 3, {cycle[i]}, null())"
+    gs.run_command("t.rast.mapcalc",
+                    input=f"mosq_gen{cycle[i]}_yearly",
+                    output=f"mosq_gen{cycle[i]}_yearly_clean",
+                    basename=f"mosq_clean_gen{cycle[i]}",
+                    expression=exp)
+
+    # Duration of each mosquito generation
+    # Beginning
+    gs.run_command("t.rast.aggregate",
+                    input=f"mosq_occurrence_gen_{cycle[i]}",
+                    output=f"mosq_min_day_gen{cycle[i]}",
+                    basename=f"occ_min_day_gen{cycle[i]}",
+                    method="minimum",
+                    granularity="1 year",
+                    suffix="gran")
+    # End
+    gs.run_command("t.rast.aggregate",
+                    input=f"mosq_occurrence_gen_{cycle[i]}",
+                    output=f"mosq_max_day_gen{cycle[i]}",
+                    basename=f"occ_max_day_gen{cycle[i]}",
+                    method="maximum",
+                    granularity="1 year",
+                    suffix="gran")
+    # Difference
+    exp = f"mosq_max_day_gen{cycle[i]} - mosq_min_day_gen{cycle[i]} + 1"
+    gs.run_command("t.rast.mapcalc",
+                    input=f"mosq_min_day_gen{cycle[i]},mosq_max_day_gen{cycle[i]}",
+                    output=f"mosq_duration_gen{cycle[i]}",
+                    basename=f"mosq_duration_gen{cycle[i]}",
+                    expression=exp)
+```
+
+
+### Maximum number of generations per year
+
+Let's now see which is the maximum number of generations in each cell.
+
+```{python}
+for i in range(1, 6):
+    maps = gs.list_grouped(type="raster", pattern=f"mosq_clean_gen*_{i}")
+    gs.run_command("r.series",
+                    input=maps,
+                    output=f"mosq_max_n_generations_{i}",
+                    method="maximum")
+```
+
+Let's see an animation:
+
+```{python}
+# List of average maps
+map_list = gs.list_grouped(type="raster", pattern="mosq_max_n_generations_*")
+
+# Animation with SeriesMap class
+series = gj.SeriesMap()
+series.add_rasters(map_list)
+series.d_barscale()
+series.show()
+```
+
+
+### Median duration of mosquito generations per year
+
+We can also estimate the median duration of the mosquito cycles per year and see
+the results with an animation.
+
+```{python}
+for i in range(1, 6):
+    maps = gs.list_grouped(type="raster", pattern=f"mosq_duration_gen*_{i}")
+    gs.run_command("r.series",
+                    input=maps,
+                    output=f"mosq_med_duration_generations_{i}",
+                    method="median")
+```
+
+```{python}
+# List of average maps
+map_list = gs.list_grouped(type="raster", pattern="mosq_med_duration_generations_*")
+
+# Animation with SeriesMap class
+series = gj.SeriesMap()
+series.add_rasters(map_list)
+series.d_barscale()
+series.show()
+```
+
+This process creates a large number of intermediate maps. When we have
+obtained the desired output, we can remove all intermediate series and
+maps with [t.remove](https://grass.osgeo.org/grass-stable/manuals/t.remove.html).
+
+```{python}
+gs.run_command("t.list",
+                type="strds",
+                where="name LIKE '%gen%'",
+                output="to_remove.txt")
+gs.run_command("t.remove",
+                flags="df",
+                file="to_remove.txt")
+```
+
+
+## References
+
+- Neteler, M., Metz, M., Rocchini, D., Rizzoli, A., Flacio, E., et al. 2013.
+_Is Switzerland Suitable for the Invasion ofAedes albopictus?_ PLOS ONE 8(12).
+[DOI](https://doi.org/10.1371/journal.pone.0082090).
+- Kobayashi, M., Nihei, N., Kurihara, T. 2002.
+_Analysis of Northern Distribution of *Aedes albopictus* (Diptera: Culicidae) in Japan by Geographical Information System._
+Journal of Medical Entomology 39(1), 4–11. [DOI](https://doi.org/10.1603/0022-2585-39.1.4).
+- Gebbert, S., Pebesma, E. 2014.
+_TGRASS: A temporal GIS for field based environmental modeling._
+Environmental Modelling & Software 53, 1-12.
+[DOI](http://dx.doi.org/10.1016/j.envsoft.2013.11.001).
+- Gebbert, S., Pebesma, E. 2017. _The GRASS GIS temporal framework._
+International Journal of Geographical Information Science 31, 1273-1292.
+[DOI](http://dx.doi.org/10.1080/13658816.2017.1306862).
+- [Temporal data processing](https://grasswiki.osgeo.org/wiki/Temporal_data_processing) wiki page.
+
+
+***
+
+:::{.smaller}
+The development of this tutorial was funded by the US
+[National Science Foundation (NSF)](https://www.nsf.gov/),
+award [2303651](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2303651).
+:::
+

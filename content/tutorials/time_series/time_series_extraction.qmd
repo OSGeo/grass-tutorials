@@ -1,0 +1,280 @@
+---
+title: "Time series subset, import and export"
+author: "Veronica Andreo"
+date: 2024-08-19
+date-modified: today
+image: images/export_with_change.png
+lightbox: true
+format:
+  ipynb: default
+  html:
+    toc: true
+    code-tools: true
+    code-copy: true
+    code-fold: false
+categories: [time series, raster, intermediate, Python]
+description: Tutorial on time series subsetting, import and export.
+engine: jupyter
+execute:
+  eval: false
+jupyter: python3
+---
+
+In this seventh time series tutorial, we will go through time
+series subset, import and export.
+
+::: {.callout-note title="Setup"}
+This tutorial can be run locally or in Google Colab. However, make sure you
+install GRASS 8.4+, download the
+[LST sample dataset](https://zenodo.org/doi/10.5281/zenodo.3564514)
+and set up your project as explained in the
+[first](time_series_management_and_visualization.qmd) time
+series tutorial.
+:::
+
+```{python}
+#| echo: false
+
+import os
+import sys
+import subprocess
+
+# Ask GRASS where its Python packages are
+sys.path.append(
+    subprocess.check_output(["grass", "--config", "python_path"], text=True).strip()
+)
+# Import the GRASS packages we need
+import grass.script as gs
+import grass.jupyter as gj
+
+path_to_project = "italy_eu_laea/italy_LST_daily"
+
+# Start the GRASS Session
+session = gj.init(path_to_project)
+```
+
+## Subset
+
+For extracting a subset from a STRDS, we use
+[t.rast.extract](https://grass.osgeo.org/grass-stable/manuals/t.rast.extract.html).
+The subset is based on temporal variables like `start_time`, `start_doy`,
+`end_week`, etc.
+This tool outputs a new STRDS and offers the possibility to apply a
+mapcalc operation on the fly. If no *r.mapcalc* expression is defined,
+the selected maps are simply registered in the newly created output STRDS
+to avoid data duplication.
+
+Let's see a couple of examples. Suppose we are only interested in northern summer
+months, i.e., June, July, August. The maps matching the where condition will be
+registered in the new output STRDS.
+
+```{python}
+gs.run_command("t.rast.extract",
+               input="lst_daily",
+               output="lst_daily_summer",
+               where="strftime('%m',start_time)='06' or strftime('%m',start_time)='07' or strftime('%m', start_time)='08'")
+```
+
+If you remember, we went through several listing examples in the
+[Time series management and visualization](time_series_management_and_visualization.qmd) tutorial.
+To check the subset will actually give us what we want, we can run
+[t.rast.list](https://grass.osgeo.org/grass-stable/manuals/t.rast.list.html)
+with the same `where` condition as above.
+
+```{python}
+#| scrolled: true
+gs.run_command("t.rast.list",
+               input="lst_daily_summer",
+               columns="name,min,max")
+```
+
+To check whether a map is registered in different time series objects, we can use
+[t.info](https://grass.osgeo.org/grass-stable/manuals/t.info.html).
+
+```{python}
+gs.run_command("t.info",
+               input="lst_2018.243_avg",
+               type="raster")
+```
+
+Let's see now an example including a mapcalc operation. We still want the daily
+maps of summer, but we are only interested in areas where LST was higher than
+25 degrees.
+Note that in this second case, we are creating a new STRDS, i.e., we modify the
+original with the mapcalc expression, so we need to provide `basename` and `suffix`
+for the newly created maps.
+
+```{python}
+gs.run_command("t.rast.extract",
+               input="lst_daily",
+               output="lst_daily_summer_higher_25",
+               basename="lst_daily",
+               suffix="gran",
+               where="strftime('%m',start_time)='06' or strftime('%m',start_time)='07' or strftime('%m', start_time)='08'",
+               expression="if(lst_daily < 25.0, null(), lst_daily)")
+```
+
+Check that the minimum value of all extracted maps are actually above 25 degrees.
+
+```{python}
+#| scrolled: true
+gs.run_command("t.rast.list",
+               input="lst_daily_summer_higher_25",
+               columns="name,min,max")
+```
+
+What tools would you use now if you wanted to know how many summer days had
+temperatures above 25 degrees each year and how does the maximum number of days
+with LST > 25 varies regionally?
+
+**Small hint?** Go back to the time series
+[aggregation](time_series_aggregations.qmd) tutorial.
+
+```{python}
+# Get number of summer days with LST > 25 per year
+gs.run_command("t.rast.aggregate",
+              input="lst_daily_summer_higher_25",
+              output="count_lst_daily_summer_higher_25",
+              basename="count_lst_daily_summer_higher_25",
+              suffix="gran",
+              method="count",
+              granularity="1 year")
+```
+
+```{python}
+# Get maximum number of days with LST > 25
+gs.run_command("t.rast.series",
+              input="count_lst_daily_summer_higher_25",
+              output="max_count_summer_days_lst_higher_25",
+              method="maximum")
+```
+
+```{python}
+# Mask zero values
+gs.run_command("r.mask",
+               raster="max_count_summer_days_lst_higher_25",
+               maskcats=0,
+               flags="i")
+```
+
+```{python}
+# Visualize the result
+max_count = gj.InteractiveMap(tiles="CartoDB.DarkMatter")
+max_count.add_raster("max_count_summer_days_lst_higher_25")
+max_count.show()
+```
+
+## Export
+
+There are three tools to export raster time series in different formats.
+
+* [t.rast.export](https://grass.osgeo.org/grass-stable/manuals/t.rast.export.html) exports a strds as a tar archive containing raster maps either as GeoTIFF or GRASS binary files and several metadata files such as: timestamps, CRS info, strds and raster info. The archive can be compressed with gzip or bzip2. The output of *t.rast.export* can then be imported with [t.rast.import](https://grass.osgeo.org/grass-stable/manuals/t.rast.import.html).
+* [t.rast.out.vtk](https://grass.osgeo.org/grass-stable/manuals/t.rast.out.vtk.html) exports a strds as a VTK file to be visualized with any VTK visualizer.
+* [t.rast.out.xyz](https://grass.osgeo.org/grass-stable/manuals/addons/t.rast.out.xyz.html) exports a strds to a CSV file of the form x coord, y coord, value.
+
+Let's see some examples.
+
+```{python}
+# Export strds as an archive
+gs.run_command("t.rast.export",
+               input="lst_daily_summer",
+               output="lst_daily_summer_2014.tar.bzip2",
+               where="start_time < '2015-01-01'")
+```
+
+```{python}
+!tar tjf lst_daily_summer_2014.tar.bzip2
+```
+
+```
+lst_2014.152_avg.tif
+lst_2014.152_avg.color
+...
+lst_2014.243_avg.tif
+lst_2014.243_avg.color
+list.txt
+proj.txt
+init.txt
+readme.txt
+metadata.txt
+```
+
+```{python}
+# Export strds as VTK
+gs.run_command("t.rast.out.vtk",
+              input="count_lst_daily_summer_higher_25",
+              directory="/tmp",
+              elevation="elevation")
+```
+
+The tool *t.rast.out.xyz* is an addon, so we first need to install it with *g.extension*.
+
+```{python}
+# Install extension
+gs.run_command("g.extension", extension="t.rast.out.xyz")
+```
+
+```{python}
+# Export strds as xyz CSV file
+gs.run_command("t.rast.out.xyz",
+               strds="count_lst_daily_summer_higher_25",
+               output="count_lst_daily_summer_higher_25.csv")
+```
+
+```{python}
+!head count_lst_daily_summer_higher_25.csv
+```
+
+## Import
+
+There are two tools to import raster time series into GRASS:
+
+* [t.rast.import](https://grass.osgeo.org/grass-stable/manuals/t.rast.import.html) imports strds that were exported with *t.rast.export*. It allows to create a new GRASS project with the imported data CRS and set the computational region to the raster maps imported.
+* [t.rast.import.netcdf](https://grass.osgeo.org/grass-stable/manuals/addons/t.rast.import.netcdf.html) imports the content of one or more netCDF files that adhere to the CF convention into a strds. Data can be imported or linked via [r.external](https://grass.osgeo.org/grass-stable/manuals/r.external.html).
+
+Let's see an example with *t.rast.import*.
+
+```{python}
+# Import the exported strds into a new GRASS project
+gs.run_command("t.rast.import",
+               input="lst_daily_summer_2014.tar.bzip2",
+               output="lst_daily_summer_new",
+               title="Daily summer LST",
+               description="Daily summer LST for 2014")
+```
+
+```{python}
+# Check the new strds was created
+gs.run_command("t.list", where="NAME LIKE '%summer%'")
+```
+
+:::{.callout-note title="What about vector time series?"}
+While not covered in this tutorial, there are also dedicated tools for subsetting, importing and exporting vector time series objects. These are:
+
+* [t.vect.extract](https://grass.osgeo.org/grass-stable/manuals/t.vect.extract.html)
+* [t.vect.export](https://grass.osgeo.org/grass-stable/manuals/t.vect.export.html)
+* [t.vect.import](https://grass.osgeo.org/grass-stable/manuals/t.vect.import.html)
+:::
+
+
+## References
+
+- Gebbert, S., Pebesma, E. 2014.
+_TGRASS: A temporal GIS for field based environmental modeling._
+Environmental Modelling & Software 53, 1-12.
+[DOI](http://dx.doi.org/10.1016/j.envsoft.2013.11.001).
+- Gebbert, S., Pebesma, E. 2017. _The GRASS GIS temporal framework._
+International Journal of Geographical Information Science 31, 1273-1292.
+[DOI](http://dx.doi.org/10.1080/13658816.2017.1306862).
+- [Temporal data processing](https://grasswiki.osgeo.org/wiki/Temporal_data_processing) wiki page.
+
+
+***
+
+:::{.smaller}
+The development of this tutorial was funded by the US
+[National Science Foundation (NSF)](https://www.nsf.gov/),
+award [2303651](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2303651).
+:::
+
+

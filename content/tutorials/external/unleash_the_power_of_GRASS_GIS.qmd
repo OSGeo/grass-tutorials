@@ -9,7 +9,7 @@ format:
     code-copy: true
     code-fold: false
 categories: [beginner, intermediate, GUI, Google Colab, Python, external]
-description: Series of tutorials delivered at different events addressing begginer and intermediate geospatial data processing in GRASS with Jupyter notebooks.
+description: Series of tutorials delivered at different events addressing beginner and intermediate geospatial data processing in GRASS with Jupyter notebooks.
 execute: 
   eval: false
 ---
