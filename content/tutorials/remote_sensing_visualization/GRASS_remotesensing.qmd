@@ -435,7 +435,7 @@ Here, we will explore **principal components analysis** (PCA). PCA mathematicall
 Perform a PCA and output the results to the console/terminal and as PCA component maps.  
 
 ```{python}
-i.pca input=landsat8_2024_B2,landsat8_2024_B3,landsat8_2024_B4, landsat8_2024_B5,landsat8_2024_B6,landsat8_2024_B7 output=Flagstaff_landsat8
+i.pca input=landsat8_2024_B2,landsat8_2024_B3,landsat8_2024_B4,landsat8_2024_B5,landsat8_2024_B6,landsat8_2024_B7 output=Flagstaff_landsat8
 ```
 
 #### Python
@@ -444,7 +444,7 @@ Perform a PCA and output the results to the console/terminal and as PCA componen
 
 ```{python}
 gs.run_command("i.pca", 
-                input="landsat8_2024_B2,landsat8_2024_B3,landsat8_2024_B4, landsat8_2024_B5,landsat8_2024_B6,landsat8_2024_B7", 
+                input="landsat8_2024_B2,landsat8_2024_B3,landsat8_2024_B4,landsat8_2024_B5,landsat8_2024_B6,landsat8_2024_B7", 
                 output=Flagstaff_landsat8)
 ```
 
@@ -490,6 +490,14 @@ To better see spatial variation in a PCA component image, you can assign a diffe
 Here is PCA component 1 colored with a **bcyr** (blue-cyan-yellow-red) color table with **histogram equalization** checked.  
 
 Follow the instructions given above for histogram equalization, but pick `bcyr` instead of grey for the color table.  
+
+```bash
+# Set PCA component 1 to bcyr false color
+r.colors -e map=Flagstaff_landsat8.1 color=bcyr
+
+# Reset histogram to grey for subsequent steps
+r.colors -e map=Flagstaff_landsat8.1 color=grey
+```
 
 Note how areas of different vegetation, soil, and water stand out more clearly than with grey-scale. Try other color tables.  
 :::
