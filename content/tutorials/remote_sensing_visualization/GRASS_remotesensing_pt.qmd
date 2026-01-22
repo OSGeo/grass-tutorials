@@ -1,0 +1,719 @@
+---
+title: "Introdução ao Sensoriamento Remoto com GRASS"
+author: "Michael Barton & Leticia Correa"
+date: 2026-01-07
+date-modified: today
+image: img_remotesensing/thumbnail.webp
+lightbox: true
+engine: knitr
+format: 
+  html:
+    embed-resources: true
+    toc: true
+    code-tools: true
+    code-copy: true
+    code-fold: false
+page-layout: article
+categories: [beginner, GUI, imagery, remote sensing, visualization, Português]
+description: Análise e visualização de imagens de satélite multiespectrais utilizando fusão de imagens, índices ambientais e redução de dimensionalidade com análise de componentes principais.
+execute: 
+  eval: false
+copyright: 
+  holder: Michael Barton and Leticia Correa
+  year: 2025
+funding: "A criação deste tutorial foi parcialmente financiada pela bolsa FAIN 2303651 da Fundação Nacional de Ciência dos EUA."
+
+---
+
+::::: grid
+::: g-col-4
+O GRASS possui diversas ferramentas para processamento e visualização de imagens de sensoriamento remoto. Este tutorial aborda apenas superficialmente a vasta capacidade do GRASS para processamento de imagens. 
+
+Esperamos que ele lhe dê uma ideia do potencial de análise e visualização de imagens de sensoriamento remoto no GRASS e da possibilidade de combinar a análise de sensoriamento remoto com o processamento de dados raster e vetorial em sistemas de informação geográfica (SIG).  
+
+Começaremos com uma breve visão geral de imagens de satélite multibanda.  
+:::
+
+::: g-col-8
+![Imagem Landsat 8 OLI da região de Flagstaff, AZ. Fusão de imagem RGB das bandas 3, 4 e 5.](img_remotesensing/remotesensing_0.webp)
+:::
+:::::
+
+::: {.callout-note title="Conjunto de Dados"}
+Este tutorial utiliza um dos conjuntos de dados de amostra padrão do GRASS para Flagstaff, Arizona, EUA: ***flagstaff_arizona_usa***. Faremos referência a nomes de lugares nesse conjunto de dados, mas ele pode ser complementado com qualquer um dos [conjuntos de dados de amostra padrão](https://grass.osgeo.org/download/data/) fpara qualquer região, por exemplo, o [conjunto de dados da Carolina do Norte](https://grass.osgeo.org/sampledata/north_carolina/nc_spm_08_grass7.zip).  
+
+Usaremos um conjunto de imagens do **satélite Landsat 8** e o mapa raster DEM de *elevação*. No entanto, este tutorial também pode ser usado com outras imagens multibanda, como as do Sentinel ou do Terra/ASTER. Com imagens de satélite diferentes do Landsat 8, a numeração das bandas pode ser diferente da descrita neste tutorial.  
+:::
+
+::: {.callout-note title="Ambiente GRASS"}
+Este tutorial foi desenvolvido para que você possa concluí-lo usando o **GUI GRASS**, comandos do GRASS no **console ou terminal**, ou usando comandos do GRASS em um ambiente **Jupyter Notebook.**  
+:::
+
+::: {.callout-note title="Não sabe por onde começar?"}
+Se você não tem certeza de como começar a usar o GRASS através de sua interface gráfica ou com Python, confira os tutoriais [Introdução à GUI do GRASS](../get_started/fast_track.qmd) e [Introdução ao GRASS e Python em Jupyter Notebooks.](../get_started/fast_track_grass_and_python.qmd)
+:::
+
+# Noções básicas de Sensoriamento Remoto
+
+## Diversas formas de Sensoriamento Remoto
+
+Existem muitas formas de sensoriamento remoto. Este tutorial se concentrará em plataformas de sensoriamento remoto baseadas no espaço.  
+
+:::::: grid
+::: g-col-4
+![Plataformas espaciais (NASA 2015)](img_remotesensing/remotesensing_3.webp){width="100%"}
+:::
+
+::: g-col-4
+![Fotografia aérea e LiDAR](img_remotesensing/remotesensing_2.webp){width="100%"}
+:::
+
+::: g-col-4
+![Levantamento geofísico (© Michael Barton 2025)](img_remotesensing/remotesensing_1.webp){width="100%"}
+:::
+::::::
+
+## Plataformas espaciais
+
+::::: grid
+::: g-col-5
+-   Esses satélites possuem sensores para capturar a reflectância da **radiação** **eletromagnética (REM)** solar que atinge a Terra – incluindo a EM que vemos como luz visível.  
+
+-   Diferentes materiais absorvem, emitem e refletem a radiação REM em diferentes frequências.  
+
+-   Sensores espaciais capturam imagens em múltiplas frequências eletromagnéticas em diferentes "**bandas**" ou "**canais**" para permitir a identificação de diferentes materiais ou características.  
+
+-   As imagens das bandas dos sensores, em formato raster, podem ser combinadas matematicamente de diferentes maneiras para permitir a visualização ou identificação de características ou materiais.  
+:::
+
+::: g-col-7
+![Reflectância REM de diferentes materiais. *Imagem baseada em SEOS, Science Education through Earth Observation for High Schools* (SEOS), CC BY-NC-SA 2.0.](img_remotesensing/remotesensing_4.webp)
+
+![Bandas de imagem de diferentes plataformas espaciais e frequências REM que atingem a superfície da Terra. *Imagem de L. Rocchio e J. Barsi, NASA*](img_remotesensing/remotesensing_5.webp)
+:::
+:::::
+
+# Visualização de imagens de sensoriamento remoto multibanda no GRASS
+
+O GRASS possui diversas ferramentas para combinar e analisar imagens de banda única e multibanda. Neste tutorial, exploraremos algumas dessas ferramentas analíticas usando imagens da região de Flagstaff obtidas pelo satélite **Landsat 8**.  
+
+![*Imagem Landsat 8 por Robert Simmon, USGS e NASA 2013*](img_remotesensing/remotesensing_6.webp){width="80%"}
+
+## Bandas do Landsat para análise
+
+As seguintes bandas do Landsat 8 são fornecidas com o conjunto de dados Flagstaff:  
+
+-   *landsat8_2024_B1* : azul visível de alta frequência para nuvens cirrus  
+
+-   *landsat8_2024_B2* : azul visível  
+
+-   *landsat8_2024_B3* : verde visível  
+
+-   *landsat8_2024_B4* : vermelho visível  
+
+-   *landsat8_2024_B5* : infravermelho próximo  
+
+-   *landsat8_2024_B6* : infravermelho médio (frequência mais alta)  
+
+-   *landsat8_2024_B7* : infravermelho médio (frequência mais baixa)  
+
+Neste tutorial, usaremos as bandas 2 a 7 do Landsat 8.  
+
+## Visualize as bandas individuais do Landsat
+
+::::: grid
+::: g-col-6
+-   Carregue as **bandas 2 a 7** no gerenciador de camadas, mas não a banda (*landsat8_2024_B1*).  
+
+-   Observe como cada uma das imagens é escura.  
+
+-   Isso ocorre porque, embora cada célula possa ter um de 65.536 valores, quase todos estão dentro de uma faixa muito estreita.  
+
+![Histograma do número de pixels para cada valor possível](img_remotesensing/landsat_b5_histogram_pt.webp)
+:::
+
+::: g-col-6
+![Landsat banda 5](img_remotesensing/remotesensing_9.webp)
+:::
+:::::
+
+## Equalização de Histograma
+
+A gama de tons de cinza pode ser remapeada entre os valores das células, de forma a abranger todo o espectro entre o preto e o branco. Isso pode ser feito no pacote [r.colors](https://grass.osgeo.org/grass-stable/manuals/r.colors.html) "equalizando" o histograma de cores das células.  
+
+![Distribuição dos valores dos pixels após a equalização do histograma](img_remotesensing/landsat_b5eq_histogram_pt.webp){width="683"}
+
+### Equalização de histogramas no GRASS
+
+Usar [r.colors](https://grass.osgeo.org/grass-stable/manuals/r.colors.html) para equalização de histograma melhorará a visibilidade da imagem, mas não alterará os valores de suas células.  
+
+:::::::::: {.panel-tabset group="language"}
+#### GUI
+
+::::: grid
+::: g-col-6
+1.  Selecione *r.colors* no menu **Raster/Manage colors** *(Gerenciar Cores)*  
+
+2.  Insira uma imagem Landsat na caixa de texto **Name of the raster map(s)**  
+:::
+
+::: g-col-6
+![](img_remotesensing/remotesensing_15.webp)
+:::
+:::::
+
+::::: grid
+::: g-col-6
+3.  Selecione o campo **histogram equalization** (*equalização do histograma)*  
+
+4.  Selecione *cinza (grey)* na caixa de texto **Name of color table**  
+
+5.  Clique em **Run** *(Executar)*  
+
+6.  Faça o mesmo para cada uma das bandas do Landsat.  
+:::
+
+::: g-col-6
+![](img_remotesensing/remotesensing_14.webp)
+:::
+:::::
+
+#### Linha de comando
+
+```{bash}
+r.colors -e map=landsat8_2024_B2 color=grey
+r.colors -e map=landsat8_2024_B3 color=grey
+r.colors -e map=landsat8_2024_B4 color=grey
+r.colors -e map=landsat8_2024_B5 color=grey
+r.colors -e map=landsat8_2024_B6 color=grey
+r.colors -e map=landsat8_2024_B7 color=grey
+```
+
+#### Python
+
+```{bash}
+gs.run_command("r.colors",
+               map=landsat8_2024_B2,
+               color=grey,
+               flags="e")
+gs.run_command("r.colors",
+               map=landsat8_2024_B3,
+               color=grey,
+               flags="e")
+gs.run_command("r.colors",
+               map=landsat8_2024_B4,
+               color=grey,
+               flags="e")
+gs.run_command("r.colors",
+               map=landsat8_2024_B5,
+               color=grey,
+               flags="e")
+gs.run_command("r.colors",
+               map=landsat8_2024_B6,
+               color=grey,
+               flags="e")
+gs.run_command("r.colors",
+               map=landsat8_2024_B7,
+               color=grey,
+               flags="e")
+               
+```
+::::::::::
+
+Todos os exemplos descritos no restante deste tutorial foram feitos com imagens com histograma esticado.  
+
+::: {.callout-note title="Dica"}
+Faça o histograma de cada imagem **separadamente**, em vez de processá-las todas juntas como um grupo, porque cada imagem tem uma distribuição diferente de valores de pixel/célula para ajustar.  
+:::
+
+------------------------------------------------------------------------
+
+![Banda 5 do Landsat após equalização de histograma](img_remotesensing/remotesensing_13.webp){width="80%"}
+
+# Fusão de Imagens
+
+## Fusão de imagens coloridas das bandas do Landsat
+
+Cada imagem Landsat possui valores de célula que representam a intensidade de reflectância em uma faixa específica de frequências eletromagnéticas (ou seja, múltiplas bandas da imagem). Quando visualizada como um raster, uma única banda Landsat aparece como um mapa variável de cor única (por exemplo, em tons de cinza).  
+
+A **fusão de imagens** refere-se a métodos de combinar múltiplas bandas para visualizá-las como uma imagem colorida completa. De forma simplificada, isso envolve definir três bandas de imagem como os canais vermelho, verde e azul de uma **imagem RGB** **multicolorida** (RBG = red/vermelho, green/verde e blue/azul). A visualização de cores resultante exibe áreas com combinações semelhantes de refletância nas três bandas selecionadas (por exemplo, vegetação, água ou rodovias) com a mesma cor e diferenciá-las de áreas com diferentes combinações de refletância.  
+
+Isso pode ser feito facilmente no GRASS usando a ferramenta [d.rgb](https://grass.osgeo.org/grass-stable/manuals/d.rgb.html) no gerenciador de camadas.  
+
+## Fusão de imagens no gerenciador de camadas {#image-fusion-layermgr}
+
+::::: grid
+::: g-col-6
+1.  Selecione **Add RGB map layer** na ferramenta **Add various raster layers**  
+:::
+
+::: g-col-6
+![](img_remotesensing/remotesensing_17.webp)
+:::
+:::::
+
+::::: grid
+::: g-col-6
+2.  Selecione as bandas do Landsat para definir os canais vermelho, verde e azul de uma imagem multicolorida  
+
+3.  Para uma fusão de imagens em "cores naturais", experimente:  
+
+    -   Banda 4 (EM vermelho visível) em vermelho/red  
+    -   Banda 3 (EM verde visível) em verde/green  
+    -   Banda 2 (EM azul visível) em azul/blue  
+:::
+
+::: g-col-6
+![](img_remotesensing/remotesensing_19.webp)
+
+![](img_remotesensing/remotesensing_16.webp)
+:::
+:::::
+
+![Imagem em cores naturais resultante da fusão das bandas 4, 3 e 2 do Landsat](img_remotesensing/remotesensing_20.webp){width="80%"}
+
+## Fusão de imagens: outras combinações de bandas
+
+Experimente outras combinações para destacar diferentes características.  
+
+::::: grid
+::: g-col-6
+-   O uso das bandas 5, 4 e 3 destaca a clorofila (vegetação) em vermelho  
+:::
+
+::: g-col-6
+![Imagem RGB das bandas 5, 4 e 2](img_remotesensing/remotesensing_21.webp)
+:::
+:::::
+
+::::: grid
+::: g-col-6
+-   A fusão de imagens com as bandas 6, 5 e 3 utiliza a radiação eletromagnética infravermelha para destacar diferentes tipos de cobertura e uso do solo de forma diferenciada.  
+:::
+
+::: g-col-6
+![Imagem RGB das bandas 6, 5 e 2](img_remotesensing/remotesensing_22.webp)
+:::
+:::::
+
+# Índices ambientais
+
+## Informações ambientais obtidas a partir de combinações matemáticas de bandas de sensoriamento remoto
+
+Como diferentes materiais — incluindo diferentes tipos de vegetação, solos e água — refletem, absorvem e emitem radiação eletromagnética em diferentes frequências, muitos tipos de informações ambientais podem ser obtidos com diferentes combinações de bandas.  
+
+O GRASS pode gerar um grande número de índices ambientais com seu extenso conjunto de ferramentas de imagens (consulte o menu **Imagens**), bem como com a calculadora de mapas raster. Ferramentas adicionais para produtos de imagens de sensoriamento remoto estão disponíveis como extensões complementares do GRASS.  
+
+Um índice ambiental comumente usado é o **NDVI**: o índice de vegetação por diferença normalizada. O NDVI é um índice de crescimento e saúde das plantas. Ele é calculado a partir de bandas que detectam a luz vermelha próxima (NIR) e visível.  
+
+$$
+NDVI = \frac{NIR - vermelho}{NIR + vermelho}
+$$
+
+Embora seja possível criar um mapa de NDVI usando a *calculadora de mapas (map calculator)*, ele também pode ser gerado automaticamente pelo módulo GRASS [i.vi](https://grass.osgeo.org/grass-stable/manuals/i.vi.html), juntamente com muitos outros índices de vegetação.  
+
+::: {.callout-note title="Dica"}
+Ao gerar qualquer novo mapa, como o NDVI, lembre-se primeiro de garantir que a **região** esteja configurada para corresponder às imagens Landsat.  
+:::
+
+### Exemplo de NDVI: índice de vegetação por diferença normalizada
+
+::::::::: {.panel-tabset group="language"}
+#### GUI
+
+**Defina a região para corresponder às imagens Landsat**
+
+1.  Adicione um dos raster de imagens LandSat no menu **Layer Manager** *(Gerenciador de Camadas)*  
+
+2.  Clique com o botão direito do mouse na imagem LandSat no Layer Manager *(Gerenciador de Camadas)*  
+
+3.  Selecione **Set computational region from selected map** *(Definir região computacional no mapa selecionado)*  
+
+::::: grid
+::: g-col-6
+**Calcular raster NDVI**
+
+1.  Selecione a ferramenta [i.vi](https://grass.osgeo.org/grass-stable/manuals/i.vi.html) no menu **Imagery/Satellite image products/vegetation indices** *(Imagens/Produtos de imagem de satélite/índices de vegetação).*  
+
+2.  Selecione **NDVI** como índice a ser calculado.  
+
+3.  Digite o nome do **output map** *(mapa raster de saída)* que será criado.  
+:::
+
+::: g-col-6
+![](img_remotesensing/remotesensing_23.webp)
+:::
+:::::
+
+::::: grid
+::: g-col-6
+4.  Selecione a banda 4 para acessar o **red channel** *(canal vermelho).*  
+
+5.  Selecione a banda 5 para acessar o **NIR (near infrared) channel** *(infravermelho próximo).*  
+:::
+
+::: g-col-6
+![](img_remotesensing/remotesensing_24.webp)
+:::
+:::::
+
+#### Linha de comando
+
+1.  Defina a região para corresponder às imagens do Landsat.  
+
+2.  Utilize a ferramenta [i.vi](https://grass.osgeo.org/grass-stable/manuals/i.vi.html) para criar um mapa de valores NDVI.  
+
+```{bash}
+g.region raster=landsat8_2024_B2
+
+i.vi output=Flagstaff_NDVI viname=ndvi red=landsat8_2024_B4 nir=landsat8_2024_B5
+```
+
+#### Python
+
+1.  Defina a região para corresponder às imagens do Landsat.  
+
+2.  Utilize a ferramenta [i.vi](https://grass.osgeo.org/grass-stable/manuals/i.vi.html) para criar um mapa de valores NDVI.  
+
+```{bash}
+gs.run_command("g.region", raster="landsat8_2024_B2")
+
+gs.run_command("i.vi", 
+                output=Flagstaff_NDVI, 
+                viname=ndvi, 
+                red=landsat8_2024_B4, 
+                nir=landsat8_2024_B5
+  )
+```
+:::::::::
+
+![Mapa NDVI sombreando um mapa de relevo da topografia DEM.](img_remotesensing/remotesensing_25.webp){width="80%"}
+
+# Combinando informações de várias faixas de imagens
+
+Podemos visualizar 3 bandas por vez com uma imagem colorida RGB. Mas como podemos usar informações de todas as 6 bandas do Landsat simultaneamente? Isso requer o uso de estatística multivariada para "redução de dimensionalidade". O GRASS possui diversas ferramentas analíticas para redução de dimensionalidade.  
+
+Aqui, exploraremos a **análise de componentes principais (PCA)**. A PCA combina matematicamente as variáveis ​​originais (as bandas do Landsat) para criar novas variáveis ​​"componentes" que capturam a maior parte da variação nas bandas originais do Landsat.  
+
+## Análise de componentes principais (PCA) de imagens multibanda com GRASS
+
+:::::: {.panel-tabset group="language"}
+#### GUI
+
+::::: grid
+::: g-col-6
+1.  Abra o módulo de análise de componentes principais (PCA), [*i.pca*](https://grass.osgeo.org/grass-stable/manuals/i.pca.html), no menu **Imagery/Transform images**
+*(Imagens/Transformar imagens).*  
+
+2.  Selecione os **nomes das imagens para as bandas 2 a 7 do Landsat.**  
+
+3.  Forneça um nome para **output basename**. Um número, representando os mapas de componentes PCA calculados, será anexado a esse nome base de saída.  
+
+4.  Existem outras opções, mas a padrão está boa por enquanto.  
+
+5.  Clique em **Run** *(Executar).*  
+:::
+
+::: g-col-6
+![](img_remotesensing/remotesensing_26.webp)
+:::
+:::::
+
+#### Linha de comando
+
+Realize uma PCA e exiba os resultados no console/terminal e como mapas de componentes da PCA.  
+
+```{bash}
+i.pca input=landsat8_2024_B2,landsat8_2024_B3,landsat8_2024_B4, landsat8_2024_B5,landsat8_2024_B6,landsat8_2024_B7 output=Flagstaff_landsat8
+```
+
+#### Python
+
+Realize uma PCA e exiba os resultados no console/terminal e como mapas de componentes da PCA.  
+
+```{bash}
+gs.run_command("i.pca", 
+                input="landsat8_2024_B2,landsat8_2024_B3,landsat8_2024_B4, landsat8_2024_B5,landsat8_2024_B6,landsat8_2024_B7", 
+                output=Flagstaff_landsat8)
+```
+::::::
+
+### Trabalhando com resultados da PCA
+
+Os detalhes estatísticos da saída da PCA aparecem no console ou terminal, conforme mostrado abaixo. Cada linha da saída representa um componente da PCA.  
+
+A lista de valores entre parênteses é o *autovetor* de cada componente da PCA, com os 6 valores indicando a contribuição de cada uma das imagens Landsat 2 a 7 para o componente. Números positivos ou negativos maiores indicam maiores contribuições de uma banda para o componente. Por exemplo, a banda 4 do Landsat tem a maior contribuição para o componente 1 da PCA, enquanto a banda 6 tem a maior contribuição para o componente 2.  
+
+A porcentagem entre colchetes representa a quantidade de variação nas bandas originais do Landsat 2 a 7 que é capturada por esse componente da PCA. Por exemplo, o componente 1 da PCA captura 58% da variação nas 6 bandas originais e o componente 2 da PCA captura 35% da variação.  
+
+```         
+Eigen values (vectors) [% importance]
+
+PC1 14640530.56 ( 0.4461, 0.4915, 0.5480, 0.4167, 0.1994, 0.2136) [58.03%]
+PC2 8850161.06 ( 0.2240, 0.1951, 0.1050, 0.0543,-0.7001,-0.6385) [35.08%]
+PC3 1502032.84 ( 0.2335, 0.1528, 0.2947,-0.8794,-0.1102, 0.2231) [ 5.95%]
+PC4 108422.28 ( 0.4370,-0.8041, 0.3529, 0.0416, 0.1120,-0.1536) [ 0.43%]
+PC5 94291.01 ( 0.4417, 0.2122,-0.4285,-0.1814, 0.5597,-0.4797) [ 0.37%]
+PC6 34241.78 ( 0.5570,-0.0735,-0.5418, 0.1242,-0.3636, 0.4931) [ 0.14%]
+```
+
+::::: grid
+::: g-col-6
+![Imagem PCA 1](img_remotesensing/PCA1.webp)
+:::
+
+::: g-col-6
+![Imagem PCA 2](img_remotesensing/PCA2.webp)
+:::
+:::::
+
+### Visualizando os resultados da PCA
+
+::::: grid
+::: g-col-6
+Para visualizar melhor a variação espacial em uma imagem de componente PCA, você pode atribuir uma tabela de cores diferente da escala de cinza padrão. Isso geralmente é chamado de "**false color image**". *(imagem em cores falsas).*  
+
+Aqui está o componente PCA 1 colorido com uma tabela de cores **bcyr** (blue/azul-cyan/ciano-yellow/amarelo-red/vermelho) com a **histogram equalization** *(equalização de histograma)* ativada.  
+
+Siga as instruções acima para equalização de histograma, mas escolha `bcyr` em vez de cinza para a tabela de cores.  
+
+Observe como as áreas com diferentes tipos de vegetação, solo e água se destacam mais claramente do que com a escala de cinza. Experimente outras tabelas de cores.  
+:::
+
+::: g-col-6
+![Imagem em falsa cor do componente 1 da PCA das bandas 2 a 7 do LandSat 8](img_remotesensing/remotesensing_27.webp){width="80%"}
+:::
+:::::
+
+### Fusão de imagens com resultados de PCA
+
+::::: grid
+::: g-col-6
+Os métodos de fusão de imagens descritos acima para múltiplas bandas do Landsat também podem ser usados ​​para os resultados de PCA.  
+
+A saída de texto da PCA mostrada acima indica que os 3 primeiros componentes da PCA capturam 97% da variação nas 6 bandas originais do Landsat (2 a 7). Isso significa que podemos visualizar quase toda a informação das 6 bandas originais do Landsat criando uma imagem colorida RGB dos componentes 1, 2 e 3 da PCA usando o [*d.rgb*](https://grass.osgeo.org/grass-stable/manuals/d.rgb.html) no gerenciador de camadas.  
+
+Follow the procedures described in the [Fusão de imagens no gerenciador de camadas](#image-fusion-layermgr) usando os componentes PCA 1 a 3.  
+
+Áreas com diferentes tipos de vegetação, água, construções urbanas e outras modificações da paisagem humana se destacam em cores distintas.  
+:::
+
+::: g-col-6
+![Fusão de imagens dos componentes 1, 2 e 3 da PCA](img_remotesensing/remotesensing_28.webp)
+:::
+:::::
+
+::::: grid
+::: g-col-6
+Às vezes, componentes menos importantes da PCA também podem ser informativos, mesmo que capturem uma pequena porcentagem da variação total nas bandas do Landsat.  
+
+Experimente a fusão de imagens RGB com os componentes 4, 5 e 6 da PCA. Como essa imagem difere de uma imagem obtida com os componentes 1, 2 e 3 da PCA?  
+:::
+
+::: g-col-6
+![Fusão de imagens dos componentes 4, 5 e 6 da PCA](img_remotesensing/PCA456.webp)
+:::
+:::::
+
+## Combinando imagens de sensoriamento remoto com outros dados de SIG
+
+No GRASS, as imagens de sensoriamento remoto são simplesmente rasters, como mapas de elevação DEM ou mapas de uso da terra. Isso significa que podemos combinar imagens de sensoriamento remoto com qualquer outro tipo de mapa disponível em seu banco de dados GIS.  
+
+Por exemplo, um mapa vetorial de rios e lagos pode ser sobreposto no Gerenciador de Camadas à fusão de imagens dos componentes PCA 1 a 3 criada anteriormente.  
+
+![Fusão de imagens dos componentes 1, 2 e 3 da PCA sobrepostos por vetores de rios e lagos](img_remotesensing/PCA123_streams_lakes.webp){width="80%"}
+
+# Visualização 3D de sensoriamento remoto e SIG
+
+A fusão de imagens também pode ser usada para adicionar cor à topografia de diversas maneiras. Isso possibilita visualizar informações de imagens de satélite ou produtos derivados, como componentes PCA, juntamente com o relevo topográfico.  
+
+A fusão de imagens com componentes PCA de imagens Landsat, combinada com o relevo de um DEM, permite representar informações em 6 bandas do espectro eletromagnético, elevação, declividade e orientação em uma única visualização de 9 dimensões.  
+
+Visualizações complexas como essas podem ser feitas facilmente no GRASS criando um novo mapa de relevo sombreado por cores no gerenciador de camadas. Isso requer apenas alguns passos.  
+
+1.  Crie um mapa de relevo topográfico a partir de um DEM.  
+
+2.  Combine bandas de satélite ou componentes PCA em um novo mapa de cores RGB.  
+
+3.  Utilize o mapa de cores RGB para sombrear o mapa de relevo em um novo mapa de relevo sombreado por cores no Layer Manager (Gerenciador de Camadas).  
+
+## Geração de um mapa de relevo topográfico
+
+É possível criar um mapa de relevo a partir do DEM de elevação usando a ferramenta [r.relief](https://grass.osgeo.org/grass-stable/manuals/r.relief.html) no menu **Raster/Terrain analysis/Compute shaded relief** *(Raster/Análise de terreno/Calcular relevo sombreado).*  
+
+:::::: {.panel-tabset group="language"}
+#### GUI
+
+::::: grid
+::: g-col-6
+1.  Abra *r.relief*.  
+
+2.  Digite *elevation* na caixa de texto **Input raster**.  
+
+3.  Digite *elevation_relief* na caixa de texto **Name for output shaded relief map**.  
+
+4.  Digite um número maior do que 1 (por exemplo, 3) no campo **Factor for exaggerating relief** isso tornará o relevo topográfico mais visível.  
+
+5.  Clique em **Run** *(Executar).*  
+:::
+
+::: g-col-6
+![](img_remotesensing/r_relief1.webp)
+
+![](img_remotesensing/r_relief2.webp)
+:::
+:::::
+
+#### Linha de comando
+
+```{bash}
+r.relief input=elevation output=elevation_relief zscale=3
+```
+
+#### Python
+
+```{bash}
+gs.run_command("r.relief", 
+                input="elevation", 
+                output="elevation_relief", 
+                zscale=3)
+```
+::::::
+
+### Geração de um mapa de cores RGB a partir da fusão de imagens
+
+Utilize a ferramenta [r.composite](https://grass.osgeo.org/grass-stable/manuals/r.composite.html) do menu de ferramentas **Raster/Manage colors/Create RGB** *(Raster/Gerenciar cores/Criar RGB)*para criar um novo mapa RGB a partir da fusão de 3 mapas de componentes PCA.  
+
+:::::: {.panel-tabset group="language"}
+#### GUI
+
+::::: grid
+::: g-col-6
+1.  Abra *r.composite*.  
+
+2.  Insira os mapas de componentes PCA de 1 a 3 nas caixas de texto **red, green e blue.**  
+
+3.  Insira Flagstaff_landsat8PCA_123_RGB como o **output RGB map**.  
+
+4.  Clique em **Run** *(Executar).*  
+:::
+
+::: g-col-6
+![](img_remotesensing/remotesensing_29.webp)
+:::
+:::::
+
+#### Linha de comando
+
+```{bash}
+r.composite red=Flagstaff_landsat8.1 green=Flagstaff_landsat8.2 blue=Flagstaff_landsat8.3 output=Flagstaff_landsat8PCA_123_RGB
+```
+
+#### Python
+
+```{bash}
+gs.run_command("r.composite", 
+                red="Flagstaff_landsat8.1", 
+                green="Flagstaff_landsat8.2", 
+                blue="Flagstaff_landsat8.3", 
+                output="Flagstaff_landsat8PCA_123_RGB")
+```
+::::::
+
+## Combinando relevo e um mapa de fusão de imagens coloridas
+
+Um mapa de relevo topográfico e um mapa de fusão de imagens RGB podem ser combinados com a ferramenta [d.shade](https://grass.osgeo.org/grass-stable/manuals/d.shade.html) no gerenciador de camadas ou usando a ferramenta [r.shade](https://grass.osgeo.org/grass-stable/manuals/r.shade.html) no menu **Raster/Terrain analysis/Apply shade to raster.**  
+
+:::::: {.panel-tabset group="language"}
+::::: grid
+::: g-col-6
+**Crie um mapa de relevo sombreado (shaded relief map) no gerenciador de camadas (layer manager)**  
+
+1.  No campo layer manager, selecione **Add shaded relief map layer** (*d.shade* ferramente) a partir do botão de menu **Add various raster map layers**.  
+
+2.  Selecione o mapa *elevation_relief* na caixa de texto **Name of shaded relief**.  
+
+3.  Selecione o raster *Flagstaff_landsat8PCA_123_RGB* na caixa de texto **Name of raster to drape over relief**.  
+
+4.  Se você definifir **Percent to brighten** (porcentagem de brilho) para 30 ou 40, criará uma exibição visualmente mais atraente.  
+:::
+
+::: g-col-6
+![](img_remotesensing/layer_manager_shaded_relief.webp)
+
+![](img_remotesensing/d_shade.webp)
+:::
+:::::
+
+**Criar um mapa raster de relevo sombreado**  
+
+1.  Abra a ferramente *r.shade* no menu **/Raster/Terrain analysis/Apply shade to raster**.  
+
+2.  Utilize as mesmas entradas acima para o layer manager (gerenciador de camadas) e forneça um nome para o mapa de saída a ser criado (por exemplo, *PCA_relief*).  
+
+#### Linha de comando
+
+```{bash}
+r.shade shade=elevation_relief color=Flagstaff_landsat8PCA_123_RGB output=PCA_relief  brighten=40
+```
+
+#### Python
+
+```{bash}
+gs.run_command("r.shade", 
+                shade="elevation_relief", 
+                color="Flagstaff_landsat8PCA_123_RGB", 
+                output="PCA_relief", 
+                brighten=40)
+```
+::::::
+
+![Mapa de relevo da topografia sombreado pela fusão RGB dos componentes 1 a 3 da PCA](img_remotesensing/PCA123_relief.webp){width="80%"}
+
+### Visualizando fusão de imagens e topografia no NVIZ
+
+Além disso, a fusão de imagens PCA pode ser usada para colorir uma visualização 3D da topografia na **visualização 3D** do GRASS usando o módulo NVIZ.  
+
+-   Comece abrindo o **DEM de elevação** no gerenciador de camadas. Certifique-se de que nenhum outro mapa, exceto o de elevação, esteja sendo exibido.  
+
+-   Selecione **3D view** no menu suspenso na parte superior da janela de exibição do mapa. Isso deverá exibir o mapa de elevação em 3D com o mesmo sombreamento visto na visualização 2D.  
+
+![Topografia DEM exibida em 3D](img_remotesensing/NVIZ_elevation.webp){width="80%"}
+
+-   Em seguida, selecione a guia **data** na janela do gerenciador de exibição 3D (pode ser mais fácil gerenciar a exibição 3D se você a destacar da barra lateral e abri-la em uma janela separada). Certifique-se de que o mapa de elevação esteja selecionado na caixa **Raster map** na parte superior da janela de dados.  
+
+-   Desça um pouco até a seção **Color** e substitua o mapa de elevação pelo mapa raster RGB da fusão de imagens PCA 1-3 *(Flagstaff landsat 8PCA_123_RGB).*  
+
+![Topografia DEM colorida pelos componentes 1 a 3 da PCA exibida em 3D](img_remotesensing/NVIZ_elevation_PCA123.webp){width="80%"}
+
+# Sensoriamento remoto avançado com GRASS
+
+O GRASS possui muito mais recursos e ferramentas para trabalhar com dados de sensoriamento remoto.  
+
+-   Para **satellite imagery** *(imagens de satélite)*, existem ferramentas no menu [Menu de imagens](https://grass.osgeo.org/grass-stable/manuals/imageryintro.html) e [Complementos GRASS](https://grass.osgeo.org/grass-stable/manuals/addons/) para...  
+
+    -   [Correção e calibração](https://grass.osgeo.org/grass-stable/manuals/imageryintro.html#radiometric-corrections) de imagem  
+
+    -   [Georetificação](https://grass.osgeo.org/grass-stable/manuals/imageryintro.html#geocoding-of-imagery-data) de imagem  
+
+    -   Algoritmos de aprendizado de máquina para [classificação de imagens supervisionada e não supervisionada](https://grass.osgeo.org/grass-stable/manuals/imageryintro.html#image-classification) e [detecção de características](https://grass.osgeo.org/grass-stable/manuals/addons/r.learn.ml2.html)  
+
+    -   [Análise estatística](https://grass.osgeo.org/grass-stable/manuals/rasterintro.html#raster-map-statistics) e visualização, conforme demonstrado neste tutorial  
+
+-   As **séries temporais** *(time series)* de satélite podem ser transformadas em **cubos temporais** *(time cubes)* para análise com as ferramentas exclusivas de SIG Temporal do GRASS.  
+
+-   Para **fotografia aérea**, existem ferramentas para...  
+
+    -   [Georetificação](https://grass.osgeo.org/grass-stable/manuals/imageryintro.html#geocoding-of-imagery-data)  
+
+    -   Retificação 3D e correção da distorção de digitalização em [ortofotografia](https://grass.osgeo.org/grass-stable/manuals/i.ortho.photo.html)  
+
+    -   Aprimoramento de imagem, incluindo filtros de [vizinhança](https://grass.osgeo.org/grass-stable/manuals/r.neighbors.html), [convolução](https://grass.osgeo.org/grass-stable/manuals/r.mfilter.html), [detecção de bordas](https://grass.osgeo.org/grass-stable/manuals/i.zc.html), e [transformada rápida de Fourier](https://grass.osgeo.org/grass-stable/manuals/i.fft.html)  
+
+-   O GRASS possui um conjunto abrangente de ferramentas raster e vetoriais para processamento e visualização de [dados LiDAR](https://grass.osgeo.org/grass-stable/manuals/vectorintro.html#lidar-data-processing), bem como para importação e processamento de dados LiDAR raster e vetoriais.  
+
+-   Existem diversos métodos para [interpolação](https://grass.osgeo.org/grass-stable/manuals/rasterintro.html#raster-map-operations) de pontos de dados provenientes de **levantamentos geofísicos**.  
+
+-   Para **geofísica 3D** (por exemplo, tomografia elétrica ou radar de penetração no solo), o GRASS oferece um conjunto exclusivo de [ferramentas de análise de voxels 3D](https://grass.osgeo.org/grass-stable/manuals/raster3dintro.html) com visualização n-dimensional no [NVIZ](https://grass.osgeo.org/grass-stable/manuals/wxGUI.nviz.html).  
+
+Essas e outras ferramentas fazem do GRASS um ambiente de geoprocessamento rico e poderoso para diversas aplicações de sensoriamento remoto.  

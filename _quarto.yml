@@ -53,8 +53,7 @@ website:
         aria-label: GRASS on YouTube
 
 
-  margin-header	: |
-    [{{< fa heart >}} Support GRASS]({{< var grass.support >}}){.btn .btn-outline-support .btn role="button" align="center"}
+margin-header: '[{{< fa heart >}} Support GRASS]({{< var grass.support >}}){.btn .btn-outline-support .btn role="button" align="center"}'
 
 execute:
   freeze: false
