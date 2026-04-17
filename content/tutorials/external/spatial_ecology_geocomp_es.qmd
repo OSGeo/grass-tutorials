@@ -1,5 +1,5 @@
 ---
-title: "Spatial Ecology - Geocomputación con GRASS"
+title: "Ecología Espacial - Geocomputación con GRASS"
 lang: es
 author: "Giuseppe Amatulli"
 date: 12/19/2024
@@ -10,7 +10,7 @@ format:
     code-copy: true
     code-fold: false
 categories: [advanced, Bash, HPC, hydrology, external, course, Spanish]
-description: Curso de geocomputación con GRASS en español, incluyendo introducción, hidrología y machine learning.
+description: Curso de geocomputación con GRASS en español, incluyendo introducción, hidrología y aprendizaje automático.
 execute:
   eval: false
 ---
@@ -19,7 +19,7 @@ execute:
 
 # Geocomputación para aplicaciones ambientales: uso de GDAL y GRASS
 
-Curso online de 5 semanas con explicaciones en español y material en inglés. El curso incluye tres bloques dedicados a GRASS que cubren introducción, hidrología y machine learning.
+Curso online de 5 semanas con explicaciones en español y material en inglés. El curso incluye tres bloques dedicados a GRASS que cubren introducción, hidrología y aprendizaje automático.
 
 Programa del curso: <https://spatial-ecology.net/docs/build/html/COURSESAROUNDTHEWORLD/course_geocomp_11-12_2024.html>
 
