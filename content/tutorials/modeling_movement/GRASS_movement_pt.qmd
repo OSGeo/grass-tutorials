@@ -356,7 +356,7 @@ Para criar um LCP no GRASS, usaremos [r.path](https://grass.osgeo.org/grass-stab
 :::
 
 ::: g-col-6
-2.  Insira as **coordenadas do caminhante** *(starting point)* como ponto de partida para o LCP. (Também podemos usar um ponto vetorial predefinido).  
+2.  Insira as **coordenadas do caminhante** *(starting point)* (477476,3914951) como ponto de partida para o LCP. (Também podemos usar um ponto vetorial predefinido).  
 
 ![](img_movement/GRASS_movement_18.webp)  
 :::

@@ -366,7 +366,7 @@ To create a LCP in GRASS, we will use [r.path](https://grass.osgeo.org/grass-sta
 :::
 
 ::: g-col-6
-2.  Input the **coordinates of the hiker** as the starting point for the LCP. (We could also use a pre-defined vector point).  
+2.  Input the **coordinates of the hiker** (477476,3914951) as the starting point for the LCP. (We could also use a pre-defined vector point).  
 
 ![](img_movement/GRASS_movement_18.webp)  
 :::
@@ -383,7 +383,7 @@ To create a LCP in GRASS, we will use [r.path](https://grass.osgeo.org/grass-sta
 #### Command line
 
 ```{bash}
-r.path input=FMC_directions format=auto vector_path=LCP_cumulative start_coordinates=477476,13914951
+r.path input=FMC_directions format=auto vector_path=LCP_cumulative start_coordinates=477476,3914951
 ```
 
 #### Python
@@ -393,7 +393,7 @@ gs.run_command("r.path",
                input="FMC_directions",
                format="auto",
                vector_path="LCP_cumulative",
-               start_coordinates=[477476, 13914951])
+               start_coordinates=[477476, 3914951])
 ```
 ::::::::
 
