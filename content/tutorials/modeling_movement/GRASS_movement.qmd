@@ -550,7 +550,7 @@ We can create a new LCP from the stranded hiker to FMC over terrain where land c
 #### Command line
 
 ```{bash}
-r.path input=FMC_vegcost_directions format=auto vector_path=LCP_vegcost start_coordinates=477476,13914951
+r.path input=FMC_vegcost_directions format=auto vector_path=LCP_vegcost start_coordinates=477476,3914951
 ```
 
 #### Python
@@ -560,7 +560,7 @@ gs.run_command("r.path",
                input="FMC_vegcost_directions",
                format="auto",
                vector_path="LCP_vegcost",
-               start_coordinates=[477476, 13914951])
+               start_coordinates=[477476, 3914951])
 ```
 :::
 

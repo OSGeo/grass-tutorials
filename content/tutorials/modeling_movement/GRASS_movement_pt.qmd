@@ -373,7 +373,7 @@ Para criar um LCP no GRASS, usaremos [r.path](https://grass.osgeo.org/grass-stab
 #### Linha de comando
 
 ```{bash}
-r.path input=FMC_directions format=auto vector_path=LCP_cumulative start_coordinates=477476,13914951
+r.path input=FMC_directions format=auto vector_path=LCP_cumulative start_coordinates=477476,3914951
 ```
 
 #### Python
@@ -383,7 +383,7 @@ gs.run_command("r.path",
                input="FMC_directions",
                format="auto",
                vector_path="LCP_cumulative",
-               start_coordinates=[477476, 13914951])
+               start_coordinates=[477476, 3914951])
 ```
 ::::::::
 
@@ -537,7 +537,7 @@ Podemos criar um novo LCP do caminhante encalhado para o FMC em terrenos onde a 
 #### Linha de comando
 
 ```{bash}
-r.path input=FMC_vegcost_directions format=auto vector_path=LCP_vegcost start_coordinates=477476,13914951
+r.path input=FMC_vegcost_directions format=auto vector_path=LCP_vegcost start_coordinates=477476,3914951
 ```
 
 #### Python
@@ -547,7 +547,7 @@ gs.run_command("r.path",
                input="FMC_vegcost_directions",
                format="auto",
                vector_path="LCP_vegcost",
-               start_coordinates=[477476, 13914951])
+               start_coordinates=[477476, 3914951])
 ```
 :::
 
