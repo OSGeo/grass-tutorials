@@ -20,7 +20,7 @@ execute:
   eval: false
 copyright: 
   holder: Michael Barton & Anna Petrasova
-  year: 2025
+  year: 2026
 funding: "Creation of this tutorial was supported in part by US National Science Foundation grant FAIN 2303651."
 
 ---
@@ -34,7 +34,7 @@ This tutorial is designed so that you can complete it using the **GRASS GUI**, G
 :::
 
 ::: {.callout-note title="Don't know how to get started?"}
-If you are not sure how to get started with GRASS using its graphical user interface or using Python, checkout the tutorials [Get started with GRASS GUI](../get_started/fast_track.qmd) and [Get started with GRASS & Python in Jupyter Notebooks](../get_started/fast_track_grass_and_python.qmd).
+If you are not sure how to get started with GRASS using its graphical user interface or using Python, checkout the tutorials [Get started with GRASS GUI](../get_started/fast_track.qmd) and [Get started with GRASS & Python in Jupyter Notebooks](../get_started/fast_track_grass_and_python.qmd).  
 :::
 
 ## What is a cost surface?
@@ -569,4 +569,11 @@ gs.run_command("r.path",
 -   In the map below, terrain colored by land cover, the original LCP with terrain only is shown by the blue line. The LCP with a land cover friction map is shown by the heavier yellow line.  
 
 ![comparing LCP with terrain only and with land cover friction](img_movement/GRASS_movement_25.webp)  
+
+---
+
+:::{.smaller}
+*© Michael Barton and Anna Petrasova 2026*
+*The development of this tutorial was funded in part by the US [National Science Foundation (NSF)](https://www.nsf.gov/), award [2303651](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2303651).*
+:::
 

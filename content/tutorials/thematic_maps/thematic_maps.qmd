@@ -1,7 +1,7 @@
 ---
 title: "Making Thematic Maps"
 author: "Michael Barton"
-date: 2025-12-19
+date: 2025-06-25
 date-modified: today
 lightbox: true
 engine: knitr
@@ -20,7 +20,7 @@ execute:
   eval: false
 copyright: 
   holder: Michael Barton
-  year: 2025
+  year: 2026
 funding: "Creation of this tutorial was supported in part by US National Science Foundation grant FAIN 2303651."
 ---
 
@@ -1459,7 +1459,7 @@ Besides the approaches presented here, there are other ways of creating thematic
 ---
 
 :::{.smaller}
-*The development of this tutorial was funded in part by the US
-[National Science Foundation (NSF)](https://www.nsf.gov/),
-award [2303651](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2303651).*
+*© Michael Barton 2026*
+*The development of this tutorial was funded in part by the US [National Science Foundation (NSF)](https://www.nsf.gov/), award [2303651](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2303651).*
 :::
+

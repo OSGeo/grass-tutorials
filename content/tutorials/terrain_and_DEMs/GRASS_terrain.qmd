@@ -47,7 +47,7 @@ This tutorial is designed so that you can complete it using the **GRASS GUI**, G
 :::
 
 ::: {.callout-note title="Don't know how to get started?"}
-If you are not sure how to get started with GRASS using its graphical user interface or using Python, checkout the tutorials [Get started with GRASS GUI](https://grass-tutorials.osgeo.org/content/tutorials/get_started/fast_track.html) and [Get started with GRASS & Python in Jupyter Notebooks](https://grass-tutorials.osgeo.org/content/tutorials/get_started/JupyterOnWindows_OSGeo4W_Tutorial.html).
+If you are not sure how to get started with GRASS using its graphical user interface or using Python, checkout the tutorials [Get started with GRASS GUI](https://grass-tutorials.osgeo.org/content/tutorials/get_started/fast_track.html) and [Get started with GRASS & Python in Jupyter Notebooks](https://grass-tutorials.osgeo.org/content/tutorials/get_started/JupyterOnWindows_OSGeo4W_Tutorial.html).  
 :::
 
 # Terrain, DEMs, and Raster GIS  
@@ -277,7 +277,7 @@ We will start by creating a new color-shaded relief map using [r.shade](https://
 #### Command line  
 
 ```{bash}
-r.shade shade=relief color=elevation output=topography_colored_relief brighten=40
+r.shade shade=relief color=elevation output=topography_colored_relief brighten=40]
 ```
 
 #### Python
@@ -1081,4 +1081,11 @@ To display the stream network without the junction nodes, uncheck the "point" bo
 
 # Summary
 
-In this tutorial we have gone over only a few of the many tools available in GRASS to conduct terrain and watershed analysis. We used the Flagstaff sample dataset to complete this analysis, but you can also try this other datasets and DEM maps. You can also use the GRASS sample datasets to explore the many other tools available under the terrain analysis and [hydrology](https://grass.osgeo.org/grass-stable/manuals/topic_hydrology.html) sections. In addition to the main GRASS modules, there are also many others available as [GRASS addons](https://grass.osgeo.org/grass-stable/manuals/addons/).  
+In this tutorial we have gone over only a few of the many tools available in GRASS to conduct terrain and watershed analysis. We used the Flagstaff sample dataset to complete this analysis, but you can also try this other datasets and DEM maps. You can also use the GRASS sample datasets to explore the many other tools available under the terrain analysis and [hydrology](https://grass.osgeo.org/grass-stable/manuals/topic_hydrology.html) hydrology sections. In addition to the main GRASS modules, there are also many others available as [GRASS addons](https://grass.osgeo.org/grass-stable/manuals/addons/).  
+
+---
+
+:::{.smaller}
+*© Eunice Villaseñor Iribe and Michael Barton 2026*
+*The development of this tutorial was funded in part by the US [National Science Foundation (NSF)](https://www.nsf.gov/), award [2303651](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2303651).*
+:::

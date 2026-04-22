@@ -1,6 +1,6 @@
 ---
 title: "Modelando Movimento no GRASS"
-author: "Michael Barton, Leticia Correa, & Anna Petrasova"
+author: "Michael Barton, Letícia Correa, e Anna Petrasova"
 date: 2025-05-09
 date-modified: today
 lightbox: true
@@ -19,8 +19,8 @@ description: Gerando uma superfície de custo cumulativo e um caminho de menor c
 execute: 
   eval: false
 copyright: 
-  holder: Michael Barton, Leticia Correa, & Anna Petrasova
-  year: 2025
+  holder: Michael Barton, Leticia Correa, e Anna Petrasova
+  year: 2026
 funding: "A criação deste tutorial foi parcialmente apoiada pela bolsa FAIN 2303651 da Fundação Nacional de Ciências dos EUA."
 ---
 
@@ -556,3 +556,10 @@ gs.run_command("r.path",
 -   No mapa abaixo, o terreno colorido pela cobertura do solo; o LCP original com apenas terreno é mostrado pela linha azul. O LCP com um mapa de atrito de cobertura do solo é mostrado pela linha amarela mais grossa.  
 
 ![comparando LCP apenas com terreno e com atrito de cobertura de solo](img_movement/GRASS_movement_25.webp)
+
+--
+
+::: smaller
+*© Michael Barton, Letícia Correa, e Anna Petrasova 2026*
+*O desenvolvimento desse tutorial foi financiado parcialmente pela [National Science Foundation (NSF)](https://www.nsf.gov/), projeto [2303651](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2303651).*
+:::

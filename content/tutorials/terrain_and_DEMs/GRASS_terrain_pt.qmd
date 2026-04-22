@@ -20,7 +20,7 @@ execute:
   eval: false
 copyright: 
   holder: Eunice Villaseñor Iribe, Michael Barton, & Leticia Correa
-  year: 2025
+  year: 2026
 funding: "A criação deste tutorial foi parcialmente apoiada pela bolsa FAIN 2303651 da Fundação Nacional de Ciências dos EUA."
 ---
 
@@ -1044,3 +1044,10 @@ Para exibir a rede de fluxo sem os nós de junção, desmarque a caixa "ponto" (
 # Resumo
 
 Neste tutorial, abordamos apenas algumas das muitas ferramentas disponíveis no GRASS para realizar análises de terrenos e bacias hidrográficas. Utilizamos o conjunto de dados de exemplo Flagstaff para realizar esta análise, mas você também pode experimentar outros conjuntos de dados e mapas MDE. Você também pode usar os conjuntos de dados de exemplo do GRASS para explorar as muitas outras ferramentas disponíveis nas seções de análise de terrenos e [hidrologia](https://grass.osgeo.org/grass-stable/manuals/topic_hydrology.html) . Além dos módulos principais do GRASS, há muitos outros disponíveis como c[GRASS complementos](https://grass.osgeo.org/grass-stable/manuals/addons/).
+
+---
+
+::: smaller
+*© Eunice Villaseñor Iribe, Michael Barton, e Letícia Correa 2026*
+*O desenvolvimento desse tutorial foi financiado parcialmente pela [National Science Foundation (NSF)](https://www.nsf.gov/), projeto [2303651](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2303651).*
+:::

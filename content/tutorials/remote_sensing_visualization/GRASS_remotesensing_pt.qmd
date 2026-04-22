@@ -1,7 +1,7 @@
 ---
 title: "Introdução ao Sensoriamento Remoto com GRASS"
-author: "Michael Barton & Leticia Correa"
-date: 2026-01-07
+author: "Michael Barton e Letícia Correa"
+date: 2025-05-21
 date-modified: today
 image: img_remotesensing/thumbnail.webp
 lightbox: true
@@ -14,15 +14,16 @@ format:
     code-copy: true
     code-fold: false
 page-layout: article
-categories: [beginner, GUI, imagery, remote sensing, visualization, Português]
+categories: [beginner, GUI, imagery, remote sensing, visualization]
 description: Análise e visualização de imagens de satélite multiespectrais utilizando fusão de imagens, índices ambientais e redução de dimensionalidade com análise de componentes principais.
 execute: 
   eval: false
 copyright: 
-  holder: Michael Barton and Leticia Correa
-  year: 2025
+  holder: Michael Barton
+  year: 2026
 funding: "A criação deste tutorial foi parcialmente financiada pela bolsa FAIN 2303651 da Fundação Nacional de Ciência dos EUA."
 
+# © Michael Barton 2025
 ---
 
 ::::: grid
@@ -717,3 +718,12 @@ O GRASS possui muito mais recursos e ferramentas para trabalhar com dados de sen
 -   Para **geofísica 3D** (por exemplo, tomografia elétrica ou radar de penetração no solo), o GRASS oferece um conjunto exclusivo de [ferramentas de análise de voxels 3D](https://grass.osgeo.org/grass-stable/manuals/raster3dintro.html) com visualização n-dimensional no [NVIZ](https://grass.osgeo.org/grass-stable/manuals/wxGUI.nviz.html).  
 
 Essas e outras ferramentas fazem do GRASS um ambiente de geoprocessamento rico e poderoso para diversas aplicações de sensoriamento remoto.  
+
+---
+
+---
+
+::: smaller
+*© Michael Barton e Letícia Correa 2026*
+*O desenvolvimento desse tutorial foi financiado parcialmente pela [National Science Foundation (NSF)](https://www.nsf.gov/), projeto [2303651](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2303651).*
+:::
