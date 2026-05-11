@@ -40,7 +40,7 @@ Here are the available tutorials, ordered to guide you from basic to more advanc
 5. **[Temporal gap-filling](./time_series_gap_filling.qmd)**  
    Fill missing values using temporal interpolation and smoothing techniques.
 
-6. **[Temporal query with vector data](./time_series_query_with_vector.qmd_)**  
+6. **[Temporal query with vector data](./time_series_query_with_vector.qmd)**  
    Extract time series values at specific vector locations (e.g., points or polygons).
 
 7. **[Temporal subset, import and export](./time_series_extraction.qmd)**  
