@@ -565,6 +565,6 @@ gs.run_command("r.path",
 
 :::{.smaller}
 *© Michael Barton, Anna Petrasova, y Eunice Villaseñor Iribe*
-*El desarrollo de este tutorial fue financiado en parte por la Fundación Nacional de Ciencias de EE. UU. (NSF) (https://www.nsf.gov/), premio [2303651] (https://www.nsf.gov/awardsearch/showAward?AWD_ID=2303651)*
+*El desarrollo de este tutorial fue financiado en parte por la Fundación Nacional de Ciencias de EE. UU. [NSF](https://www.nsf.gov/), premio [2303651](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2303651)*
 :::
 
