@@ -277,7 +277,7 @@ We will start by creating a new color-shaded relief map using [r.shade](https://
 #### Command line  
 
 ```{bash}
-r.shade shade=relief color=elevation output=topography_colored_relief brighten=40]
+r.shade shade=relief color=elevation output=topography_colored_relief brighten=40
 ```
 
 #### Python

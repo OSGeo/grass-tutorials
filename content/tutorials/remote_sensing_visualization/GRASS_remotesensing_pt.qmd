@@ -192,7 +192,7 @@ r.colors -e map=landsat8_2024_B7 color=grey
 
 #### Python
 
-```{bash}
+```{python}
 gs.run_command("r.colors",
                map=landsat8_2024_B2,
                color=grey,
@@ -376,7 +376,7 @@ i.vi output=Flagstaff_NDVI viname=ndvi red=landsat8_2024_B4 nir=landsat8_2024_B5
 
 2.  Utilize a ferramenta [i.vi](https://grass.osgeo.org/grass-stable/manuals/i.vi.html) para criar um mapa de valores NDVI.  
 
-```{bash}
+```{python}
 gs.run_command("g.region", raster="landsat8_2024_B2")
 
 gs.run_command("i.vi", 
@@ -432,7 +432,7 @@ i.pca input=landsat8_2024_B2,landsat8_2024_B3,landsat8_2024_B4, landsat8_2024_B5
 
 Realize uma PCA e exiba os resultados no console/terminal e como mapas de componentes da PCA.  
 
-```{bash}
+```{python}
 gs.run_command("i.pca", 
                 input="landsat8_2024_B2,landsat8_2024_B3,landsat8_2024_B4, landsat8_2024_B5,landsat8_2024_B6,landsat8_2024_B7", 
                 output=Flagstaff_landsat8)
@@ -573,7 +573,7 @@ r.relief input=elevation output=elevation_relief zscale=3
 
 #### Python
 
-```{bash}
+```{python}
 gs.run_command("r.relief", 
                 input="elevation", 
                 output="elevation_relief", 
@@ -612,7 +612,7 @@ r.composite red=Flagstaff_landsat8.1 green=Flagstaff_landsat8.2 blue=Flagstaff_l
 
 #### Python
 
-```{bash}
+```{python}
 gs.run_command("r.composite", 
                 red="Flagstaff_landsat8.1", 
                 green="Flagstaff_landsat8.2", 
@@ -660,7 +660,7 @@ r.shade shade=elevation_relief color=Flagstaff_landsat8PCA_123_RGB output=PCA_re
 
 #### Python
 
-```{bash}
+```{python}
 gs.run_command("r.shade", 
                 shade="elevation_relief", 
                 color="Flagstaff_landsat8PCA_123_RGB", 
@@ -718,8 +718,6 @@ O GRASS possui muito mais recursos e ferramentas para trabalhar com dados de sen
 -   Para **geofísica 3D** (por exemplo, tomografia elétrica ou radar de penetração no solo), o GRASS oferece um conjunto exclusivo de [ferramentas de análise de voxels 3D](https://grass.osgeo.org/grass-stable/manuals/raster3dintro.html) com visualização n-dimensional no [NVIZ](https://grass.osgeo.org/grass-stable/manuals/wxGUI.nviz.html).  
 
 Essas e outras ferramentas fazem do GRASS um ambiente de geoprocessamento rico e poderoso para diversas aplicações de sensoriamento remoto.  
-
----
 
 ---
 
