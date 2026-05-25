@@ -45,14 +45,14 @@ import subprocess
 
 # Ask GRASS where its Python packages are
 sys.path.append(
-    subprocess.check_output([grassbin, "--config", "python_path"], text=True).strip()
+    subprocess.check_output(["grass", "--config", "python_path"], text=True).strip()
 )
 
 # Import the GRASS packages we need
 import grass.script as gs
 import grass.jupyter as gj
 
-path_to_project = "eu_laea/italy_LST_daily"
+path_to_project = "italy_eu_laea/italy_LST_daily"
 
 # Start the GRASS session
 session = gj.init(path_to_project);

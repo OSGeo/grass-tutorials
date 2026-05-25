@@ -267,7 +267,7 @@ can create this file for you when you import data into GRASS.
 
 ::: {.callout-note}
 Have a look at the 
-<a href="https://grass.osgeo.org/grass83/manuals/t.register.html">t.register</a> 
+<a href="https://grass.osgeo.org/grass-stable/manuals/t.register.html">t.register</a> 
 manual page and a dedicated 
 [wiki](https://grasswiki.osgeo.org/wiki/Temporal_data_processing/maps_registration) 
 with further examples.
@@ -294,7 +294,7 @@ and observe topological relationships among STDS.
 
 #### Temporal plot for Trento, Italy
 
-The temporal plot tool, [`g.gui.tplot`](https://grass.osgeo.org/grass83/manuals/g.gui.tplot.html),
+The temporal plot tool, [`g.gui.tplot`](https://grass.osgeo.org/grass-stable/manuals/g.gui.tplot.html),
 allows to plot the time series values of raster or vector space-time
 datasets. In this case, we will plot the LST time series for the city of
 Trento, Italy. 
@@ -424,7 +424,7 @@ same filtering can be applied in tools to determine maps that will be processed.
 
 ### Descriptive statistics
 
-The tool [`t.rast.univar`](https://grass.osgeo.org/grass-stable/manuals/t.vect.univar.html)
+The tool [`t.rast.univar`](https://grass.osgeo.org/grass-stable/manuals/t.rast.univar.html)
 calculates univariate statistics from the non-null cells of each raster
 map within STRDS.
 By default it returns the name of the map, the start and end date of the 
