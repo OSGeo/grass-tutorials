@@ -43,11 +43,9 @@ import os
 import sys
 import subprocess
 
-grassbin = "grass"  # change if your GRASS binary has a different name or path
-
 # Ask GRASS where its Python packages are
 sys.path.append(
-    subprocess.check_output([grassbin, "--config", "python_path"], text=True).strip()
+    subprocess.check_output(["grass", "--config", "python_path"], text=True).strip()
 )
 
 # Import the GRASS packages we need
