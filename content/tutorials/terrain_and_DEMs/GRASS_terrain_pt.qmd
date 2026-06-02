@@ -14,7 +14,7 @@ format:
     code-copy: true
     code-fold: false
 page-layout: article
-categories: [beginner, intermediate, raster, DEM, visualization, terrain, slope, aspect, landforms, hydrology, streams, Português]
+categories: [beginner, intermediate, raster, DEM, visualization, terrain, slope, aspect, landforms, hydrology, streams, Portuguese]
 description: Este tutorial orienta o usuário por meio de várias maneiras de analisar e modelar terrenos a partir de mapas raster MDE.
 execute: 
   eval: false

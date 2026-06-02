@@ -3,7 +3,7 @@ title: "Procedural Noise"
 author: "Brendan Harmon"
 date: 2025-07-18
 date-modified: today
-categories: [noise, terrain, raster, map algebra, python, intermediate]
+categories: [noise, terrain, raster, map algebra, Python, intermediate]
 description: Learn how to generate procedural noise using Python scripting in GRASS.
 image: images/noise_05.webp
 bibliography: noise.bib

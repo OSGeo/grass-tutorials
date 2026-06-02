@@ -14,7 +14,7 @@ format:
     code-copy: true
     code-fold: false
 page-layout: article
-categories: [intermediate, advanced, GUI, raster, cost surface, least cost path, Português]
+categories: [intermediate, advanced, GUI, raster, cost surface, least cost path, Portuguese]
 description: Gerando uma superfície de custo cumulativo e um caminho de menor custo com *r.walk* e *r.path* para modelar o movimento ao caminhar por uma paisagem.
 execute: 
   eval: false
