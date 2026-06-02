@@ -228,7 +228,7 @@ gs.run_command("t.rast.series",
                method="average")
                
 # Display raster map with interactive class
-spw_map = gj.InteractiveMap(width = 500, use_region=True, tiles="CartoDark")
+spw_map = gj.InteractiveMap(width = 500, use_region=True, tiles="CartoDB.DarkMatter")
 spw_map.add_raster("avg_spring_warming")
 spw_map.add_layer_control(position = "bottomright")
 spw_map.show()

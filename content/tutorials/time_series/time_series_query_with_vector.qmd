@@ -306,7 +306,7 @@ need aggregated values for a set of points.
 
 :::{.callout-note}
 We could have also used
-[t.sample](https://grass.osgeo.org/grass84/manuals/t.sample.html)
+[t.sample](https://grass.osgeo.org/grass-stable/manuals/t.sample.html)
 to check which maps from `lst_daily` would be aggregated in the
 new column `lst_new` above.
 
