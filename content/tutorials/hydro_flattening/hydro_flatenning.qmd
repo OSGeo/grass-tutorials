@@ -127,7 +127,7 @@ The next step is to import the ground point data from the 6 lidar
 tiles to create a seamless mean ground elevation layer at 1m resolution.
 The data is in NC State Plane Feet, so we will be using a conversion factor of 3.28084 to convert the feet to meters for the resolution.
 
-Fortunately, the GRASS tool [r.in.pdal](https://grass.osgeo.org/grass-devel/manuals/r.in.pdal.html)
+Fortunately, the GRASS tool [r.in.pdal](https://grass.osgeo.org/grass-stable/manuals/r.in.pdal.html)
 automates several aspects of this process.
 
 ::::::::: {.panel-tabset group="language"}
@@ -349,33 +349,33 @@ These help capture gradual changes in elevation along the flow direction and ens
 We will manually add a break line to separate the lake from the river on both sides.
 
 Additionally, we will digitize a centerline representing the river and create transects in an automated way
-by using [v.transects](https://grass.osgeo.org/grass-devel/manuals/addons/v.transects.html) tool.
+by using [v.transects](https://grass.osgeo.org/grass-stable/manuals/addons/v.transects.html) tool.
 
 ### Creating centerlines
 
-1. We will start a [vector digitizer](https://grass.osgeo.org/grass-devel/manuals/wxGUI.vdigit.html)
-from the [Map Display toolbar](https://grass.osgeo.org/grass-devel/manuals/wxGUI.html#map-display-toolbar)
+1. We will start a [vector digitizer](https://grass.osgeo.org/grass-stable/manuals/wxGUI.vdigit.html)
+from the [Map Display toolbar](https://grass.osgeo.org/grass-stable/manuals/wxGUI.html#map-display-toolbar)
 (combo box at the end of the toolbar).
 
-2. When the digitizer toolbar appears, [select](https://grass.osgeo.org/grass-devel/manuals/wxGUI.vdigit.html#creating-a-new-vector-map)
+2. When the digitizer toolbar appears, [select](https://grass.osgeo.org/grass-stable/manuals/wxGUI.vdigit.html#creating-a-new-vector-map)
  _New vector map_ and type a name for it, such as _centerlines_.
 Create it and then you can close the newly opened attribute manager dialog, we won't need it.
 
 3. Now start digitizing a centerline, it doesn't have to be perfect. Select _Digitize new line_ tool
-from the [toolbar](https://grass.osgeo.org/grass-devel/manuals/wxGUI.vdigit.html#digitizer-toolbar)
+from the [toolbar](https://grass.osgeo.org/grass-stable/manuals/wxGUI.vdigit.html#digitizer-toolbar)
 and start digitizing from the edge with right click. To end line, use left click. Do it for both segments of the river.
 Quit digitizer.
 
 ![Digitized centerline](new_centerline_digitized.webp)
 
 ::: {.callout-note title="Automated centerlines"}
-For longer river segments you can use [v.centerline](https://grass.osgeo.org/grass-devel/manuals/addons/v.centerline.html)
+For longer river segments you can use [v.centerline](https://grass.osgeo.org/grass-stable/manuals/addons/v.centerline.html)
 for automated centerline generation.
 :::
 
 ### Creating river transects
 
-Install [v.transects](https://grass.osgeo.org/grass-devel/manuals/addons/v.transects.html) addon
+Install [v.transects](https://grass.osgeo.org/grass-stable/manuals/addons/v.transects.html) addon
 in the same way as we installed the r.hydro.flatten one.
 
 ::::::::: {.panel-tabset group="language"}
@@ -499,7 +499,7 @@ We don't want this area to be flat, rather we will properly interpolate it.
 
 To avoid filling areas with standard deviation higher than a certain value, we will re-run
 r.hydro.flatten with parameter **max_stddev** and then fill those values
-with [r.fillnulls](https://grass.osgeo.org/grass-devel/manuals/r.fillnulls.html).
+with [r.fillnulls](https://grass.osgeo.org/grass-stable/manuals/r.fillnulls.html).
 
 :::
 ::: g-col-6
@@ -520,7 +520,7 @@ Name the resulting layer *lake_logan_1m_filled_DEM_null_above_5_stddev*.
 
 ::: g-col-6
 
-Then find [r.fillnulls](https://grass.osgeo.org/grass-devel/manuals/r.fillnulls.html) tool
+Then find [r.fillnulls](https://grass.osgeo.org/grass-stable/manuals/r.fillnulls.html) tool
 in menu *Raster → Interpolate surfaces → Fill NULL cells*
 and call r.fillnulls with input layer *lake_logan_1m_filled_DEM*, output layer *lake_logan_1m_filled_DEM_fillnulls* and keep the rest with the default values.
 
@@ -532,7 +532,7 @@ and call r.fillnulls with input layer *lake_logan_1m_filled_DEM*, output layer *
 :::
 :::::
 
-Finally, run [r.relief](https://grass.osgeo.org/grass-devel/manuals/r.relief.html) to see the resulting topography.
+Finally, run [r.relief](https://grass.osgeo.org/grass-stable/manuals/r.relief.html) to see the resulting topography.
 
 #### Command line
 
@@ -596,7 +596,7 @@ The last step is to export the filled DEM to the open standard GeoTIFF file form
 #### GUI
 
 Right click on the filled DEM layer (*lake_logan_1m_filled_DEM_final*) and select *Export*.
-This will bring up the [r.out.gdal](https://grass.osgeo.org/grass-devel/manuals/r.out.gdal.html) dialog.
+This will bring up the [r.out.gdal](https://grass.osgeo.org/grass-stable/manuals/r.out.gdal.html) dialog.
 
 Click on the browse button next to the *Name for output raster file* option
 to browse to the directory where you want the geotiff file to be written.
