@@ -236,6 +236,11 @@ m.show()
 
 ![Streams derived from eroded topography in GRASS](streams.webp)
 
+::: {.callout-note}
+For creating a stream network with gullies using GRASS, see the
+[Earthworks: Gully Modeling](../earthworks/gullies.qmd) tutorial.
+:::
+
 Now if we want to store the eroded topography as a native GRASS raster, we can use
 [grass.script.array](https://grass.osgeo.org/grass-stable/manuals/libpython/grass.script.html#script.array.array)
 to create a GRASS array object with the dimensions given by the current computational region.
@@ -284,7 +289,7 @@ elevation_3dmap.show()
 
 And now let's augment it with [Nano Banana AI](https://nanobanana.ai/):
 
-![AI edited landscape](thumbnail.webp)
+![AI-enhanced landscape rendering for visual realism](thumbnail.webp)
 
 ---
 
