@@ -194,28 +194,28 @@ r.colors -e map=landsat8_2024_B7 color=grey
 
 ```{python}
 gs.run_command("r.colors",
-               map=landsat8_2024_B2,
-               color=grey,
+               map="landsat8_2024_B2",
+               color="grey",
                flags="e")
 gs.run_command("r.colors",
-               map=landsat8_2024_B3,
-               color=grey,
+               map="landsat8_2024_B3",
+               color="grey",
                flags="e")
 gs.run_command("r.colors",
-               map=landsat8_2024_B4,
-               color=grey,
+               map="landsat8_2024_B4",
+               color="grey",
                flags="e")
 gs.run_command("r.colors",
-               map=landsat8_2024_B5,
-               color=grey,
+               map="landsat8_2024_B5",
+               color="grey",
                flags="e")
 gs.run_command("r.colors",
-               map=landsat8_2024_B6,
-               color=grey,
+               map="landsat8_2024_B6",
+               color="grey",
                flags="e")
 gs.run_command("r.colors",
-               map=landsat8_2024_B7,
-               color=grey,
+               map="landsat8_2024_B7",
+               color="grey",
                flags="e")
                
 ```
@@ -379,11 +379,11 @@ i.vi output=Flagstaff_NDVI viname=ndvi red=landsat8_2024_B4 nir=landsat8_2024_B5
 ```{python}
 gs.run_command("g.region", raster="landsat8_2024_B2")
 
-gs.run_command("i.vi", 
-                output=Flagstaff_NDVI, 
-                viname=ndvi, 
-                red=landsat8_2024_B4, 
-                nir=landsat8_2024_B5
+gs.run_command("i.vi",
+                output="Flagstaff_NDVI",
+                viname="ndvi",
+                red="landsat8_2024_B4",
+                nir="landsat8_2024_B5"
   )
 ```
 :::::::::
