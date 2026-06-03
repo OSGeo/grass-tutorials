@@ -436,7 +436,7 @@ Here, we will explore **principal components analysis** (PCA). PCA mathematicall
 Perform a PCA and output the results to the console/terminal and as PCA component maps.  
 
 ```{bash}
-i.pca input=landsat8_2024_B2,landsat8_2024_B3,landsat8_2024_B4, landsat8_2024_B5,landsat8_2024_B6,landsat8_2024_B7 output=Flagstaff_landsat8
+i.pca input=landsat8_2024_B2,landsat8_2024_B3,landsat8_2024_B4,landsat8_2024_B5,landsat8_2024_B6,landsat8_2024_B7 output=Flagstaff_landsat8
 ```
 
 #### Python
@@ -444,9 +444,9 @@ i.pca input=landsat8_2024_B2,landsat8_2024_B3,landsat8_2024_B4, landsat8_2024_B5
 Perform a PCA and output the results to the console/terminal and as PCA component maps.  
 
 ```{python}
-gs.run_command("i.pca", 
-                input="landsat8_2024_B2,landsat8_2024_B3,landsat8_2024_B4, landsat8_2024_B5,landsat8_2024_B6,landsat8_2024_B7", 
-                output=Flagstaff_landsat8)
+gs.run_command("i.pca",
+                input="landsat8_2024_B2,landsat8_2024_B3,landsat8_2024_B4,landsat8_2024_B5,landsat8_2024_B6,landsat8_2024_B7",
+                output="Flagstaff_landsat8")
 ```
 
 ::::::

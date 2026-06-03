@@ -425,7 +425,7 @@ Aqui, exploraremos a **análise de componentes principais (PCA)**. A PCA combina
 Realize uma PCA e exiba os resultados no console/terminal e como mapas de componentes da PCA.  
 
 ```{bash}
-i.pca input=landsat8_2024_B2,landsat8_2024_B3,landsat8_2024_B4, landsat8_2024_B5,landsat8_2024_B6,landsat8_2024_B7 output=Flagstaff_landsat8
+i.pca input=landsat8_2024_B2,landsat8_2024_B3,landsat8_2024_B4,landsat8_2024_B5,landsat8_2024_B6,landsat8_2024_B7 output=Flagstaff_landsat8
 ```
 
 #### Python
@@ -433,9 +433,9 @@ i.pca input=landsat8_2024_B2,landsat8_2024_B3,landsat8_2024_B4, landsat8_2024_B5
 Realize uma PCA e exiba os resultados no console/terminal e como mapas de componentes da PCA.  
 
 ```{python}
-gs.run_command("i.pca", 
-                input="landsat8_2024_B2,landsat8_2024_B3,landsat8_2024_B4, landsat8_2024_B5,landsat8_2024_B6,landsat8_2024_B7", 
-                output=Flagstaff_landsat8)
+gs.run_command("i.pca",
+                input="landsat8_2024_B2,landsat8_2024_B3,landsat8_2024_B4,landsat8_2024_B5,landsat8_2024_B6,landsat8_2024_B7",
+                output="Flagstaff_landsat8")
 ```
 ::::::
 
