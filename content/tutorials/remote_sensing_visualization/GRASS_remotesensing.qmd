@@ -5,7 +5,7 @@ date: 2025-05-21
 date-modified: today
 image: img_remotesensing/thumbnail.webp
 lightbox: true
-engine: knitter
+engine: knitr
 format: 
   html:
     embed-resources: true
