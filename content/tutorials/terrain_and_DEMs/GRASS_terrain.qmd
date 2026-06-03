@@ -4,7 +4,7 @@ author: "Eunice Villaseñor Iribe and Michael Barton"
 date: 2025-06-23
 date-modified: today
 lightbox: true
-engine: knitter
+engine: knitr
 image: img_terrain/thumbnail.webp
 format: 
   html:

@@ -4,7 +4,7 @@ author: "Michael Barton, Letícia Correa, e Anna Petrasova"
 date: 2025-05-09
 date-modified: today
 lightbox: true
-engine: knitter
+engine: knitr
 image: img_movement/thumbnail.webp
 format: 
   html:
