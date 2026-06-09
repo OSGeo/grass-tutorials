@@ -9,6 +9,7 @@ description: >
   and erosion simulation (SIMWE) split by subwatersheds
   in parallel.
 image: SIMWE_images/thumbnail.webp
+bibliography: references.bib
 format:
   ipynb: default
   html:
@@ -265,7 +266,7 @@ The rest of the workflow will be done in a CRS used in North Carolina (EPSG 3358
 Since we want our project to use a different CRS more suitable for our study area (EPSG:3358 for North Carolina), we will create it now:
 
 ```{python}
-nc_project = path / "NC"
+nc_project = Path(path) / "NC"
 gs.create_project(nc_project, epsg="3358")
 session = gj.init(nc_project)
 ```
@@ -369,7 +370,7 @@ tools.g_region(vector=f"basin_{huc12}")
 Display the NED data for that region:
 
 ```{python}
-basin_map = gj.Map(current_region=True)
+basin_map = gj.Map(use_region=True)
 basin_map.d_rast(map="ned")
 basin_map.d_vect(map=f"basin_{huc12}", fill_color="none")
 basin_map.show()
@@ -392,7 +393,7 @@ MaskManager is new in GRASS version 8.5. Alternatively, you can use [r.mask](htt
 mask = gs.MaskManager(mask_name=f"basin_{huc12}")
 mask.activate()
 
-basin_map = gj.Map(current_region=True)
+basin_map = gj.Map(use_region=True)
 basin_map.d_rast(map="ned")
 basin_map.d_legend(
     raster="ned",
@@ -418,60 +419,109 @@ basin_map.show()
 
 ![](SIMWE_images/basin_030401010402_nlcd.webp)
 
-We will create a file `mannings.txt` to reclassify NLCD to manning's coefficients. The values are suggestions from the [r.sim.water](https://grass.osgeo.org/grass-devel/manuals/r.sim.water.html) documentation. The format is described in [r.recode](https://grass.osgeo.org/grass-devel/manuals/r.recode.html) documentation.
-
-```text
-%%writefile mannings.txt
-11:11:0.001
-21:21:0.0404
-22:23:0.0678
-24:24:0.0404
-31:31:0.0113
-41:41:0.36
-42:42:0.32
-43:52:0.4
-52:52:0.4
-71:71:0.368
-81:82:0.325
-90:90:0.086
-95:95:0.1825
-```
+Next, we will estimate Manning's roughness coefficient from the NLCD landcover
+using [r.manning](https://grass.osgeo.org/grass-stable/manuals/addons/r.manning.html) addon tool.
+Specifically, we will use [@kalyanapu2009] lookup table that is more suitable for shallow flow.
 
 ```{python}
-tools.r_recode(input=f"nlcd_{huc12}", output=f"mannings_{huc12}", rules="mannings.txt")
+tools.g_extension(extension="r.manning")
+tools.r_manning(input=f"nlcd_{huc12}", output=f"mannings_{huc12}", landcover="nlcd", source="kalyanapu")
+
+basin_map = gj.Map()
+basin_map.d_rast(map=f"mannings_{huc12}")
+basin_map.d_legend(
+    raster=f"mannings_{huc12}",
+    flags="t",
+    at=[10, 15, 40, 95],
+    title="Roughness",
+    fontsize=12,
+)
+basin_map.show()
 ```
 
-Similarly, we will reclassify rainfall excess (rainfall minus infiltration).
-These rainfall excess values were derived using the SCS Curve Number method for 50 mm/h of precipitation, assigning typical Curve Numbers based on common hydrologic soil groups for each NLCD land cover class;
-they provide a rough estimate and should be refined with local soil and land management data when available.
+Then we will estimate rainfall excess and to do that we will first process
+soil data for our area using [r.in.ssurgo](https://grass.osgeo.org/grass-stable/manuals/addons/r.in.ssurgo.html) addon tool.
+Since we need a fairly large area, we will first download the soil data itself for North Carolina
+from [Gridded Soil Survey Geographic (gSSURGO) Database](https://www.nrcs.usda.gov/resources/data-and-reports/gridded-soil-survey-geographic-gssurgo-database)
+and then have r.in.ssurgo extract Hydrologic Soil Group for our area.
 
-```text
-%%writefile runoff.txt
-11:11:0.0
-21:21:3.3     # Developed Open Space (CN ~68, HSG B)
-22:22:7.9     # Developed Low Intensity (CN ~81, HSG C)
-23:23:19.8    # Developed Medium Intensity (CN ~90, HSG C)
-24:24:27.9    # Developed High Intensity (CN ~94, HSG D)
-31:31:6.1     # Barren (CN ~75, HSG B)
-41:41:0.0     # Forest (CN ~55, HSG A) — P < 0.2S → Q = 0
-42:42:0.0
-43:43:0.0
-52:52:3.3     # Shrub/Scrub (CN ~68, HSG B)
-71:71:2.0     # Grassland (CN ~61, HSG A)
-81:81:5.1     # Pasture (CN ~74, HSG B)
-82:82:14.7    # Cropland (CN ~82, HSG C)
-90:90:0.0     # Woody Wetlands (CN ~70, HSG D) — often saturated, still low Q here
-95:95:0.0     # Herbaceous Wetlands
-```
+::: {.callout-note title="What is Hydrologic Soil Group?"}
+Hydrologic Soil Group (HSG) classifies soils based on their minimum
+infiltration rate and potential for rainfall runoff.
+For smaller areas, r.in.ssurgo can download the data directly using the
+[Soil Data Access (SDA) API](https://sdmdataaccess.nrcs.usda.gov/).
+:::
 
 ```{python}
-tools.r_recode(input=f"nlcd_{huc12}", output=f"runoff_{huc12}", rules="runoff.txt")
+tools.g_extension(extension="r.in.ssurgo")
+tools.r_in_ssurgo(ssurgo_path=f"", soils=f"soils_{huc12}", hydgrp=f"hydgrp_{huc12}", nprocs=1)
+
+soil_map = gj.Map()
+soil_map.d_rast(map=f"hydgrp_{huc12}")
+soil_map.d_legend(
+    raster=f"hydgrp_{huc12}",
+    at=[10, 15, 40, 95],
+    title="HSG",
+    fontsize=12,
+)
+soil_map.show()
 ```
 
-Then, compute slope components (dx and dy) from the elevation raster to support hydrologic modeling.
+With the soil and landcover data available, we will generate Curve Number,
+which is an empirical parameter to estimate surface runoff.
 
 ```{python}
-tools.r_slope_aspect(elevation="ned", dx=f"dx_{huc12}", dy=f"dy_{huc12}")
+tools.g_extension(extension="r.curvenumber")
+tools.r_curvenumber(landcover=f"nlcd_{huc12}", landcover_source="nlcd", soil=f"hydgrp_{huc12}",
+                    output=f"curvenumber_{huc12}")
+
+cn_map = gj.Map()
+cn_map.d_rast(map=f"curvenumber_{huc12}")
+cn_map.d_legend(
+    raster=f"curvenumber_{huc12}",
+    at=[10, 15, 40, 95],
+    flags="t",
+    title="CN",
+    fontsize=12,
+)
+cn_map.show()
+```
+
+We will model a 50-year storm event that lasts 3 hours, using data from
+[NOAA Atlas 14](https://hdsc.nws.noaa.gov/pfds/) Precipitation Frequency Data Server.
+
+```{python}
+tools.g_extension(extension="r.noaa.atlas14")
+duration = 3
+depths = tools.r_noaa_atlas14(mode="point", statistic="depth", units="metric", format="json")
+depth = [row["values"] for row in depth["table"]["rows"] if row["duration"] == f"{duration}-hr"]["50"]
+print(depth)
+```
+
+We will then create an input rainfall depth raster:
+
+```
+tools.r_mapcalc(expression=f"rainfall_{huc12} = {depth}")
+```
+
+With that we estimate runoff (rainfall excess):
+
+```{python}
+tools.g_extension(extension="r.runoff")
+tools.r_runoff(rainfall=f"rainfall_{huc12}", duration=duration, curve_number=f"curvenumber_{huc12}",
+               runoff_depth=f"runoff_depth_{huc12}")
+tools.r_mapcalc(expression=f"runoff_{huc12} = runoff_depth_{huc12} / {duration}")
+
+runoff_map = gj.Map()
+runoff_map.d_rast(map=f"runoff_{huc12}")
+runoff_map.d_legend(
+    raster=f"runoff_{huc12}",
+    at=[10, 15, 40, 95],
+    flags="t",
+    title="Runoff [mm/h]",
+    fontsize=12,
+)
+runoff_map.show()
 ```
 
 Run hydrologic and sediment simulations for the selected subwatershed.
@@ -483,8 +533,6 @@ Running the simulation may take a while.
 simulation_time = 180
 tools.r_sim_water(
     elevation="ned",
-    dx=f"dx_{huc12}",
-    dy=f"dy_{huc12}",
     depth=f"depth_{huc12}",
     niterations=simulation_time,
     man=f"mannings_{huc12}",
@@ -516,8 +564,6 @@ tools.r_mapcalc(expression=f"shear_stress_{huc12} = 0.01")
 tools.r_sim_sediment(
     elevation="ned",
     water_depth=f"depth_{huc12}",
-    dx=f"dx_{huc12}",
-    dy=f"dy_{huc12}",
     detachment_coeff=f"detachment_coef_{huc12}",
     transport_coeff=f"transport_capacity_{huc12}",
     shear_stress=f"shear_stress_{huc12}",
@@ -665,15 +711,8 @@ def compute(huc12):
                 output=f"runoff_{huc12}",
                 rules="runoff.txt",
             )
-            tools.r_slope_aspect(
-                elevation="ned",
-                dx=f"dx_{huc12}",
-                dy=f"dy_{huc12}",
-            )
             tools.r_sim_water(
                 elevation="ned",
-                dx=f"dx_{huc12}",
-                dy=f"dy_{huc12}",
                 depth=f"depth_{huc12}",
                 niterations=simulation_time,
                 man=f"mannings_{huc12}",
@@ -686,8 +725,6 @@ def compute(huc12):
             tools.r_sim_sediment(
                 elevation="ned",
                 water_depth=f"depth_{huc12}",
-                dx=f"dx_{huc12}",
-                dy=f"dy_{huc12}",
                 detachment_coeff=f"detachment_coef_{huc12}",
                 transport_coeff=f"transport_capacity_{huc12}",
                 shear_stress=f"shear_stress_{huc12}",
