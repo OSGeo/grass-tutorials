@@ -3,7 +3,7 @@ title: "Parallelization of overland flow and sediment transport simulation"
 author: "Anna Petrasova"
 date: 2025-09-25
 date-modified: today
-categories: [Python, advanced, parallelization, hydrology, erosion]
+categories: [Python, advanced, soils, parallelization, hydrology, erosion]
 description: >
   In this tutorial we will run overland flow
   and erosion simulation (SIMWE) split by subwatersheds
@@ -271,6 +271,17 @@ gs.create_project(nc_project, epsg="3358")
 session = gj.init(nc_project)
 ```
 
+In preparation for parallel importing of soil data,
+we will specify the database connection to use per-map sqlite database
+instead of a single database for the entire mapset (the default).
+This will prevent concurrent writing to a single database.
+
+```{python}
+tools.db_connect(
+    driver="sqlite", database="$GISDBASE/$LOCATION_NAME/$MAPSET/vector/$MAP/sqlite.db"
+)
+```
+
 We will reproject the river subwatersheds vector with [v.proj]((https://grass.osgeo.org/grass-stable/manuals/v.proj.html)):
 
 ```{python}
@@ -394,7 +405,12 @@ Specifically, we will use [@kalyanapu2009] lookup table that is more suitable fo
 
 ```{python}
 tools.g_extension(extension="r.manning")
-tools.r_manning(input=f"nlcd_{huc12}", output=f"mannings_{huc12}", landcover="nlcd", source="kalyanapu")
+tools.r_manning(
+    input=f"nlcd_{huc12}",
+    output=f"mannings_{huc12}",
+    landcover="nlcd",
+    source="kalyanapu",
+)
 
 manning_map = gj.Map()
 manning_map.d_rast(map=f"mannings_{huc12}")
@@ -407,6 +423,8 @@ manning_map.d_legend(
 )
 manning_map.show()
 ```
+
+![](SIMWE_images/basin_030401010402_manning.webp)
 
 Then we will estimate rainfall excess and to do that we will first process
 soil data for our area using [r.in.ssurgo](https://grass.osgeo.org/grass-stable/manuals/addons/r.in.ssurgo.html) addon tool.
@@ -423,7 +441,12 @@ For smaller areas, r.in.ssurgo can download the data directly using the
 
 ```{python}
 tools.g_extension(extension="r.in.ssurgo")
-tools.r_in_ssurgo(ssurgo_path="gSSURGO_NC.zip", soils=f"soils_{huc12}", hydgrp=f"hydgrp_{huc12}", nprocs=1)
+tools.r_in_ssurgo(
+    ssurgo_path="gSSURGO_NC.zip",
+    soils=f"soils_{huc12}",
+    hydgrp=f"hydgrp_{huc12}",
+    nprocs=1,
+)
 
 soil_map = gj.Map()
 soil_map.d_rast(map=f"hydgrp_{huc12}")
@@ -437,13 +460,34 @@ soil_map.d_legend(
 soil_map.show()
 ```
 
+![](SIMWE_images/basin_030401010402_soils.webp)
+
 With the soil and landcover data available, we will generate Curve Number,
 which is an empirical parameter to estimate surface runoff.
+This will allow us to translate rainfall and land characteristics
+into the runoff input for SIMWE.
+
+::: {.callout-note title="What is a Curve Number?"}
+The [SCS Curve Number (CN)](https://www.hec.usace.army.mil/confluence/rasdocs/ras1dtechref/7.0/overview-of-optional-capabilities/modeling-precipitation-and-infiltration/curve-number)
+method is an empirical approach
+developed by the USDA Soil Conservation Service (now NRCS),
+for estimating direct runoff (effective rainfall) from a rainfall event.
+
+The curve number is a dimensionless parameter (0–100) that summarizes
+a surface's runoff potential based on soil type (hydrologic soil group),
+land cover, and antecedent moisture conditions.
+Low values (~30–50) mean high infiltration/low runoff (e.g. sandy soils, forest);
+high values (~80–98) mean low infiltration/high runoff (e.g. clay, pavement, urban surfaces).
+:::
 
 ```{python}
 tools.g_extension(extension="r.curvenumber")
-tools.r_curvenumber(landcover=f"nlcd_{huc12}", landcover_source="nlcd", soil=f"hydgrp_{huc12}",
-                    output=f"curvenumber_{huc12}")
+tools.r_curvenumber(
+    landcover=f"nlcd_{huc12}",
+    landcover_source="nlcd",
+    soil=f"hydgrp_{huc12}",
+    output=f"curvenumber_{huc12}",
+)
 
 cn_map = gj.Map()
 cn_map.d_rast(map=f"curvenumber_{huc12}")
@@ -457,30 +501,50 @@ cn_map.d_legend(
 cn_map.show()
 ```
 
-We will model a 50-year storm event that lasts 3 hours, using data from
+![](SIMWE_images/basin_030401010402_cn.webp)
+
+To get an approximate rainfall depth, we will model a 10-year storm event
+that lasts 1 hour, using data from
 [NOAA Atlas 14](https://hdsc.nws.noaa.gov/pfds/) Precipitation Frequency Data Server.
 
 ```{python}
 tools.g_extension(extension="r.noaa.atlas14")
-duration = 3
-depths = tools.r_noaa_atlas14(mode="point", statistic="depth", units="metric", format="json")
-depth = [row["values"] for row in depths["table"]["rows"] if row["duration"] == f"{duration}-hr"][0]["50"]
-print(depth)
+duration = 60
+depths = tools.r_noaa_atlas14(
+    mode="point", statistic="depth", units="metric", format="json"
+)
+depth = [
+    row["values"]
+    for row in depths["table"]["rows"]
+    if row["duration"] == f"{duration}-min"
+][0]["10"]
+print(f"Depth: {depth} mm")
 ```
 
-We will then create an input rainfall depth raster:
-
+```text
+Depth: 54.0 mm
 ```
+
+We will then create an input rainfall depth raster, assuming uniform rainfall:
+
+```{python}
 tools.r_mapcalc(expression=f"rainfall_{huc12} = {depth}")
 ```
 
-With that we estimate runoff (rainfall excess):
+With that we estimate runoff (rainfall excess) with [r.runoff](https://grass.osgeo.org/grass-stable/manuals/r.runoff.html),
+which estimates for each cell total runoff depth in mm for the duration of the storm
+using SCS Curve Number method.
 
 ```{python}
 tools.g_extension(extension="r.runoff")
-tools.r_runoff(rainfall=f"rainfall_{huc12}", duration=duration, curve_number=f"curvenumber_{huc12}",
-               runoff_depth=f"runoff_depth_{huc12}")
-tools.r_mapcalc(expression=f"runoff_{huc12} = runoff_depth_{huc12} / {duration}")
+duration_h = duration / 60
+tools.r_runoff(
+    rainfall=f"rainfall_{huc12}",
+    duration=duration_h,
+    curve_number=f"curvenumber_{huc12}",
+    runoff_depth=f"runoff_depth_{huc12}",
+)
+tools.r_mapcalc(expression=f"runoff_{huc12} = runoff_depth_{huc12} / {duration_h}")
 
 runoff_map = gj.Map()
 runoff_map.d_rast(map=f"runoff_{huc12}")
@@ -494,31 +558,32 @@ runoff_map.d_legend(
 runoff_map.show()
 ```
 
+![](SIMWE_images/basin_030401010402_runoff.webp)
+
 Run hydrologic and sediment simulations for the selected subwatershed.
 First, simulate overland flow using [r.sim.water](https://grass.osgeo.org/grass-stable/manuals/r.sim.water.html)
 with inputs for topography, Manning’s coefficients, and rainfall intensity.
 Running the simulation may take a while.
 
 ```{python}
-simulation_time = 180
 tools.r_sim_water(
     elevation="ned",
     depth=f"depth_{huc12}",
-    niterations=simulation_time,
+    niterations=duration,
     man=f"mannings_{huc12}",
     rain=f"runoff_{huc12}",
 )
 
-basin_map = gj.Map()
-basin_map.d_rast(map=f"depth_{huc12}")
-basin_map.d_legend(
+simwe_map = gj.Map()
+simwe_map.d_rast(map=f"depth_{huc12}")
+simwe_map.d_legend(
     raster=f"depth_{huc12}",
     flags="t",
     at=[10, 15, 40, 95],
     title="Depth [m]",
     fontsize=12,
 )
-basin_map.show()
+simwe_map.show()
 ```
 
 ![](SIMWE_images/basin_030401010402_simwe.webp)
@@ -537,15 +602,15 @@ tools.r_sim_sediment(
     detachment_coeff=f"detachment_coef_{huc12}",
     transport_coeff=f"transport_capacity_{huc12}",
     shear_stress=f"shear_stress_{huc12}",
-    niterations=simulation_time,
+    niterations=duration,
     erosion_deposition=f"erdep_tmp_{huc12}",
-    nwalkers=5 * gs.region()["cells"],
+    nwalkers=10 * gs.region()["cells"],
 )
 tools.r_grow(input=f"erdep_tmp_{huc12}", output=f"erdep_{huc12}", radius=-2.01)
 
-basin_map = gj.Map()
-basin_map.d_rast(map=f"erdep_{huc12}")
-basin_map.d_legend(
+erdep_map = gj.Map()
+erdep_map.d_rast(map=f"erdep_{huc12}")
+erdep_map.d_legend(
     raster=f"erdep_{huc12}",
     flags="t",
     at=[10, 15, 40, 95],
@@ -554,7 +619,7 @@ basin_map.d_legend(
     title="Erosion/dep. [kg/m2s]",
     fontsize=12,
 )
-basin_map.show()
+erdep_map.show()
 ```
 
 ![](SIMWE_images/basin_030401010402_erdep.webp)
@@ -567,7 +632,7 @@ Summary statistics are computed using [r.univar](https://grass.osgeo.org/grass-s
 ```{python}
 # Erosion: extract negative values and convert to positive mass [kg/m^2]
 tools.r_mapcalc(
-    f"erosion_{huc12} = if(erdep_{huc12} < 0, abs(erdep_{huc12}) * {simulation_time * 60}, null())"
+    expression=f"erosion_{huc12} = if(erdep_{huc12} < 0, abs(erdep_{huc12}) * {duration}, null())"
 )
 erosion = tools.r_univar(map=f"erosion_{huc12}", format="json")
 print(erosion["mean"])
@@ -628,15 +693,17 @@ The resulting statistics for each subwatershed are collected and stored in a JSO
 %%writefile script.py
 import os
 import json
+from pathlib import Path
 from multiprocessing import Pool, cpu_count
+from functools import partial
 from tqdm import tqdm
 
 import grass.script as gs
 from grass.tools import Tools
 
 
-def compute(huc12):
-    simulation_time = 180
+def compute(huc12, precipitation_depth, duration, ssurgo_path):
+    duration_h = duration / 60
     # set overwrite to True to rerun the workflow
     tools = Tools(overwrite=True, quiet=True)
     tools.v_extract(
@@ -659,32 +726,40 @@ def compute(huc12):
             input="nlcd",
             output=f"nlcd_{huc12}",
         )
-        tools.r_recode(
-            input=f"nlcd_{huc12}",
-            output=f"mannings_{huc12}",
-            rules="mannings.txt",
-        )
-        tools.r_recode(
-            input=f"nlcd_{huc12}",
-            output=f"runoff_{huc12}",
-            rules="runoff.txt",
-        )
         with gs.MaskManager(mask_name=f"basin_{huc12}"):
             # Run actual computation with active mask.
-            tools.r_recode(
+            tools.r_manning(
                 input=f"nlcd_{huc12}",
                 output=f"mannings_{huc12}",
-                rules="mannings.txt",
+                landcover="nlcd",
+                source="kalyanapu",
             )
-            tools.r_recode(
-                input=f"nlcd_{huc12}",
-                output=f"runoff_{huc12}",
-                rules="runoff.txt",
+            tools.r_in_ssurgo(
+                ssurgo_path=ssurgo_path,
+                soils=f"soils_{huc12}",
+                hydgrp=f"hydgrp_{huc12}",
+                nprocs=1,
+            )
+            tools.r_curvenumber(
+                landcover=f"nlcd_{huc12}",
+                landcover_source="nlcd",
+                soil=f"hydgrp_{huc12}",
+                output=f"curvenumber_{huc12}",
+            )
+            tools.r_mapcalc(expression=f"rainfall_{huc12} = {precipitation_depth}")
+            tools.r_runoff(
+                rainfall=f"rainfall_{huc12}",
+                duration=duration_h,
+                curve_number=f"curvenumber_{huc12}",
+                runoff_depth=f"runoff_depth_{huc12}",
+            )
+            tools.r_mapcalc(
+                expression=f"runoff_{huc12} = runoff_depth_{huc12} / {duration_h}"
             )
             tools.r_sim_water(
                 elevation="ned",
                 depth=f"depth_{huc12}",
-                niterations=simulation_time,
+                niterations=duration,
                 man=f"mannings_{huc12}",
                 rain=f"runoff_{huc12}",
             )
@@ -698,9 +773,9 @@ def compute(huc12):
                 detachment_coeff=f"detachment_coef_{huc12}",
                 transport_coeff=f"transport_capacity_{huc12}",
                 shear_stress=f"shear_stress_{huc12}",
-                niterations=simulation_time,
+                niterations=duration,
                 erosion_deposition=f"erdep_tmp_{huc12}",
-                nwalkers=5 * region["cells"],
+                nwalkers=10 * region["cells"],
             )
             tools.r_grow(
                 input=f"erdep_tmp_{huc12}",
@@ -709,7 +784,7 @@ def compute(huc12):
             )
             # Erosion: extract negative values and convert to positive mass [kg/m^2]
             tools.r_mapcalc(
-                expression=f"erosion_{huc12} = if(erdep_{huc12} < 0, abs(erdep_{huc12}) * {simulation_time * 60}, 0)",
+                expression=f"erosion_{huc12} = if(erdep_{huc12} < 0, abs(erdep_{huc12}) * {duration}, 0)",
             )
             erosion = tools.r_univar(map=f"erosion_{huc12}", format="json", flags="e")
             return {
@@ -727,11 +802,29 @@ if __name__ == "__main__":
     tools.g_gisenv(set="NPROCS=1")
     basins = tools.v_db_select(format="json", map="river_basins")["records"]
     huc12s = [basin["huc12"] for basin in basins]
+    # single depth value for entire area
+    duration = 60
+    precipitation = tools.r_noaa_atlas14(
+        mode="point", statistic="depth", units="metric", format="json"
+    )
+    precipitation_depth = [
+        row["values"]
+        for row in precipitation["table"]["rows"]
+        if row["duration"] == f"{duration}-min"
+    ][0]["10"]
+    ssurgo_path = str(Path(__file__).parent / "gSSURGO_NC.zip")
+    worker = partial(
+        compute,
+        precipitation_depth=precipitation_depth,
+        duration=duration,
+        ssurgo_path=ssurgo_path,
+    )
     # set the number of processes to be used for the computation in total
     with Pool(processes=cpu_count()) as pool:
-        result = list(tqdm(pool.imap(compute, huc12s), total=len(huc12s)))
+        result = list(tqdm(pool.imap(worker, huc12s), total=len(huc12s)))
         with open("result.json", "w") as fp:
             json.dump(result, fp)
+
 ```
 
 Now execute the script, it will take some time.
