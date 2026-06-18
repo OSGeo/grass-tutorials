@@ -339,10 +339,6 @@ tools.r_in_usgs(
     output_directory=os.getcwd(),
     output_name="ned",
 )
-
-elevation_map = gj.Map()
-elevation_map.d_rast(map="ned")
-elevation_map.show()
 ```
 
 Let's now compute the erosion/deposition for one of the subwatersheds.
@@ -387,7 +383,12 @@ mask.activate()
 ```
 
 
-Reproject NLCD from a "nlcd" project to this project (see [NLCD legend](https://www.usgs.gov/media/images/annual-nlcd-land-cover-change-legend)):
+## Mannings roughness
+
+Next, we will estimate Manning's roughness coefficient from the NLCD landcover
+using [r.manning](https://grass.osgeo.org/grass-stable/manuals/addons/r.manning.html) addon tool.
+
+First, reproject NLCD from a "nlcd" project to this project (see [NLCD legend](https://www.usgs.gov/media/images/annual-nlcd-land-cover-change-legend)):
 
 ```{python}
 tools.r_proj(project="nlcd", mapset="PERMANENT", input="nlcd", output=f"nlcd_{huc12}")
@@ -399,9 +400,8 @@ nlcd_map.show()
 
 ![](SIMWE_images/basin_030401010402_nlcd.webp)
 
-Next, we will estimate Manning's roughness coefficient from the NLCD landcover
-using [r.manning](https://grass.osgeo.org/grass-stable/manuals/addons/r.manning.html) addon tool.
-Specifically, we will use [@kalyanapu2009] lookup table that is more suitable for shallow flow.
+To derive manning's roughness,
+we will use lookup table [@kalyanapu2009] that is more suitable for shallow flow.
 
 ```{python}
 tools.g_extension(extension="r.manning")
@@ -425,6 +425,8 @@ manning_map.show()
 ```
 
 ![](SIMWE_images/basin_030401010402_manning.webp)
+
+## Rainfall excess
 
 Then we will estimate rainfall excess and to do that we will first process
 soil data for our area using [r.in.ssurgo](https://grass.osgeo.org/grass-stable/manuals/addons/r.in.ssurgo.html) addon tool.
@@ -559,6 +561,8 @@ runoff_map.show()
 ```
 
 ![](SIMWE_images/basin_030401010402_runoff.webp)
+
+## Hydrologic and sediment modeling
 
 Run hydrologic and sediment simulations for the selected subwatershed.
 First, simulate overland flow using [r.sim.water](https://grass.osgeo.org/grass-stable/manuals/r.sim.water.html)
