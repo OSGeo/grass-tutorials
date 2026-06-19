@@ -14,7 +14,7 @@ format:
     code-copy: true
     code-fold: false
 page-layout: article
-categories: [beginner, GUI, imagery, remote sensing, visualization]
+categories: [beginner, GUI, imagery, remote sensing, visualization, Portuguese]
 description: Análise e visualização de imagens de satélite multiespectrais utilizando fusão de imagens, índices ambientais e redução de dimensionalidade com análise de componentes principais.
 execute: 
   eval: false
