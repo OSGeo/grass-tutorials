@@ -5,7 +5,7 @@ date: 2025-05-21
 date-modified: today
 image: img_remotesensing/thumbnail.webp
 lightbox: true
-engine: knitter
+engine: knitr
 format: 
   html:
     embed-resources: true
@@ -14,7 +14,7 @@ format:
     code-copy: true
     code-fold: false
 page-layout: article
-categories: [Beginner, Graphical User Interface (GUI), Images, Remote Sensing, Visualization]
+categories: [beginner, GUI, imagery, remote sensing, visualization, Spanish]
 Description: Análisis y visualización de imágenes satelitales multibanda mediante fusión de imágenes, índices ambientales y reducción de dimensionalidad con análisis de componentes principales.
 execute: 
   eval: false
@@ -715,14 +715,14 @@ GRASS tiene muchas más funciones y herramientas para trabajar con datos de tele
 Estas y otras herramientas hacen de GRASS un entorno de geoprocesamiento rico y poderoso para muchas aplicaciones de teledetección.
 
 :::{.smaller}
-El desarrollo de este tutorial fue financiado en parte por la Fundación Nacional de Ciencias de EE. UU. (NSF) (https://www.nsf.gov/), premio [2303651] (https://www.nsf.gov/awardsearch/showAward?AWD_ID=2303651)
+El desarrollo de este tutorial fue financiado en parte por la Fundación Nacional de Ciencias de EE. UU. [NSF](https://www.nsf.gov/), premio [2303651](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2303651)
 :::
 
 ---
 
 :::{.smaller}
 *© Michael Barton y Eunice Villaseñor Iribe*
-*El desarrollo de este tutorial fue financiado en parte por la Fundación Nacional de Ciencias de EE. UU. (NSF) (https://www.nsf.gov/), premio [2303651] (https://www.nsf.gov/awardsearch/showAward?AWD_ID=2303651)*
+*El desarrollo de este tutorial fue financiado en parte por la Fundación Nacional de Ciencias de EE. UU. [NSF](https://www.nsf.gov/), premio [2303651](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2303651)*
 :::
 
 

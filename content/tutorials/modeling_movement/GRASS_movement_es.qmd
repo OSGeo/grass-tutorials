@@ -11,7 +11,7 @@ format:
     code-copy: true
     code-fold: false
 page-layout: article
-categories: [intermediate, advanced, GUI, raster, cost surface, least cost path]
+categories: [intermediate, advanced, GUI, raster, cost surface, least cost path, Spanish]
 description: Generación de una superficie de costo acumulativo y ruta de menor costo con *r.walk* y *r.path* para modelar el movimiento caminando a través de un paisaje.
 image: img_movement/thumbnail.webp
 execute: 

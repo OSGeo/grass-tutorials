@@ -4,7 +4,7 @@ author: "Eunice Villaseñor Iribe y Michael Barton"
 date: 2025-06-25
 date-modified: today
 lightbox: true
-engine: knitter
+engine: knitr
 image: img_thematic/thumbnail.webp
 format: 
   html:
@@ -14,7 +14,7 @@ format:
     code-copy: true
     code-fold: false
 page-layout: article
-categories: [Beginner, intermediate, raster, DEM, visualization, terrain, slope, orientation, geographical features, hydrology, streams]
+categories: [beginner, intermediate, GUI, raster, vector, thematic maps, legend, Spanish]
 description: Este tutorial guía al usuario a través de múltiples formas de analizar y modelar terrenos a partir de mapas raster DEM.
 execute: 
   eval: false
@@ -1459,5 +1459,5 @@ Además de los enfoques presentados aquí, existen otras maneras de crear mapas 
 
 :::{.smaller}
 *© Michael Barton y Eunice Villaseñor Iribe*
-*El desarrollo de este tutorial fue financiado en parte por la Fundación Nacional de Ciencias de EE. UU. (NSF) (https://www.nsf.gov/), premio [2303651] (https://www.nsf.gov/awardsearch/showAward?AWD_ID=2303651)*
+*El desarrollo de este tutorial fue financiado en parte por la Fundación Nacional de Ciencias de EE. UU. [NSF](https://www.nsf.gov/), premio [2303651](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2303651)*
 :::

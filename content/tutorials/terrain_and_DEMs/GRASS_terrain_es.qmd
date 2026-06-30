@@ -4,7 +4,7 @@ author: "Michael Barton and Eunice Villaseñor Iribe"
 date: 2025-06-23
 date-modified: today
 lightbox: true
-engine: knitter
+engine: knitr
 image: img_terrain/thumbnail.webp
 format: 
   html:
@@ -14,7 +14,7 @@ format:
     code-copy: true
     code-fold: false
 page-layout: article
-categories: [Beginner, intermediate, raster, DEM, visualization, terrain, slope, orientation, geographical features, hydrology, streams]
+categories: [beginner, intermediate, raster, DEM, visualization, terrain, slope, aspect, landforms, hydrology, streams, Spanish]
 description: Este tutorial guía al usuario a través de múltiples formas de analizar y modelar terrenos a partir de mapas raster DEM.
 execute: 
   eval: false
@@ -1084,13 +1084,13 @@ Para mostrar la red de corriente sin los nodos de unión, desmarque la casilla "
 En este tutorial, hemos repasado solo algunas de las muchas herramientas disponibles en GRASS para realizar análisis de terreno y cuencas hidrográficas. Utilizamos el conjunto de datos de ejemplo de Flagstaff para completar este análisis, pero también puede probar otros conjuntos de datos y mapas DEM. También puede usar los conjuntos de datos de ejemplo de GRASS para explorar las muchas otras herramientas disponibles en el área de análisis de terreno y [hydrology](https://grass.osgeo.org/grass-stable/manuals/topic_hydrology.html) Secciones de hidrología. Además de los módulos principales de GRASS, también hay muchos otros disponibles como [GRASS addons](https://grass.osgeo.org/grass-stable/manuals/addons/).
 
 :::{.smaller}
-El desarrollo de este tutorial fue financiado en parte por la Fundación Nacional de Ciencias de EE. UU. (NSF) (https://www.nsf.gov/), premio [2303651] (https://www.nsf.gov/awardsearch/showAward?AWD_ID=2303651)
+El desarrollo de este tutorial fue financiado en parte por la Fundación Nacional de Ciencias de EE. UU. [NSF](https://www.nsf.gov/), premio [2303651](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2303651)
 :::
 
 ---
 
 :::{.smaller}
 *© Michael Barton y Eunice Villaseñor Iribe*
-*El desarrollo de este tutorial fue financiado en parte por la Fundación Nacional de Ciencias de EE. UU. (NSF) (https://www.nsf.gov/), premio [2303651] (https://www.nsf.gov/awardsearch/showAward?AWD_ID=2303651)*
+*El desarrollo de este tutorial fue financiado en parte por la Fundación Nacional de Ciencias de EE. UU. [NSF](https://www.nsf.gov/), premio [2303651](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2303651)*
 :::
 
