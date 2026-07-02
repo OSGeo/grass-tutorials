@@ -272,9 +272,9 @@ session = gj.init(nc_project)
 ```
 
 In preparation for parallel importing of soil data,
-we will specify the database connection to use per-map sqlite database
+we will specify the database connection to use per-map SQLite database
 instead of a single database for the entire mapset (the default).
-This will prevent concurrent writing to a single database.
+This will prevent concurrent writing to a single file-based database.
 
 ```{python}
 tools.db_connect(
@@ -401,7 +401,8 @@ nlcd_map.show()
 ![](SIMWE_images/basin_030401010402_nlcd.webp)
 
 To derive manning's roughness,
-we will use lookup table [@kalyanapu2009] that is more suitable for shallow flow.
+we will use lookup table [@kalyanapu2009] that is more suitable for shallow flow
+than the HEC-RAS 2D table for floodplain modeling.
 
 ```{python}
 tools.g_extension(extension="r.manning")
@@ -505,7 +506,7 @@ cn_map.show()
 
 ![](SIMWE_images/basin_030401010402_cn.webp)
 
-To get an approximate rainfall depth, we will model a 10-year storm event
+To get an approximate precipitation depth, we will model a 10-year storm event
 that lasts 1 hour, using data from
 [NOAA Atlas 14](https://hdsc.nws.noaa.gov/pfds/) Precipitation Frequency Data Server.
 
@@ -527,7 +528,7 @@ print(f"Depth: {depth} mm")
 Depth: 54.0 mm
 ```
 
-We will then create an input rainfall depth raster, assuming uniform rainfall:
+We will then create an input precipitation depth raster, assuming uniform rainfall:
 
 ```{python}
 tools.r_mapcalc(expression=f"rainfall_{huc12} = {depth}")
