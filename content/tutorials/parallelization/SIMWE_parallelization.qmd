@@ -3,7 +3,7 @@ title: "Parallelization of overland flow and sediment transport simulation"
 author: "Anna Petrasova"
 date: 2025-09-25
 date-modified: today
-categories: [Python, advanced, parallelization, hydrology, erosion]
+categories: [Python, advanced, parallelization, hydrology]
 description: >
   In this tutorial we will run overland flow
   and erosion simulation (SIMWE) split by subwatersheds
