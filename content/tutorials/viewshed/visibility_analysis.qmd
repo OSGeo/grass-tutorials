@@ -1,15 +1,15 @@
 ---
-title: "Visibility Analysis with GRASS"
-author: Rajveer Bishnoi
-date: 2026-07-04
+title: "Visibility Analysis with GRASS: Fire Lookout Towers"
+author: "Rajveer Bishnoi"
+date: 2026-07-05
 date-modified: today
 lightbox: true
 image: images/thumbnail.webp
 categories: [raster, terrain, visualization, intermediate, Python]
 description: >
-  Learn how to compute what is visible from a location using r.viewshed:
-  a single-point viewshed, the effect of observer height and distance,
-  and cumulative visibility from multiple sites.
+  Use r.viewshed and real USGS terrain to explore why fire lookout towers stand
+  where they do, how far they could see, and how well a network of them covered
+  a national forest.
 format:
   ipynb: default
   html:
@@ -25,57 +25,54 @@ jupyter: python3
 
 # Introduction
 
-A **viewshed** is the area of terrain that is visible from one or more observation
-points. Answering "what can I see from here?" — or, equivalently, "from where can
-this be seen?" — is a classic terrain analysis with many practical uses:
+For much of the twentieth century, wildfires in the United States were spotted by
+people. Lookouts climbed towers on high summits and scanned the horizon for smoke,
+because the earlier a fire is spotted, the easier it is to contain. Siting those
+towers was a visibility problem: where should a tower go so it can see as much of the forest
+as possible?
 
-- siting communication or observation towers so they cover the most ground,
-- planning fire lookouts and surveillance,
-- assessing the visual impact of wind turbines, buildings, or quarries,
-- modeling line-of-sight for radio links, and
-- reconstructing what was visible from archaeological sites.
+We can reconstruct that reasoning with GRASS. A viewshed is the area of terrain
+visible from an observation point, computed by
+[r.viewshed](https://grass.osgeo.org/grass-stable/manuals/r.viewshed.html) by tracing
+lines of sight across a digital elevation model. Our study area is the Nantahala
+National Forest in western North Carolina, where three historic lookout towers still
+stand along the Appalachian Trail near the town of Franklin: Wayah Bald, Wesser Bald,
+and Albert Mountain. Using them, we will answer four questions:
 
-In this tutorial we use [r.viewshed](https://grass.osgeo.org/grass-stable/manuals/r.viewshed.html)
-to compute visibility from a digital elevation model (DEM). We start with a single
-observer, see how **observer height** and **maximum distance** change the result,
-and finish by combining several viewsheds into a **cumulative visibility** map.
+1. Why put the lookout on a tower instead of standing on the summit?
+2. Does the curvature of the Earth matter at these distances?
+3. How does a rising smoke column change what a tower can detect?
+4. How much of the forest does the three-tower network cover, and where should a fourth tower go?
 
-![Area visible from a 40 m tower (red) over shaded relief.](images/thumbnail.webp)
-
-::: {.callout-note title="Demo dataset"}
-This tutorial uses the standard GRASS
-[North Carolina sample dataset](https://grass.osgeo.org/sampledata/north_carolina/nc_spm_08_grass7.zip)
-(`nc_spm_08_grass7`) and its 10 m `elevation` DEM. You can follow along with any
-DEM by substituting your own raster.
-:::
+![The fire towers of the Nantahala National Forest on the terrain they were built to watch.](images/study_area.webp)
 
 ::: {.callout-note title="How to run this tutorial"}
-The code below uses the GRASS Python API in a Jupyter notebook. If you are new to
-running GRASS from Python, see the
-[Get started](https://grass-tutorials.osgeo.org/content/tutorials/get_started/fast_track.html)
-tutorials to set up an environment. Every step also works from the GRASS GUI or
-command line — just use the tool name (for example `r.viewshed`) with the same
-parameters.
+The code uses the GRASS Python API in a Jupyter notebook. If you are new to running
+GRASS from Python, see the
+[Get started with GRASS & Python](https://grass-tutorials.osgeo.org/content/tutorials/get_started/fast_track_grass_and_python.html)
+tutorial. Every step also works from the GRASS GUI or command line; use the tool name
+(for example `r.viewshed`) with the same parameters.
 :::
 
-::: {.callout-note title="GRASS version"}
-The examples use the [grass.tools API](https://grass.osgeo.org/grass-stable/manuals/python_intro.html)
-(the `Tools` class), introduced in GRASS 8.5. On earlier versions you can run the
-same tools with `gs.run_command("r.viewshed", ...)`.
-:::
+# Getting the elevation data
 
-# Setup
+The towers are real places, so rather than use a prepackaged sample dataset we
+download the terrain around them from the USGS. We work in a new GRASS project in UTM zone 17N (EPSG:32617)
+and fetch 1 arc-second (about 30 m) elevation from the USGS National Map with
+[r.in.usgs](https://grass.osgeo.org/grass-stable/manuals/addons/r.in.usgs.html), an
+add-on installed with
+[g.extension](https://grass.osgeo.org/grass-stable/manuals/g.extension.html).
 
-Start a GRASS session in the North Carolina project and set the
-[computational region](https://grass.osgeo.org/grass-stable/manuals/g.region.html)
-to match the `elevation` DEM. The region controls the extent and resolution of every
-raster operation that follows.
+```bash
+# One-time: create the project and install the add-on
+grass -c EPSG:32617 ~/grassdata/nantahala -e
+grass ~/grassdata/nantahala/PERMANENT --exec g.extension extension=r.in.usgs
+```
 
 ```{python}
 import sys
 import subprocess
 
-# Make the GRASS Python packages importable
 sys.path.append(
     subprocess.check_output(["grass", "--config", "python_path"], text=True).strip()
 )
@@ -84,239 +81,357 @@ import grass.script as gs
 import grass.jupyter as gj
 from grass.tools import Tools
 
-# Point this at your GRASS database
-session = gj.init("~/grassdata", "nc_spm_08_grass7", "PERMANENT")
+session = gj.init("~/grassdata", "nantahala", "PERMANENT")
 tools = Tools()
 
-# Work at the resolution and extent of the elevation DEM
+# A ~40 x 39 km window over the Nantahala Mountains, at 30 m resolution
+tools.g_region(n=3916000, s=3877000, w=252000, e=292000, res=30)
+
+# Download and import the National Elevation Dataset for this region
+tools.r_in_usgs(product="ned", ned_dataset="ned1sec", ned_release="all",
+                title_filter="20220725", output_name="elevation",
+                memory=1000, nprocs=2)
 tools.g_region(raster="elevation")
 ```
 
-Let's look at the study area. We apply the `elevation` color table and mark the
-observation point we will use — a small rise near the middle of the DEM at
-easting 637500, northing 221500.
+::: {.callout-note title="About the download"}
+This pulls one NED tile (about 58 MB) and takes a couple of minutes, so the cell is
+not instant. A few `r.in.usgs` details worth knowing:
 
-```{python}
-tools.r_colors(map="elevation", color="elevation")
-
-# Create a vector point for the observer
-gs.write_command(
-    "v.in.ascii", input="-", output="observer", separator="comma",
-    stdin="637500,221500",
-)
-
-elevation_map = gj.Map(width=800)
-elevation_map.d_rast(map="elevation")
-elevation_map.d_vect(map="observer", icon="basic/marker", size=26,
-                     fill_color="blue", color="white")
-elevation_map.d_legend(raster="elevation", at=(5, 45, 2, 5), flags="b")
-elevation_map.d_barscale(flags="n", at=(4, 6))
-elevation_map.show()
-```
-
-![The `elevation` DEM (meters) with the observer point. High ground lies to the northwest; the land falls away to the green valleys in the east and south.](images/study_area.webp)
-
-# A first viewshed
-
-[r.viewshed](https://grass.osgeo.org/grass-stable/manuals/r.viewshed.html) computes,
-for a single observer, which cells of the DEM are visible. We pass the DEM, the
-observer `coordinates`, and an `observer_elevation` — the height of the viewer's eye
-above the ground (1.75 m is a standing person). The `-b` flag returns a simple
-**boolean** result: `1` where the cell is visible and `0` where it is not.
-
-```{python}
-tools.r_viewshed(
-    input="elevation",
-    output="viewshed",
-    coordinates=(637500, 221500),
-    observer_elevation=1.75,
-    flags="b",
-)
-```
-
-To display only the visible area, we set the non-visible cells to null and drape the
-result over a shaded relief map made with
-[r.relief](https://grass.osgeo.org/grass-stable/manuals/r.relief.html).
-
-```{python}
-tools.r_relief(input="elevation", output="relief")
-
-# Keep visible cells (value 1), drop the rest
-tools.r_mapcalc(expression="visible = if(viewshed == 1, 1, null())")
-gs.write_command("r.colors", map="visible", rules="-", stdin="1 red")
-
-viewshed_map = gj.Map(width=800)
-viewshed_map.d_rast(map="relief")
-viewshed_map.d_rast(map="visible")
-viewshed_map.d_vect(map="observer", icon="basic/marker", size=26,
-                    fill_color="blue", color="white")
-viewshed_map.d_barscale(flags="n", at=(4, 6))
-viewshed_map.show()
-```
-
-![Ground-level viewshed (observer height 1.75 m). About 6.4 km² is visible — mostly the nearby ridgelines, while intervening valleys are hidden.](images/viewshed_ground.webp)
-
-From ground level the observer can see roughly **6.4 km²**. Notice how visibility
-follows the terrain: ridge crests that share a line of sight light up, while the
-valleys between them are blocked. You can quantify the visible area with
-[r.stats](https://grass.osgeo.org/grass-stable/manuals/r.stats.html):
-
-```{python}
-# Cell counts for each value (each cell is 10 x 10 m = 100 m²)
-print(tools.r_stats(input="viewshed", flags="c").stdout)
-```
-
-# The effect of observer height
-
-Raising the observer dramatically increases what can be seen — this is exactly why
-lookout towers exist. Let's put the observer on a 40 m tower by changing
-`observer_elevation`.
-
-```{python}
-tools.r_viewshed(
-    input="elevation",
-    output="viewshed_tower",
-    coordinates=(637500, 221500),
-    observer_elevation=40,
-    flags="b",
-)
-tools.r_mapcalc(expression="visible_tower = if(viewshed_tower == 1, 1, null())")
-gs.write_command("r.colors", map="visible_tower", rules="-", stdin="1 red")
-
-tower_map = gj.Map(width=800)
-tower_map.d_rast(map="relief")
-tower_map.d_rast(map="visible_tower")
-tower_map.d_vect(map="observer", icon="basic/marker", size=26,
-                 fill_color="blue", color="white")
-tower_map.d_barscale(flags="n", at=(4, 6))
-tower_map.show()
-```
-
-![Viewshed from a 40 m tower at the same location. The visible area jumps to about 46.6 km² — roughly seven times the ground-level view.](images/viewshed_tower.webp)
-
-The same location now sees about **46.6 km²** — a sevenfold increase — because the
-extra height clears many of the low ridges that blocked the ground-level view. If
-you are modeling visibility *of* a target of known height (say, whether a 30 m
-turbine is visible), use the `target_elevation` parameter instead of, or in addition
-to, `observer_elevation`.
-
-# Limiting the search distance
-
-By default `r.viewshed` searches the entire region. Real observers, however, have a
-practical range — the reach of a radio, the resolution of the eye, or a study area
-boundary. The `max_distance` parameter (in map units, here meters) restricts the
-analysis to a radius around the observer, which also speeds up the computation.
-
-```{python}
-tools.r_viewshed(
-    input="elevation",
-    output="viewshed_3km",
-    coordinates=(637500, 221500),
-    observer_elevation=40,
-    max_distance=3000,
-    flags="b",
-)
-tools.r_mapcalc(expression="visible_3km = if(viewshed_3km == 1, 1, null())")
-gs.write_command("r.colors", map="visible_3km", rules="-", stdin="1 red")
-
-dist_map = gj.Map(width=800)
-dist_map.d_rast(map="relief")
-dist_map.d_rast(map="visible_3km")
-dist_map.d_vect(map="observer", icon="basic/marker", size=26,
-                fill_color="blue", color="white")
-dist_map.d_barscale(flags="n", at=(4, 6))
-dist_map.show()
-```
-
-![The same tower viewshed clipped to a 3 km radius (about 11.4 km² visible). The circular boundary marks the `max_distance` limit.](images/viewshed_maxdist.webp)
-
-Within 3 km, about **11.4 km²** is visible. The crisp circular edge is the distance
-limit; everything beyond it is excluded even where the terrain would otherwise be in
-view.
-
-::: {.callout-tip title="Long-distance viewsheds"}
-For viewsheds spanning many kilometers, add the `-c` flag to account for the
-curvature of the Earth (and atmospheric `refraction_coeff` for the bending of
-light). Ignoring curvature overestimates what is visible at long range.
+- Add `flags="i"` first to preview the tiles and total size without downloading.
+- `ned_release="all"` is needed here because the default `"current"` returns no tiles
+  for this footprint.
+- `title_filter="20220725"` pins one published vintage, which keeps the download and
+  the areas reported below reproducible. Drop it to fetch whatever is current.
 :::
 
-# Cumulative visibility from several sites
+::: {.callout-note title="GRASS version"}
+The examples use the [grass.tools API](https://grass.osgeo.org/grass-stable/manuals/python_intro.html)
+(the `Tools` class), introduced in GRASS 8.5. On earlier versions you can run the same
+tools with `gs.run_command("r.viewshed", ...)`.
+:::
 
-A common planning question is not "what can one site see?" but "how well does a
-*network* of sites cover the landscape?" We can answer this by computing a viewshed
-for each candidate site and adding them together. The result — a **cumulative
-viewshed** — counts how many sites can see each cell.
+# The study area
 
-Here we place five towers across the area and loop over them.
-
-```{python}
-towers = [
-    (633000, 224000),
-    (641000, 224500),
-    (634500, 217500),
-    (642000, 218500),
-    (637500, 221500),
-]
-
-viewshed_maps = []
-for i, (x, y) in enumerate(towers, start=1):
-    name = f"tower_{i}"
-    tools.r_viewshed(
-        input="elevation",
-        output=name,
-        coordinates=(x, y),
-        observer_elevation=40,
-        flags="b",
-    )
-    viewshed_maps.append(name)
-```
-
-Each boolean viewshed contributes a `1` where it is visible, so summing them with
-[r.series](https://grass.osgeo.org/grass-stable/manuals/r.series.html) gives the
-number of towers that see each cell. We drop cells seen by no tower.
+Let's place the three towers and look at the terrain they watch over. We enter their
+coordinates (converted from the published latitude and longitude to UTM 17N), record
+the height of each tower's cab above the ground, and read the summit elevation from
+the DEM with
+[v.what.rast](https://grass.osgeo.org/grass-stable/manuals/v.what.rast.html).
 
 ```{python}
-tools.r_series(input=viewshed_maps, output="cumulative", method="sum")
-tools.r_mapcalc(expression="cumulative = if(cumulative == 0, null(), cumulative)")
-tools.r_colors(map="cumulative", color="plasma")
+towers_csv = """266819|3896041|Wayah Bald|16
+265577|3906808|Wesser Bald|9
+274053|3881661|Albert Mountain|12"""
+
+gs.write_command(
+    "v.in.ascii", input="-", output="towers", separator="pipe",
+    columns="x double precision, y double precision, name varchar(20), tower_m integer",
+    x=1, y=2, stdin=towers_csv,
+)
+tools.v_what_rast(map="towers", raster="elevation", column="base_elev")
+print(tools.v_db_select(map="towers").stdout)
 ```
 
-To show the towers on the map, load them as a single vector layer.
+The summits stand well above the surrounding valleys, from about 1400 m at Wesser Bald
+to 1630 m at Wayah Bald. We render a shaded-relief base with
+[r.relief](https://grass.osgeo.org/grass-stable/manuals/r.relief.html), drape the
+elevation colors over it with
+[r.shade](https://grass.osgeo.org/grass-stable/manuals/r.shade.html), and add the
+towers. A small helper labels each tower with
+[d.text](https://grass.osgeo.org/grass-stable/manuals/d.text.html) at its position in
+the current region.
 
 ```{python}
-towers_csv = "\n".join(f"{x},{y}" for x, y in towers)
-gs.write_command("v.in.ascii", input="-", output="towers",
-                 separator="comma", stdin=towers_csv)
+import json
 
-cumulative_map = gj.Map(width=800)
-cumulative_map.d_rast(map="relief")
-cumulative_map.d_rast(map="cumulative")
-cumulative_map.d_vect(map="towers", icon="basic/marker", size=22,
-                      fill_color="cyan", color="black")
-cumulative_map.d_legend(raster="cumulative", at=(5, 45, 2, 5), flags="b",
-                        title="towers")
-cumulative_map.d_barscale(flags="n", at=(4, 6))
-cumulative_map.show()
+tools.r_relief(input="elevation", output="relief", zscale=1.5)
+tools.r_colors(map="elevation", color="elevation")
+tools.r_shade(shade="relief", color="elevation", output="shaded_elev", brighten=30)
+
+def label_towers(m, only=None):
+    """Draw each tower's name on map m, placed from its coordinates."""
+    r = gs.parse_command("g.region", flags="g")
+    w, e, s, n = float(r["w"]), float(r["e"]), float(r["s"]), float(r["n"])
+    for rec in json.loads(tools.v_db_select(map="towers", format="json").stdout)["records"]:
+        if only and rec["name"] not in only:
+            continue
+        x_pct = (rec["x"] - w) / (e - w) * 100
+        y_pct = (rec["y"] - s) / (n - s) * 100
+        m.d_text(text=rec["name"], at=(x_pct + 1.5, y_pct), color="black",
+                 size=2.6, bgcolor="white")
+
+study = gj.Map(width=600)
+study.d_rast(map="shaded_elev")
+study.d_vect(map="towers", icon="basic/triangle", size=13,
+             fill_color="white", color="black", width=2)
+label_towers(study)
+study.d_legend(raster="elevation", at=(4, 28, 88, 92), flags="b", title="m")
+study.d_barscale(flags="n", at=(2, 5), bgcolor="white")
+study.show()
 ```
 
-![Cumulative visibility from five 40 m towers (cyan markers). Brighter colors mark cells seen by more towers; dark purple cells are seen by only one.](images/cumulative.webp)
+# Why build a tower? Observer height
 
-Cells range from being seen by a single tower (dark purple) up to all five (bright
-yellow). This kind of map is the starting point for **site optimization**: you can
-compare tower layouts, spot redundant coverage, and find the gaps that no site can
-see.
+A lookout standing on Wayah Bald sees a certain area; the same lookout in the tower
+cab sees more, because height clears the nearest ridges. The `observer_elevation`
+parameter sets the eye height above the ground, and the `-b` flag returns a boolean
+map where 1 means visible. Historic lookouts were expected to watch a radius of
+roughly 20 miles, so we cap the search at `max_distance=32000` (32 km) and, at that
+range, apply Earth-curvature correction with `-c` (see the callout below).
+
+```{python}
+WAYAH = (266819, 3896041)
+
+# A person standing on the summit (eye height 1.75 m)
+tools.r_viewshed(input="elevation", output="wayah_ground", coordinates=WAYAH,
+                 observer_elevation=1.75, max_distance=32000, flags="cb", memory=2000)
+
+# The same lookout in the 16 m tower cab
+tools.r_viewshed(input="elevation", output="wayah_tower", coordinates=WAYAH,
+                 observer_elevation=16, max_distance=32000, flags="cb", memory=2000)
+```
+
+A small helper turns a boolean viewshed into a visible area in km², reading the cell
+size from the current region so it matches the imported grid:
+
+```{python}
+def visible_km2(viewshed):
+    res = gs.region()["nsres"]
+    stats = tools.r_stats(input=viewshed, flags="cn").stdout
+    cells = sum(int(line.split()[1]) for line in stats.splitlines()
+                if line.split()[0] == "1")
+    return cells * res * res / 1e6
+
+print(f"standing on the summit: {visible_km2('wayah_ground'):.0f} km2")
+print(f"from the 16 m tower:    {visible_km2('wayah_tower'):.0f} km2")
+```
+
+Standing on the bald, the lookout can see about 165 km². From the tower cab it is
+about 277 km², nearly 70% more for 16 m of extra height. That gain is what made the
+towers worth building. We draw the ground-level viewshed in dark red and the extra area the tower
+adds in orange, zooming in around Wayah Bald.
+
+```{python}
+tools.r_mapcalc(expression="ground_vis = if(wayah_ground == 1, 1, null())")
+tools.r_mapcalc(expression="tower_gain = if(wayah_tower == 1 && wayah_ground == 0, 1, null())")
+gs.write_command("r.colors", map="ground_vis", rules="-", stdin="1 178:24:43")
+gs.write_command("r.colors", map="tower_gain", rules="-", stdin="1 239:138:98")
+
+tools.g_region(n=3908000, s=3884000, w=252000, e=284000, res=30)   # zoom to Wayah Bald
+
+height_map = gj.Map(width=600)
+height_map.d_rast(map="relief")
+height_map.d_rast(map="tower_gain")
+height_map.d_rast(map="ground_vis")
+height_map.d_vect(map="towers", where="name='Wayah Bald'", icon="basic/triangle",
+                  size=13, fill_color="white", color="black", width=2)
+label_towers(height_map, only=["Wayah Bald"])
+height_map.d_barscale(flags="n", at=(2, 5), bgcolor="white")
+height_map.show()
+
+tools.g_region(raster="elevation")   # restore the full region for analysis
+```
+
+![From Wayah Bald: visible standing on the summit (dark red) and the extra area gained from the 16 m tower (orange).](images/observer_height.webp)
+
+::: {.callout-tip title="Does Earth curvature matter here?"}
+Over tens of kilometers, the curve of the Earth drops distant terrain below the line
+of sight. `r.viewshed` corrects for this with the `-c` flag. Rerunning the tower
+viewshed without `-c` reports about 282 km² instead of 277 km², an overestimate of
+roughly 2%. The effect is small here because visibility in these steep mountains is
+limited by intervening ridges rather than by the horizon; over flat land or water at
+the same range the correction matters much more. Atmospheric refraction, which bends
+light back down slightly, is a separate effect enabled by the `-r` flag with
+`refraction_coeff`; we leave it off.
+:::
+
+# Seeing smoke, not ground
+
+A lookout scans for smoke rising above the canopy rather than for the ground itself.
+A column of smoke a few meters tall can clear a ridge that hides the ground behind
+it. `r.viewshed` models this with `target_elevation`, the height of the target above
+the ground. We set it to 15 m, a modest smoke column.
+
+```{python}
+tools.r_viewshed(input="elevation", output="wayah_smoke", coordinates=WAYAH,
+                 observer_elevation=16, target_elevation=15, max_distance=32000,
+                 flags="cb", memory=2000)
+
+print(f"ground visible:   {visible_km2('wayah_tower'):.0f} km2")
+print(f"smoke detectable: {visible_km2('wayah_smoke'):.0f} km2")
+```
+
+Allowing for a 15 m smoke column raises the detectable area from 277 km² to about
+412 km², nearly 50% more. In the map below the dark red is now the tower's full
+terrain view (the 277 km² baseline) and orange is the extra area where the ground is
+hidden but a 15 m smoke column would still be visible.
+
+```{python}
+tools.r_mapcalc(expression="terrain_vis = if(wayah_tower == 1, 1, null())")
+tools.r_mapcalc(expression="smoke_gain = if(wayah_smoke == 1 && wayah_tower == 0, 1, null())")
+gs.write_command("r.colors", map="terrain_vis", rules="-", stdin="1 178:24:43")
+gs.write_command("r.colors", map="smoke_gain", rules="-", stdin="1 253:184:99")
+
+tools.g_region(n=3908000, s=3884000, w=252000, e=284000, res=30)   # zoom to Wayah Bald
+
+smoke_map = gj.Map(width=600)
+smoke_map.d_rast(map="relief")
+smoke_map.d_rast(map="smoke_gain")
+smoke_map.d_rast(map="terrain_vis")
+smoke_map.d_vect(map="towers", where="name='Wayah Bald'", icon="basic/triangle",
+                 size=13, fill_color="white", color="black", width=2)
+label_towers(smoke_map, only=["Wayah Bald"])
+smoke_map.d_barscale(flags="n", at=(2, 5), bgcolor="white")
+smoke_map.show()
+
+tools.g_region(raster="elevation")
+```
+
+![Wayah Bald tower: terrain visible (dark red) and the extra area where a 15 m smoke column is detectable (orange).](images/smoke_detection.webp)
+
+# The tower network
+
+One tower leaves gaps. Towers with overlapping views fill in each other's blind
+spots. We loop over the three towers, compute a smoke-detection viewshed for each using its own cab height, and add
+the boolean maps with
+[r.series](https://grass.osgeo.org/grass-stable/manuals/r.series.html). The sum tells
+us how many towers can detect a fire at each cell.
+
+```{python}
+towers = json.loads(tools.v_db_select(map="towers", format="json").stdout)["records"]
+
+detection_maps = []
+for t in towers:
+    name = t["name"].split()[0].lower()   # wayah, wesser, albert
+    out = f"detect_{name}"
+    tools.r_viewshed(input="elevation", output=out, coordinates=(t["x"], t["y"]),
+                     observer_elevation=t["tower_m"], target_elevation=15,
+                     max_distance=32000, flags="cb", memory=2000)
+    detection_maps.append(out)
+
+tools.r_series(input=detection_maps, output="coverage_sum", method="sum")
+tools.r_mapcalc(expression="coverage = int(coverage_sum)")
+tools.r_null(map="coverage", setnull=0)   # drop cells that are not seen by any tower
+```
+
+How much of the forest does the network cover?
+[r.report](https://grass.osgeo.org/grass-stable/manuals/r.report.html) returns
+per-class areas, and its JSON output is easy to turn into a table.
+
+```{python}
+import pandas as pd
+
+report = json.loads(
+    tools.r_report(map="coverage", units=["k", "p"], format="json").stdout
+)
+rows = []
+for cat in report["categories"]:
+    if cat["category"] not in (1, 2, 3):   # skip any no-data class
+        continue
+    area = next(u["value"] for u in cat["units"] if "kilo" in u["unit"])
+    pct = next(u["value"] for u in cat["units"] if u["unit"] == "percent")
+    rows.append({"seen by (towers)": cat["category"],
+                 "area (km²)": round(area, 1), "share of region": f"{pct:.1f}%"})
+pd.DataFrame(rows)
+```
+
+| seen by (towers) | area (km²) | share of region |
+|---|---|---|
+| 1 | 416.4 | 26.7% |
+| 2 | 214.8 | 13.7% |
+| 3 | 61.1 | 3.9% |
+
+The three towers between them watch about 692 km², or 44% of this 1,560 km² region. Only
+4% is covered by all three at once, along the central ridges where their circles
+overlap. We map the coverage with one color per level.
+
+```{python}
+gs.write_command("r.colors", map="coverage", rules="-",
+                 stdin="1 254:224:139\n2 252:141:89\n3 213:62:79")
+
+coverage_map = gj.Map(width=600)
+coverage_map.d_rast(map="relief")
+coverage_map.d_rast(map="coverage")
+coverage_map.d_vect(map="towers", icon="basic/triangle", size=13,
+                    fill_color="white", color="black", width=2)
+label_towers(coverage_map)
+coverage_map.d_legend(raster="coverage", at=(4, 16, 88, 92), flags="b",
+                      use=[1, 2, 3], title="towers")
+coverage_map.d_barscale(flags="n", at=(2, 5), bgcolor="white")
+coverage_map.show()
+```
+
+![Network detection coverage: terrain seen by one tower (yellow), two (orange), or all three (red).](images/coverage.webp)
+
+# Where should a fourth tower go?
+
+The gap map lets us test candidate sites for a fourth tower. A natural candidate is the highest summit that no current tower can see, since high ground has
+the best chance of a long view. We isolate the blind area, find its highest cell, and
+test a tower there.
+
+```{python}
+# cells no tower currently sees, and their elevation
+tools.r_mapcalc(expression="blind = if(isnull(coverage), 1, null())")
+tools.r_mapcalc(expression="blind_elev = if(isnull(coverage), elevation, null())")
+
+# coordinates of the highest blind cell
+stats = tools.r_stats(input="blind_elev", flags="gn").stdout.strip().splitlines()
+cells = [(float(x), float(y), float(z)) for x, y, z in (s.split() for s in stats)]
+cx, cy, cz = max(cells, key=lambda c: c[2])
+print(f"highest blind summit: ({cx:.0f}, {cy:.0f}), {cz:.0f} m")
+
+# what a 12 m tower there would detect, and how much of the blind area it recovers
+tools.r_viewshed(input="elevation", output="detect_new", coordinates=(cx, cy),
+                 observer_elevation=12, target_elevation=15, max_distance=32000,
+                 flags="cb", memory=2000)
+tools.r_mapcalc(expression="recovered = if(isnull(coverage) && detect_new == 1, 1, null())")
+print(f"blind area:        {visible_km2('blind'):.0f} km2")
+print(f"recovered by tower: {visible_km2('recovered'):.0f} km2")
+```
+
+The best-placed new tower recovers only about 28 km² of the 870 km² blind area, less
+than 4% of it. The gap map shows why: what remains unseen is mostly the valley
+bottoms between the ridges, and no ridgetop tower can see down into a ravine. Beyond a handful of well-sited towers, adding more brings
+sharply diminishing returns. Fire agencies eventually turned to aircraft patrols and,
+later, camera and satellite detection for exactly this reason.
+
+```{python}
+tools.r_mapcalc(expression="covered_now = if(!isnull(coverage), 1, null())")
+gs.write_command("r.colors", map="covered_now", rules="-", stdin="1 150:180:200")
+gs.write_command("r.colors", map="recovered", rules="-", stdin="1 215:25:28")
+gs.write_command("v.in.ascii", input="-", output="candidate", separator="pipe",
+                 columns="x double precision, y double precision", x=1, y=2,
+                 stdin=f"{cx:.0f}|{cy:.0f}")
+
+site_map = gj.Map(width=600)
+site_map.d_rast(map="relief")
+site_map.d_rast(map="covered_now")
+site_map.d_rast(map="recovered")
+site_map.d_vect(map="towers", icon="basic/triangle", size=13,
+                fill_color="white", color="black", width=2)
+site_map.d_vect(map="candidate", icon="basic/star", size=18,
+                fill_color="yellow", color="black", width=2)
+site_map.d_barscale(flags="n", at=(2, 5), bgcolor="white")
+site_map.show()
+```
+
+![Existing coverage (blue), the candidate fourth tower (star), and the small area it recovers (red). Most gaps are valleys no ridgetop tower can see.](images/site_optimization.webp)
 
 # Summary
 
-You have used [r.viewshed](https://grass.osgeo.org/grass-stable/manuals/r.viewshed.html) to:
+You have used
+[r.viewshed](https://grass.osgeo.org/grass-stable/manuals/r.viewshed.html) on USGS
+elevation data to answer the four questions from the introduction:
 
-- compute a single-observer viewshed and measure the visible area,
-- see how **observer height** and **maximum distance** reshape visibility,
-- combine several viewsheds into a **cumulative visibility** map.
+- A 16 m tower sees nearly 70% more terrain than a person standing on the same summit
+  (`observer_elevation`).
+- Earth curvature (`-c`) is a small correction in this rugged terrain, where ridges
+  rather than the horizon limit the view.
+- A rising smoke column (`target_elevation`) can be detected over far more ground
+  than is directly visible.
+- Three towers cover 44% of the forest, and the gaps that remain are valleys where
+  even a well-placed fourth tower gains little.
 
-From here you might explore the exact-angle output of `r.viewshed` (omit the `-b`
-flag to get the vertical angle to each visible cell), correct for Earth curvature on
-larger DEMs, or combine visibility with the
-[Modeling Movement in GRASS](../modeling_movement/GRASS_movement.qmd) tutorial to
-weight routes by how exposed they are. To learn more about working with terrain, see
-[Visualizing and Modeling Terrain from DEMs in GRASS](../terrain_and_DEMs/GRASS_terrain.qmd).
+To combine visibility with routes across the terrain, see
+[Modeling Movement in GRASS](../modeling_movement/GRASS_movement.qmd).
