@@ -290,7 +290,7 @@ choropleth.show()
 
 # Summary
 
-Using the North Carolina schools, roads, and ZIP codes, you have worked through the
+Using the North Carolina schools, roads, and ZIP codes, we have worked through the
 core vector toolkit in GRASS:
 
 - exploring features and attributes with `v.info` and `v.db.select`,
