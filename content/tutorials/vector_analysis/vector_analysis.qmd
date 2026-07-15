@@ -197,7 +197,7 @@ tools.v_select(ainput="elementary", binput="road_buffer",
 print(tools.v_info(map="schools_near", flags="t").stdout)  # points=15
 ```
 
-Only **15 of the 95 elementary schools** lie within 500 m of a major road — a
+Only **15 out of the 95 elementary schools** lie within 500 m of a major road — a
 reminder that major roads here are highways, while most schools sit on local streets.
 
 ```{python}
