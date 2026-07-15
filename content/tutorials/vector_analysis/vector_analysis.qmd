@@ -120,7 +120,7 @@ pd.DataFrame(records).head()
 The `GLEVEL` column records each school's level (`E` for elementary, `M` for
 middle, `H` for high, and so on) — we will use it in a moment to select schools by
 attribute. Let's first draw an overview map: the ZIP code areas, the major roads, and
-every school. In [grass.jupyter](https://grass.osgeo.org/grass-stable/manuals/libpython/grass.jupyter.html),
+the schools. In [grass.jupyter](https://grass.osgeo.org/grass-stable/manuals/libpython/grass.jupyter.html),
 a `Map` object collects display layers and renders them together.
 
 ```{python}
