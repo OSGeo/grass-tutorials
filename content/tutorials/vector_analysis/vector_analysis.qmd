@@ -50,7 +50,7 @@ and `zipcodes_wake` (areas).
 The code uses the GRASS Python API in a Jupyter notebook. If you are new to running
 GRASS from Python, see the
 [Get started with GRASS & Python](https://grass-tutorials.osgeo.org/content/tutorials/get_started/fast_track_grass_and_python.html)
-tutorial. Every step also works from the GRASS GUI or command line — just use the
+tutorial. Every step also works from the GRASS GUI or command line; just use the
 tool name (for example `v.buffer`) with the same parameters.
 :::
 
@@ -117,8 +117,16 @@ records = json.loads(
 pd.DataFrame(records).head()
 ```
 
+| NAMESHORT | GLEVEL | ADDRCITY | CORECAPACI |
+|---|---|---|---|
+| SWIFT CREEK | E | Raleigh | 448.0 |
+| BRIARCLIFF | E | Cary | 540.0 |
+| FARMINGTON WOODS | E | Cary | 523.0 |
+| CARY | H | Cary | 2287.0 |
+| ADAMS | E | Cary | 722.0 |
+
 The `GLEVEL` column records each school's level (`E` for elementary, `M` for
-middle, `H` for high, and so on) — we will use it in a moment to select schools by
+middle, `H` for high, and so on), which we use next to select schools by
 attribute. Let's first draw an overview map: the ZIP code areas, the major roads, and
 the schools. In [grass.jupyter](https://grass.osgeo.org/grass-stable/manuals/libpython/grass.jupyter.html),
 a `Map` object collects display layers and renders them together.
@@ -197,7 +205,7 @@ tools.v_select(ainput="elementary", binput="road_buffer",
 print(tools.v_info(map="schools_near", flags="t").stdout)  # points=15
 ```
 
-Only **15 out of the 95 elementary schools** lie within 500 m of a major road — a
+Only **15 out of the 95 elementary schools** lie within 500 m of a major road, a
 reminder that major roads here are highways, while most schools sit on local streets.
 
 ```{python}
@@ -219,7 +227,7 @@ near_map.show()
 # Overlaying layers
 
 [v.overlay](https://grass.osgeo.org/grass-stable/manuals/v.overlay.html) combines two
-area maps with set operations. With `operator=and` we get the **intersection** — the
+area maps with set operations. With `operator=and` we get the **intersection**, the
 part of the road corridor that falls within each ZIP code area. The output keeps the
 attributes of both inputs (prefixed `a_` and `b_`).
 
@@ -250,11 +258,29 @@ ZIP code:
 ```{python}
 tools.v_to_db(map="buffer_by_zip", option="area", columns="reach_area", units="kilometers")
 
-print(tools.db_select(
-    sql="SELECT b_ZIPNAME, ROUND(SUM(reach_area), 1) AS reach_km2 "
-        "FROM buffer_by_zip GROUP BY b_ZIPNAME ORDER BY reach_km2 DESC"
-).stdout)
+# db.select also returns JSON, so the same pandas pattern works here
+reach = json.loads(
+    tools.db_select(
+        sql="SELECT b_ZIPNAME, ROUND(SUM(reach_area), 1) AS reach_km2 "
+            "FROM buffer_by_zip GROUP BY b_ZIPNAME ORDER BY reach_km2 DESC",
+        format="json",
+    ).stdout
+)["records"]
+
+pd.DataFrame(reach).head(6)
 ```
+
+| b_ZIPNAME | reach_km2 |
+|---|---|
+| RALEIGH | 158.3 |
+| WAKE FOREST | 59.1 |
+| ZEBULON | 42.0 |
+| GARNER | 33.4 |
+| CARY | 32.2 |
+| APEX | 29.5 |
+
+Raleigh leads by a wide margin because it is the largest ZIP code and is crossed by
+the most major roads.
 
 # Counting features per area
 
