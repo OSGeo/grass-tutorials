@@ -93,22 +93,17 @@ tools.g_extension(extension="r.in.usgs")   # install the add-on (only needed onc
 # A ~40 x 39 km window over the Nantahala Mountains, at 30 m resolution
 tools.g_region(n=3916000, s=3877000, w=252000, e=292000, res=30)
 
-# Download and import the National Elevation Dataset for this region
-tools.r_in_usgs(product="ned", ned_dataset="ned1sec", ned_release="all",
-                title_filter="20220725", output_name="elevation",
+# Download and import the current National Elevation Dataset for this region
+tools.r_in_usgs(product="ned", ned_dataset="ned1sec", output_name="elevation",
                 memory=1000, nprocs=2)
 tools.g_region(raster="elevation")
 ```
 
 ::: {.callout-note title="About the download"}
-This pulls one NED tile (about 58 MB) and takes a couple of minutes, so the cell is
-not instant. A few `r.in.usgs` details worth knowing:
-
-- Add `flags="i"` first to preview the tiles and total size without downloading.
-- `ned_release="all"` is needed here because the default `"current"` returns no tiles
-  for this footprint.
-- `title_filter="20220725"` pins one published vintage so the numbers below stay
-  reproducible. Drop it to always fetch whatever NED is current for the area.
+This downloads the current 1 arc-second NED tile for the area (about 58 MB) and takes
+a couple of minutes, so the cell is not instant. Add `flags="i"` first to preview the
+tiles and total size without downloading. USGS occasionally republishes its elevation
+data, so the exact areas reported below may shift a little over time.
 :::
 
 ::: {.callout-note title="GRASS version"}
