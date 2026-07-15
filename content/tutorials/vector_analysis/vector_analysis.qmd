@@ -164,7 +164,7 @@ attr_map.show()
 
 # Buffering
 
-A **buffer** is a zone of a given distance around features. Here we buffer the major
+A **buffer** is an area of a given radius around features. Here we buffer the major
 roads by 500 m with [v.buffer](https://grass.osgeo.org/grass-stable/manuals/v.buffer.html)
 to represent an "along a major road" corridor. The result is an area map.
 
