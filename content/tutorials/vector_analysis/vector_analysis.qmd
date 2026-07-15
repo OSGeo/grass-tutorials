@@ -138,7 +138,7 @@ overview.show()
 
 # Selecting by attribute
 
-To keep just the **95 elementary schools** (`GLEVEL='E'`), use
+To keep just the **elementary schools** (`GLEVEL='E'`), use
 [v.extract](https://grass.osgeo.org/grass-stable/manuals/v.extract.html) with a SQL
 `where` clause.
 
