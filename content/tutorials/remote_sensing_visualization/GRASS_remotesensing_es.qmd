@@ -14,7 +14,7 @@ format:
     code-copy: true
     code-fold: false
 page-layout: article
-categories: [beginner, GUI, imagery, remote sensing, visualization, Spanish]
+categories: [beginner, GUI, remote sensing, visualization, Spanish]
 Description: Análisis y visualización de imágenes satelitales multibanda mediante fusión de imágenes, índices ambientales y reducción de dimensionalidad con análisis de componentes principales.
 execute: 
   eval: false
