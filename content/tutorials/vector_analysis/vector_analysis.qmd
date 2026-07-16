@@ -73,7 +73,7 @@ import grass.script as gs
 import grass.jupyter as gj
 from grass.tools import Tools
 
-session = gj.init("~/grassdata", "nc_spm_08_grass7", "PERMANENT")
+session = gj.init("~/grassdata/nc_spm_08_grass7/PERMANENT")
 tools = Tools()
 
 tools.g_region(vector="zipcodes_wake")
@@ -91,10 +91,10 @@ types and counts, and its `-c` flag lists the attribute columns.
 
 ```{python}
 # Feature summary (points, lines, areas ...)
-print(tools.v_info(map="schools_wake", flags="t").stdout)
+print(tools.v_info(map="schools_wake", flags="t").text)
 
 # Attribute columns
-print(tools.v_info(map="schools_wake", flags="c").stdout)
+print(tools.v_info(map="schools_wake", flags="c").text)
 ```
 
 `schools_wake` has 167 point features. Let's look at the attribute table itself.
@@ -103,18 +103,15 @@ return the table as JSON, which [pandas](https://pandas.pydata.org/) turns into 
 table:
 
 ```{python}
-import json
 import pandas as pd
 
-records = json.loads(
+pd.DataFrame(
     tools.v_db_select(
         map="schools_wake",
         columns="NAMESHORT,GLEVEL,ADDRCITY,CORECAPACI",
         format="json",
-    ).stdout
-)["records"]
-
-pd.DataFrame(records).head()
+    )["records"]
+).head()
 ```
 
 | NAMESHORT | GLEVEL | ADDRCITY | CORECAPACI |
@@ -138,7 +135,7 @@ overview.d_vect(map="zipcodes_wake", type="area",
 overview.d_vect(map="roadsmajor", color="90:90:90", width=1)
 overview.d_vect(map="schools_wake", icon="basic/circle", size=7,
                 fill_color="200:30:30", color="white")
-overview.d_barscale(flags="n", at=(3, 6), bgcolor="white")
+overview.d_barscale(flags="n", at=(60, 4), bgcolor="white")
 overview.show()
 ```
 
@@ -152,7 +149,7 @@ To keep just the **elementary schools** (`GLEVEL='E'`), use
 
 ```{python}
 tools.v_extract(input="schools_wake", output="elementary", where="GLEVEL='E'")
-print(tools.v_info(map="elementary", flags="t").stdout)  # points=95
+print(tools.v_info(map="elementary", flags="t").text)  # points=95
 ```
 
 ```{python}
@@ -164,7 +161,7 @@ attr_map.d_vect(map="schools_wake", icon="basic/circle", size=6,
                 fill_color="180:180:180", color="none")
 attr_map.d_vect(map="elementary", icon="basic/circle", size=8,
                 fill_color="30:120:200", color="white")
-attr_map.d_barscale(flags="n", at=(3, 6), bgcolor="white")
+attr_map.d_barscale(flags="n", at=(60, 4), bgcolor="white")
 attr_map.show()
 ```
 
@@ -186,7 +183,7 @@ buffer_map.d_vect(map="zipcodes_wake", type="area",
                   fill_color="235:235:235", color="180:180:180")
 buffer_map.d_vect(map="road_buffer", type="area", fill_color="255:200:120", color="none")
 buffer_map.d_vect(map="roadsmajor", color="120:70:20", width=1)
-buffer_map.d_barscale(flags="n", at=(3, 6), bgcolor="white")
+buffer_map.d_barscale(flags="n", at=(60, 4), bgcolor="white")
 buffer_map.show()
 ```
 
@@ -202,7 +199,7 @@ we keep the elementary schools that fall inside the road buffer.
 ```{python}
 tools.v_select(ainput="elementary", binput="road_buffer",
                output="schools_near", operator="overlap")
-print(tools.v_info(map="schools_near", flags="t").stdout)  # points=15
+print(tools.v_info(map="schools_near", flags="t").text)  # points=15
 ```
 
 Only **15 out of the 95 elementary schools** lie within 500 m of a major road, a
@@ -218,7 +215,7 @@ near_map.d_vect(map="elementary", icon="basic/circle", size=7,
                 fill_color="150:150:150", color="none")
 near_map.d_vect(map="schools_near", icon="basic/circle", size=9,
                 fill_color="20:150:60", color="white")
-near_map.d_barscale(flags="n", at=(3, 6), bgcolor="white")
+near_map.d_barscale(flags="n", at=(60, 4), bgcolor="white")
 near_map.show()
 ```
 
@@ -242,7 +239,7 @@ overlay_map.d_vect(map="zipcodes_wake", type="area",
                    fill_color="235:235:235", color="180:180:180")
 overlay_map.d_vect(map="buffer_by_zip", type="area",
                    fill_color="120:180:220", color="80:80:80", width=1)
-overlay_map.d_barscale(flags="n", at=(3, 6), bgcolor="white")
+overlay_map.d_barscale(flags="n", at=(60, 4), bgcolor="white")
 overlay_map.show()
 ```
 
@@ -259,15 +256,13 @@ ZIP code:
 tools.v_to_db(map="buffer_by_zip", option="area", columns="reach_area", units="kilometers")
 
 # db.select also returns JSON, so the same pandas pattern works here
-reach = json.loads(
+pd.DataFrame(
     tools.db_select(
         sql="SELECT b_ZIPNAME, ROUND(SUM(reach_area), 1) AS reach_km2 "
             "FROM buffer_by_zip GROUP BY b_ZIPNAME ORDER BY reach_km2 DESC",
         format="json",
-    ).stdout
-)["records"]
-
-pd.DataFrame(reach).head(6)
+    )["records"]
+).head(6)
 ```
 
 | b_ZIPNAME | reach_km2 |
@@ -308,7 +303,7 @@ choropleth.d_vect_thematic(
     colors="255:245:215,255:200:120,240:140:60,200:70:30,140:20:20",
 )
 choropleth.d_vect(map="roadsmajor", color="120:120:120", width=1)
-choropleth.d_barscale(flags="n", at=(3, 6), bgcolor="white")
+choropleth.d_barscale(flags="n", at=(60, 4), bgcolor="white")
 choropleth.show()
 ```
 
