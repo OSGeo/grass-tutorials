@@ -135,7 +135,7 @@ overview.d_vect(map="zipcodes_wake", type="area",
 overview.d_vect(map="roadsmajor", color="90:90:90", width=1)
 overview.d_vect(map="schools_wake", icon="basic/circle", size=7,
                 fill_color="200:30:30", color="white")
-overview.d_barscale(flags="n", at=(60, 4), bgcolor="white")
+overview.d_barscale(flags="n", at=(60, 6), bgcolor="white")
 overview.show()
 ```
 
