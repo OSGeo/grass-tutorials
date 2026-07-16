@@ -79,7 +79,7 @@ import grass.jupyter as gj
 from grass.tools import Tools
 
 # Create the project once, then start a session in it
-project = Path.home() / "grassdata" / "nantahala"
+project = Path.home() / "nantahala"
 if not project.exists():
     gs.create_project(project, epsg="32617")
 
@@ -124,17 +124,17 @@ tower's cab above the ground, then read the summit elevation from the DEM with
 ```{python}
 import io
 
-towers_csv = """266819|3896041|Wayah Bald|16
-265577|3906808|Wesser Bald|9
-274053|3881661|Albert Mountain|12"""
+towers_csv = """266819,3896041,Wayah Bald,16
+265577,3906808,Wesser Bald,9
+274053,3881661,Albert Mountain,12"""
 
 tools.v_in_ascii(
-    input=io.StringIO(towers_csv), output="towers", separator="pipe",
+    input=io.StringIO(towers_csv), output="towers", separator="comma",
     columns="x double precision, y double precision, name varchar(20), tower_m integer",
     x=1, y=2,
 )
 tools.v_what_rast(map="towers", raster="elevation", column="base_elev")
-print(tools.v_db_select(map="towers").stdout)
+print(tools.v_db_select(map="towers").text)
 ```
 
 The summits stand well above the surrounding valleys, from about 1400 m at Wesser Bald
@@ -147,17 +147,15 @@ towers. A small helper labels each tower with
 its position in the current region.
 
 ```{python}
-import json
-
 tools.r_relief(input="elevation", output="relief", zscale=1.5)
 tools.r_colors(map="elevation", color="elevation")
 tools.r_shade(shade="relief", color="elevation", output="shaded_elev", brighten=30)
 
 def label_towers(m, only=None):
     """Write each tower's name on map m, offset to the right of its marker."""
-    r = gs.parse_command("g.region", flags="g")
+    r = tools.g_region(flags="g").keyval
     w, e, s, n = float(r["w"]), float(r["e"]), float(r["s"]), float(r["n"])
-    for rec in json.loads(tools.v_db_select(map="towers", format="json").stdout)["records"]:
+    for rec in tools.v_db_select(map="towers", format="json")["records"]:
         if only and rec["name"] not in only:
             continue
         x_pct = (rec["x"] - w) / (e - w) * 100
@@ -201,8 +199,8 @@ of each class in a viewshed. Category 1 is the visible area; here it grows from 
 165 km² at ground level to 277 km² from the tower.
 
 ```{python}
-print(tools.r_report(map="wayah_ground", units="k", flags="n").stdout)
-print(tools.r_report(map="wayah_tower", units="k", flags="n").stdout)
+print(tools.r_report(map="wayah_ground", units="k", flags="n").text)
+print(tools.r_report(map="wayah_tower", units="k", flags="n").text)
 ```
 
 That is nearly 70% more visible area for 16 m of extra height, which is what made the
@@ -212,8 +210,8 @@ area the tower adds in orange, zooming in around Wayah Bald.
 ```{python}
 tools.r_mapcalc(expression="ground_vis = if(wayah_ground == 1, 1, null())")
 tools.r_mapcalc(expression="tower_gain = if(wayah_tower == 1 && wayah_ground == 0, 1, null())")
-gs.write_command("r.colors", map="ground_vis", rules="-", stdin="1 178:24:43")
-gs.write_command("r.colors", map="tower_gain", rules="-", stdin="1 239:138:98")
+tools.r_colors(map="ground_vis", rules=io.StringIO("1 178:24:43"))
+tools.r_colors(map="tower_gain", rules=io.StringIO("1 239:138:98"))
 
 # Save a closer view around Wayah Bald for this and the next map
 tools.g_region(n=3908000, s=3884000, w=252000, e=284000, res=30, save="wayah_zoom")
@@ -255,7 +253,7 @@ tools.r_viewshed(input="elevation", output="wayah_smoke", coordinates=WAYAH,
                  observer_elevation=16, target_elevation=15, max_distance=32000,
                  flags="cb", memory=2000)
 
-print(tools.r_report(map="wayah_smoke", units="k", flags="n").stdout)
+print(tools.r_report(map="wayah_smoke", units="k", flags="n").text)
 ```
 
 Allowing for a 15 m smoke column raises the detectable area from 277 km² to about
@@ -266,8 +264,8 @@ but a 15 m smoke column would still be visible.
 ```{python}
 tools.r_mapcalc(expression="terrain_vis = if(wayah_tower == 1, 1, null())")
 tools.r_mapcalc(expression="smoke_gain = if(wayah_smoke == 1 && wayah_tower == 0, 1, null())")
-gs.write_command("r.colors", map="terrain_vis", rules="-", stdin="1 178:24:43")
-gs.write_command("r.colors", map="smoke_gain", rules="-", stdin="1 253:184:99")
+tools.r_colors(map="terrain_vis", rules=io.StringIO("1 178:24:43"))
+tools.r_colors(map="smoke_gain", rules=io.StringIO("1 253:184:99"))
 
 smoke_map = gj.Map(width=600, saved_region="wayah_zoom")
 smoke_map.d_rast(map="relief")
@@ -291,7 +289,7 @@ own cab height, and add the boolean maps with
 us how many towers can detect a fire at each cell.
 
 ```{python}
-towers = json.loads(tools.v_db_select(map="towers", format="json").stdout)["records"]
+towers = tools.v_db_select(map="towers", format="json")["records"]
 
 detection_maps = []
 for t in towers:
@@ -315,9 +313,7 @@ per-class areas, and its JSON output turns into a tidy table with pandas.
 ```{python}
 import pandas as pd
 
-report = json.loads(
-    tools.r_report(map="coverage", units=["k", "p"], format="json").stdout
-)
+report = tools.r_report(map="coverage", units=["k", "p"], format="json")
 rows = []
 for cat in report["categories"]:
     if cat["category"] not in (1, 2, 3):   # skip any no-data class
@@ -340,8 +336,7 @@ The three towers together watch about 692 km², or 44% of this 1,562 km² region
 overlap. We map the coverage with one color per level.
 
 ```{python}
-gs.write_command("r.colors", map="coverage", rules="-",
-                 stdin="1 254:224:139\n2 252:141:89\n3 213:62:79")
+tools.r_colors(map="coverage", rules=io.StringIO("1 254:224:139\n2 252:141:89\n3 213:62:79"))
 
 coverage_map = gj.Map(width=600)
 coverage_map.d_rast(map="relief")
@@ -371,9 +366,9 @@ tools.r_mapcalc(expression="blind = if(isnull(coverage), 1, null())")
 tools.r_mapcalc(expression="blind_elev = if(isnull(coverage), elevation, null())")
 
 # coordinates of the highest blind cell
-stats = tools.r_stats(input="blind_elev", flags="gn").stdout.strip().splitlines()
-cells = [(float(x), float(y), float(z)) for x, y, z in (s.split() for s in stats)]
-cx, cy, cz = max(cells, key=lambda c: c[2])
+cells = tools.r_stats(input="blind_elev", flags="gn", format="json").json
+peak = max(cells, key=lambda c: c["categories"][0]["category"])
+cx, cy, cz = peak["east"], peak["north"], peak["categories"][0]["category"]
 print(f"highest blind summit: ({cx:.0f}, {cy:.0f}), {cz:.0f} m")
 
 # what a 12 m tower there would detect, and how much of the blind area it recovers
@@ -382,8 +377,8 @@ tools.r_viewshed(input="elevation", output="detect_new", coordinates=(cx, cy),
                  flags="cb", memory=2000)
 tools.r_mapcalc(expression="recovered = if(isnull(coverage) && detect_new == 1, 1, null())")
 
-print(tools.r_report(map="blind", units="k", flags="n").stdout)
-print(tools.r_report(map="recovered", units="k", flags="n").stdout)
+print(tools.r_report(map="blind", units="k", flags="n").text)
+print(tools.r_report(map="recovered", units="k", flags="n").text)
 ```
 
 The best-placed new tower recovers only about 28 km² of the 870 km² blind area, less
@@ -395,10 +390,10 @@ exactly this reason.
 
 ```{python}
 tools.r_mapcalc(expression="covered_now = if(!isnull(coverage), 1, null())")
-gs.write_command("r.colors", map="covered_now", rules="-", stdin="1 150:180:200")
-gs.write_command("r.colors", map="recovered", rules="-", stdin="1 215:25:28")
-tools.v_in_ascii(input=io.StringIO(f"{cx:.0f}|{cy:.0f}"), output="candidate",
-                 separator="pipe", columns="x double precision, y double precision",
+tools.r_colors(map="covered_now", rules=io.StringIO("1 150:180:200"))
+tools.r_colors(map="recovered", rules=io.StringIO("1 215:25:28"))
+tools.v_in_ascii(input=io.StringIO(f"{cx:.0f},{cy:.0f}"), output="candidate",
+                 separator="comma", columns="x double precision, y double precision",
                  x=1, y=2)
 
 site_map = gj.Map(width=600)
