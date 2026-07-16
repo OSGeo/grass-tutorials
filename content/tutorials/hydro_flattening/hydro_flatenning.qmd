@@ -15,7 +15,7 @@ format:
     code-tools: true
     code-copy: true
     code-fold: false
-categories: [Python, intermediate, topography, lidar, GUI]
+categories: [Python, intermediate, terrain, lidar, GUI]
 description: Learn how to do hydro-flattening of a DEM.
 engine: knitr
 execute:
