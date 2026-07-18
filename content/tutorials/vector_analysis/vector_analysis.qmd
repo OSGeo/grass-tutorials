@@ -135,7 +135,7 @@ overview.d_vect(map="zipcodes_wake", type="area",
 overview.d_vect(map="roadsmajor", color="90:90:90", width=1)
 overview.d_vect(map="schools_wake", icon="basic/circle", size=7,
                 fill_color="200:30:30", color="white")
-overview.d_barscale(flags="n", at=(60, 6), bgcolor="white")
+overview.d_barscale(flags="n", at=(58, 9), bgcolor="white")
 overview.show()
 ```
 
@@ -161,7 +161,7 @@ attr_map.d_vect(map="schools_wake", icon="basic/circle", size=6,
                 fill_color="180:180:180", color="none")
 attr_map.d_vect(map="elementary", icon="basic/circle", size=8,
                 fill_color="30:120:200", color="white")
-attr_map.d_barscale(flags="n", at=(60, 4), bgcolor="white")
+attr_map.d_barscale(flags="n", at=(58, 9), bgcolor="white")
 attr_map.show()
 ```
 
@@ -183,7 +183,7 @@ buffer_map.d_vect(map="zipcodes_wake", type="area",
                   fill_color="235:235:235", color="180:180:180")
 buffer_map.d_vect(map="road_buffer", type="area", fill_color="255:200:120", color="none")
 buffer_map.d_vect(map="roadsmajor", color="120:70:20", width=1)
-buffer_map.d_barscale(flags="n", at=(60, 4), bgcolor="white")
+buffer_map.d_barscale(flags="n", at=(58, 9), bgcolor="white")
 buffer_map.show()
 ```
 
@@ -215,7 +215,7 @@ near_map.d_vect(map="elementary", icon="basic/circle", size=7,
                 fill_color="150:150:150", color="none")
 near_map.d_vect(map="schools_near", icon="basic/circle", size=9,
                 fill_color="20:150:60", color="white")
-near_map.d_barscale(flags="n", at=(60, 4), bgcolor="white")
+near_map.d_barscale(flags="n", at=(58, 9), bgcolor="white")
 near_map.show()
 ```
 
@@ -239,7 +239,7 @@ overlay_map.d_vect(map="zipcodes_wake", type="area",
                    fill_color="235:235:235", color="180:180:180")
 overlay_map.d_vect(map="buffer_by_zip", type="area",
                    fill_color="120:180:220", color="80:80:80", width=1)
-overlay_map.d_barscale(flags="n", at=(60, 4), bgcolor="white")
+overlay_map.d_barscale(flags="n", at=(58, 9), bgcolor="white")
 overlay_map.show()
 ```
 
@@ -303,7 +303,7 @@ choropleth.d_vect_thematic(
     colors="255:245:215,255:200:120,240:140:60,200:70:30,140:20:20",
 )
 choropleth.d_vect(map="roadsmajor", color="120:120:120", width=1)
-choropleth.d_barscale(flags="n", at=(60, 4), bgcolor="white")
+choropleth.d_barscale(flags="n", at=(58, 9), bgcolor="white")
 choropleth.show()
 ```
 
