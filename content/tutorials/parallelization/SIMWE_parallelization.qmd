@@ -534,7 +534,7 @@ We will then create an input precipitation depth raster, assuming uniform rainfa
 tools.r_mapcalc(expression=f"rainfall_{huc12} = {depth}")
 ```
 
-With that we estimate runoff (rainfall excess) with [r.runoff](https://grass.osgeo.org/grass-stable/manuals/r.runoff.html),
+With that we estimate runoff (rainfall excess) with [r.runoff](https://grass.osgeo.org/grass-stable/manuals/addons/r.runoff.html),
 which estimates for each cell total runoff depth in mm for the duration of the storm
 using SCS Curve Number method.
 
