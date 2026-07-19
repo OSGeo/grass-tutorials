@@ -10,7 +10,7 @@
   author: Corey T. White
   image: content/tutorials/external/images/sdm_in_grass_tutorialbanner.png
   date: "2026-07-17"
-  description: Workshop introduction to geoprocessing with GRASS. We aim to introduce you to the basics concepts of Geographic Information Systems (GIS) and how to use GRASS to perform geoprocessing tasks.
+  description: Workshop introduction to geoprocessing with GRASS. We aim to introduce you to the basic concepts of Geographic Information Systems (GIS) and how to use GRASS to perform geoprocessing tasks.
   categories: ['GIS', 'geoprocessing', 'GRASS', 'external']
 - title: Geoprocessing with GRASS GIS and Jupyter Notebooks
   path: https://learning.openplains.com/content/notebooks/us_doi/grass_jupyter.html
