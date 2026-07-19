@@ -17,6 +17,6 @@
   author: Corey T. White
   image: https://learning.openplains.com/content/notebooks/us_doi/grass_jupyter_files/figure-html/cell-30-output-1.png
   date: "2024-08-22"
-  description: This tutorial demonstrates how to use GRASS GIS in Jupyter Notebooks.
+  description: This tutorial demonstrates how to use GRASS in Jupyter Notebooks.
   categories: ['GIS', 'geoprocessing', 'GRASS', 'external']
 
