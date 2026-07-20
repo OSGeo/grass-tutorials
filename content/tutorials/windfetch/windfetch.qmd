@@ -26,7 +26,7 @@ jupyter: python3
 # Introduction
 
 Wind fetch — the distance wind blows across open water — is a key factor in wave generation and shoreline exposure. It is widely used in coastal engineering to estimate wave height, and in ecology to assess habitat vulnerability to wave energy. This tutorial demonstrates how to use the 
-[r.windfetch](https://grass.osgeo.org/grass-devel/manuals/r.windfetch.html) addon in GRASS to compute fetch lengths for a case study on the North Carolina coast.
+[r.windfetch](https://grass.osgeo.org/grass-stable/manuals/addons/r.windfetch.html) addon in GRASS to compute fetch lengths for a case study on the North Carolina coast.
 
 We will:
 
