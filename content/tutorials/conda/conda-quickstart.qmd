@@ -18,6 +18,7 @@ links:
   conda_create: "[conda create](https://docs.conda.io/projects/conda/en/stable/commands/create.html)"
   conda_install: "[conda install](https://docs.conda.io/projects/conda/en/stable/commands/install.html)"
   conda_activate: "[conda activate](https://docs.conda.io/projects/conda/en/stable/commands/activate.html)"
+  conda_env_create: "[conda env create](https://docs.conda.io/projects/conda/en/stable/commands/env/create.html)"
 format:
   ipynb: default
   html:
