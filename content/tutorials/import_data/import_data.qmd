@@ -16,6 +16,11 @@ code-links:
     href: raleigh_northcarolina_usa_epsg6542.ipynb
     icon: file-code
     target: _blank
+other-links:
+  - text: Sample dataset (Zenodo)
+    href: https://doi.org/10.5281/zenodo.22129931
+    icon: database
+    target: _blank
 resources: raleigh_northcarolina_usa_epsg6542.ipynb
 format:
   html:
@@ -44,7 +49,9 @@ reusable part is the list of layers and what each one holds, not the particular 
 used here - a course taught in another language would localize those.
 Material written against the North Carolina dataset
 (tutorials, course exercises, scripts) can be run with the derived localized datasets.
-To see all the layers, download the [notebook](raleigh_northcarolina_usa_epsg6542.ipynb).
+To see all the layers, download the [notebook](raleigh_northcarolina_usa_epsg6542.ipynb)
+or the finished dataset itself, published on Zenodo as
+[10.5281/zenodo.22129931](https://doi.org/10.5281/zenodo.22129931).
 
 ::: {.callout-important title="The case study is US-specific"}
 Because the dataset is for North Carolina, most of the *sources* here are United States
@@ -658,6 +665,8 @@ flag instead.
 # Sources
 
 Every layer here comes from someone else's work, published under its own terms.
+The [published dataset](https://doi.org/10.5281/zenodo.22129931) ships a LICENSE file
+with the per-layer terms.
 
 | Layer | Source | Terms and documentation |
 |---|---|---|
