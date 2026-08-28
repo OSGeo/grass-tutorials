@@ -41,7 +41,8 @@ Comenzaremos con una breve descripción general de las imágenes satelitales mul
 :::::
 
 ::: {.callout-note title="Dataset"}
-Este tutorial utiliza uno de los conjuntos de datos de muestra estándar de GRASS para Flagstaff, Arizona, EE. UU.: ***flagstaff_arizona_usa***. Nos referiremos a los topónimos de ese conjunto de datos, pero puede completarse con cualquiera de los [conjuntos de datos de muestra estándar](https://grass.osgeo.org/download/data/) para cualquier región, por ejemplo, la [Conjunto de datos de Carolina del Norte](https://grass.osgeo.org/sampledata/north_carolina/nc_spm_08_grass7.zip).
+Este tutorial utiliza uno de los conjuntos de datos de muestra estándar de GRASS para Flagstaff, Arizona, EE. UU.: [flagstaff_arizona_usa](https://grass.osgeo.org/sampledata/flagstaff_az_usa_epsg6341.zip).
+Nos referiremos a los topónimos de ese conjunto de datos, pero puede completarse con cualquiera de los [conjuntos de datos de muestra estándar](https://grass.osgeo.org/download/data/) para cualquier región, por ejemplo, la [Conjunto de datos de Carolina del Norte](https://grass.osgeo.org/sampledata/north_carolina/nc_spm_08_grass7.zip).
 
 Utilizaremos un conjunto de imágenes del satélite **Landsat 8** y el mapa ráster DEM de *elevación* (elevation). Sin embargo, este tutorial también puede utilizarse con otras imágenes multibanda, como Sentinel o Terra/ASTER. Con imágenes satelitales distintas a las del Landsat 8, los números de banda pueden diferir de los descritos en este tutorial.
 :::

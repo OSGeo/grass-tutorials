@@ -39,7 +39,8 @@ O GRASS possui diversas ferramentas que podem ajudar você a visualizar e modela
 Este tutorial explorará essas ferramentas, mas elas são apenas alguns dos muitos módulos do GRASS para representar e analisar paisagens.
 
 ::: {.callout-note title="Demo Dataset"}
-Este tutorial usa um dos conjuntos de dados de amostra padrão do GRASS para Flagstaff, Arizona, EUA: ***flagstaff_arizona_usa***. Faremos referência a nomes de lugares nesse conjunto de dados, mas ele pode ser completado com qualquer um dos [conjuntos de dados de amostra padrão](https://grass.osgeo.org/download/data/) para qualquer região - por exemplo, [Conjunto de dados da Carolina do Norte](https://grass.osgeo.org/sampledata/north_carolina/nc_spm_08_grass7.zip). Usaremos o MDE elevação (*elevation* *DEM*).
+Este tutorial usa um dos conjuntos de dados de amostra padrão do GRASS para Flagstaff, Arizona, EUA: [flagstaff_arizona_usa](https://grass.osgeo.org/sampledata/flagstaff_az_usa_epsg6341.zip).
+Faremos referência a nomes de lugares nesse conjunto de dados, mas ele pode ser completado com qualquer um dos [conjuntos de dados de amostra padrão](https://grass.osgeo.org/download/data/) para qualquer região - por exemplo, [Conjunto de dados da Carolina do Norte](https://grass.osgeo.org/sampledata/north_carolina/nc_spm_08_grass7.zip). Usaremos o MDE elevação (*elevation* *DEM*).
 :::
 
 ::: {.callout-note title="GRASS interfaces"}

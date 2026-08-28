@@ -39,7 +39,8 @@ GRASS has many tools that can help you visualize and model terrain from digital 
 This tutorial will explore these tools, but they are only a few of the many GRASS modules to represent and analyze landscapes.  
 
 ::: {.callout-note title="Demo Dataset"}
-This tutorial uses one of the standard GRASS sample data sets for Flagstaff, Arizona, USA: ***flagstaff_arizona_usa***. We will refer to place names in that data set, but it can be completed with any of the [standard sample data sets](https://grass.osgeo.org/download/data/) for any region--for example, the [North Carolina data set](https://grass.osgeo.org/sampledata/north_carolina/nc_spm_08_grass7.zip). We will use the *elevation* DEM.  
+This tutorial uses one of the standard GRASS sample data sets for Flagstaff, Arizona, USA: [flagstaff_arizona_usa](https://grass.osgeo.org/sampledata/flagstaff_az_usa_epsg6341.zip).
+We will refer to place names in that data set, but it can be completed with any of the [standard sample data sets](https://grass.osgeo.org/download/data/) for any region--for example, the [North Carolina data set](https://grass.osgeo.org/sampledata/north_carolina/nc_spm_08_grass7.zip). We will use the *elevation* DEM.
 :::
 
 ::: {.callout-note title="GRASS interfaces"}

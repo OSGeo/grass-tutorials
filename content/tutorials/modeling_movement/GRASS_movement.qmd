@@ -28,7 +28,8 @@ funding: "Creation of this tutorial was supported in part by US National Science
 GRASS has sophisticated tools to model movement across terrain, including [r.cost](https://grass.osgeo.org/grass-stable/manuals/r.cost.html), [r.walk](https://grass.osgeo.org/grass-stable/manuals/r.walk.html), [r.drain](https://grass.osgeo.org/grass-stable/manuals/r.drain.html), and [r.path](https://grass.osgeo.org/grass-stable/manuals/r.path.html). In this tutorial, we will use ***r.walk*** and ***r.path*** to determine the best walking path to reach a destination, like a hospital.  
 
 ::: {.callout-note title="Dataset"}
-This tutorial uses one of the standard GRASS sample data sets: flagstaff_arizona_usa. We will refer to place names in that data set, but it can be completed with any of the [standard sample data sets](https://grass.osgeo.org/download/data/) for any region--for example, the [North Carolina data set](https://grass.osgeo.org/sampledata/north_carolina/nc_basic_spm_grass7.zip). We will use the Flagstaff *elevation* DEM, the *hospitals* vector points file (any other vector point file will serve), and the *landuse* raster map.  
+This tutorial uses one of the standard GRASS sample data sets: [flagstaff_arizona_usa](https://grass.osgeo.org/sampledata/flagstaff_az_usa_epsg6341.zip).
+We will refer to place names in that data set, but it can be completed with any of the [standard sample data sets](https://grass.osgeo.org/download/data/) for any region--for example, the [North Carolina data set](https://grass.osgeo.org/sampledata/raleigh_northcarolina_usa_epsg6542.zip). We will use the Flagstaff *elevation* DEM, the *hospitals* vector points file (any other vector point file will serve), and the *landuse* raster map.
 
 This tutorial is designed so that you can complete it using the **GRASS GUI**, GRASS commands from the **console or terminal**, or using GRASS commands in a **Jupyter Notebook** environment.  
 :::

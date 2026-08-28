@@ -41,7 +41,8 @@ We will start with a quick overview of multi-band satellite imagery.
 :::::
 
 ::: {.callout-note title="Dataset"}
-This tutorial uses one of the standard GRASS sample data sets for Flagstaff, Arizona, USA: ***flagstaff_arizona_usa***. We will refer to place names in that data set, but it can be completed with any of the [standard sample data sets](https://grass.osgeo.org/download/data/) for any region--for example, the [North Carolina data set](https://grass.osgeo.org/sampledata/north_carolina/nc_spm_08_grass7.zip).  
+This tutorial uses one of the standard GRASS sample data sets for Flagstaff, Arizona, USA: [flagstaff_arizona_usa](https://grass.osgeo.org/sampledata/flagstaff_az_usa_epsg6341.zip).
+We will refer to place names in that data set, but it can be completed with any of the [standard sample data sets](https://grass.osgeo.org/download/data/) for any region--for example, the [North Carolina data set](https://grass.osgeo.org/sampledata/north_carolina/nc_spm_08_grass7.zip).
 
 We will use a set of images from the **Landsat 8 satellite** and the *elevation* DEM raster map. However, this tutorial can also be used with other multi-band imagery, such as Sentinel or Terra/ASTER. With other satellite imagery than Landsat 8, the band numbers may differ from those described in this tutorial.  
 :::
