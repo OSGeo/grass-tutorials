@@ -46,10 +46,10 @@ It is a tour, not a reference: GRASS has more import tools than we can cover her
 
 This is also a **template** for assembling an equivalent dataset for another area.
 Use this recipe with another area's sources to get the same set of layers for a different place.
-Keeping the names (such as "elevation" and "roads") will allow you to reuse tutorials
+Keeping the names (such as `elevation` and `roads`) will allow you to reuse tutorials
 and other materials prepared for the Raleigh, North Carolina dataset with little to no modifications.
 Using this as a template to create datasets with localized names (e.g. in Spanish),
-but same set of layers (such an digital elevation model layer, roads layer),
+but same set of layers (such as a digital elevation model layer, roads layer),
 will allow almost one-to-one correspondence when creating a localized tutorial
 based on an existing tutorial in English. To see all the layers,
 download the [notebook](raleigh_northcarolina_usa_epsg6542.ipynb)
@@ -58,12 +58,11 @@ or the finished dataset itself, published on Zenodo as
 An existing example of a dataset for a different area which follows this template is the
 [Flagstaff, Arizona sample dataset](https://grass.osgeo.org/sampledata/flagstaff_az_usa_epsg6341.zip).
 
-
 ::: {.callout-important title="The case study is US-specific"}
 Because the dataset is for North Carolina, most of the *sources* here are United States
 only: the `r.in.usgs` and `r.in.ssurgo` add-ons, and the pygris package (US Census).
-Several are state or county level and have no national
-equivalent even within the US (NC OneMap and Wake County GIS).
+Narrower still are NC OneMap and Wake County GIS, which are state and county level and
+have no national equivalent even within the US.
 
 The *methods* transfer anywhere, and so do the tools doing the actual importing:
 `r.import`, `v.import`, `r.external`, `r.proj`, and `v.in.ags`.
@@ -300,7 +299,7 @@ from where they can be installed:
 tools.g_extension(extension="r.in.usgs")
 ```
 
-The nice property they typically share: When the extent of the source dataset is large,
+The nice property they typically share: when the extent of the source dataset is large,
 they take the computational region as the area of
 interest, so there is no bounding box to type.
 
@@ -498,8 +497,9 @@ for k in keys:
 Now the import.
 Left to its defaults, `r.import` brings in the whole file and estimates the cell size
 from the reprojected source. Here that means the entire Landsat scene, far larger than
-our study area, at some value near 30 m. Instead, `resolution="value"` with `resolution_value=30` pins
-the cell size to a round 30 m.
+our study area, at some value near 30 m. We want neither: `extent="region"` clips each
+band to the computational region, and `resolution="value"` with `resolution_value=30`
+pins the cell size to a round 30 m.
 
 While we are here we attach the metadata that makes imagery usable later: a
 [semantic label](https://grass.osgeo.org/grass-stable/manuals/r.semantic.label.html)
