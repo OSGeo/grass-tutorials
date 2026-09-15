@@ -1,0 +1,22 @@
+- title: STAC Tutorial
+  path: https://learning.openplains.com/content/notebooks/stac_tutorial/t_stac_tutorial.html
+  author: Corey T. White
+  image: https://learning.openplains.com/content/notebooks/stac_tutorial/images/stac-to-the-future.png
+  date: "2026-07-17"
+  description: Learn how to use the GRASS addon t.stac to search and import STAC API data into a GRASS project.
+  categories: ['STAC', 'import', 'cloud-native', 'external']
+- title: Intro to Geoprocessing with GRASS
+  path: https://learning.openplains.com/content/workshops/smackhack25/ncssm_workshop_files/figure-html/cell-36-output-1.png
+  author: Corey T. White
+  image: content/tutorials/external/images/sdm_in_grass_tutorialbanner.png
+  date: "2026-07-17"
+  description: Workshop introduction to geoprocessing with GRASS. We aim to introduce you to the basic concepts of Geographic Information Systems (GIS) and how to use GRASS to perform geoprocessing tasks.
+  categories: ['GIS', 'geoprocessing', 'GRASS', 'external']
+- title: Geoprocessing with GRASS and Jupyter Notebooks
+  path: https://learning.openplains.com/content/notebooks/us_doi/grass_jupyter.html
+  author: Corey T. White
+  image: https://learning.openplains.com/content/notebooks/us_doi/grass_jupyter_files/figure-html/cell-30-output-1.png
+  date: "2024-08-22"
+  description: This tutorial demonstrates how to use GRASS in Jupyter Notebooks.
+  categories: ['GIS', 'geoprocessing', 'GRASS', 'external']
+
