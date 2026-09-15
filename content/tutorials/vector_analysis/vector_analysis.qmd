@@ -309,6 +309,9 @@ choropleth.show()
 
 ![Schools per ZIP code area, classified into five quantiles from light (few) to dark (many).](images/choropleth.webp)
 
+See also a dedicated tutorial on
+[Making Thematic Maps](../thematic_maps/thematic_maps.qmd).
+
 # Summary
 
 Using the North Carolina schools, roads, and ZIP codes, we have worked through the
@@ -319,6 +322,3 @@ core vector toolkit in GRASS:
 - **buffering** (`v.buffer`) and **overlaying** (`v.overlay`) layers, and
 - **counting** points per area (`v.vect.stats`) for a thematic map.
 
-The operations described here are common in most vector workflows. To turn results
-like the choropleth into a finished, annotated map, continue with
-[Making Thematic Maps](../thematic_maps/thematic_maps.qmd).
