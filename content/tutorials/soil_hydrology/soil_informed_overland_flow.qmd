@@ -284,20 +284,32 @@ uses the local mode with a state-wide gSSURGO file. The local mode requires the
 The three texture separates (i.e., sand, silt, and clay) are the required
 ROSETTA inputs. Bulk density is optional and improves the estimate.
 
+All three share one 0 to 70% color table, so the panels show their relative size
+as well as their internal variation.
+
 ```{python}
-for name, label in [("sand", "Sand %"), ("clay", "Clay %")]:
-    tools.r_colors(map=name, color="sepia", flags="e")
-    texture = gj.Map(width=700, height=760)
-    texture.d_shade(shade="relief", color=name, brighten=40)
-    texture.d_legend(raster=name, at=(5, 45, 4, 8), flags="b", title=label, fontsize=12)
-    texture.show()
+rules = """0 241:230:218
+12 222:200:177
+23 202:171:138
+35 177:140:99
+47 149:109:64
+58 118:80:36
+70 84:53:15
+nv 255:255:255
+"""
+for name in ["sand", "silt", "clay"]:
+    tools.r_colors(map=name, rules="-", stdin=rules)
+
+texture = gj.Map(width=700, height=760)
+texture.d_shade(shade="relief", color="sand", brighten=25)
+texture.d_legend(
+    raster="sand", at=(6, 10, 10, 90), flags="st",
+    range=(0, 70), title="Fraction of mineral soil (%)",
+)
+texture.show()
 ```
 
-::: {layout-ncol=2}
-![Sand content](images/texture_sand.webp)
-
-![Clay content](images/texture_clay.webp)
-:::
+![](images/texture_comparison.webp)
 
 The site averages 67% sand and 12% clay. The texture rasters are piecewise
 constant because SSURGO reports one value per map unit, and seven map units
