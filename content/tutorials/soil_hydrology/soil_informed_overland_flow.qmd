@@ -82,6 +82,7 @@ tell Python where the GRASS Python package is (can be skipped for some
 environments).
 
 ```{python}
+import io
 import os
 import sys
 import subprocess
@@ -202,7 +203,6 @@ gravel access roads, and wooded margins.
 site = gj.Map(width=900, height=900)
 site.d_rgb(red="naip.1", green="naip.2", blue="naip.3")
 site.d_vect(map="streams", color="30:120:220", width=2)
-site.d_vect(map="roads", color="240:240:240", width=1)
 site.d_barscale(at=(4, 6), flags="n")
 site.show()
 ```
@@ -298,7 +298,7 @@ rules = """0 241:230:218
 nv 255:255:255
 """
 for name in ["sand", "silt", "clay"]:
-    tools.r_colors(map=name, rules="-", stdin=rules)
+    tools.r_colors(map=name, rules="-", stdin=io.StringIO(rules))
 
 texture = gj.Map(width=700, height=760)
 texture.d_shade(shade="relief", color="sand", brighten=25)
@@ -316,16 +316,18 @@ constant because SSURGO reports one value per map unit, and seven map units
 cover the entire site (15 polygons, several of which share a map unit key).
 
 ```{python}
+print(f"{'raster':<8}{'min':>8}{'max':>8}{'mean':>8}")
 for name in ["sand", "silt", "clay", "bd"]:
     stats = tools.r_univar(map=name, format="json")
-    print(f"{name:5s} min={stats['min']:7.2f} max={stats['max']:7.2f} mean={stats['mean']:7.2f}")
+    print(f"{name:<8}{stats['min']:>8.2f}{stats['max']:>8.2f}{stats['mean']:>8.2f}")
 ```
 
 ```text
-sand  min=  40.00 max=  68.00 mean=  67.20
-silt  min=  20.00 max=  37.00 mean=  20.92
-clay  min=  10.00 max=  23.00 mean=  11.89
-bd    min=   1.38 max=   1.58 mean=   1.58
+raster       min     max    mean
+sand       40.00   68.00   67.20
+silt       20.00   37.00   20.92
+clay       10.00   23.00   11.89
+bd          1.38    1.58    1.58
 ```
 
 # Estimating hydraulic parameters with ROSETTA
@@ -395,14 +397,16 @@ imported above as `ssurgo_ksat_r`. We compare the two on a shared absolute color
 scale.
 
 ```{python}
+print(f"{'raster':<16}{'min':>8}{'max':>8}{'mean':>8}")
 for name in ["ksat_rosetta", "ssurgo_ksat_r"]:
     stats = tools.r_univar(map=name, format="json")
-    print(f"{name:15s} min={stats['min']:7.2f} max={stats['max']:7.2f} mean={stats['mean']:7.2f}")
+    print(f"{name:<16}{stats['min']:>8.2f}{stats['max']:>8.2f}{stats['mean']:>8.2f}")
 ```
 
 ```text
-ksat_rosetta    min=   6.79 max=  13.24 mean=  12.41
-ssurgo_ksat_r   min=  32.40 max= 100.80 mean=  99.84
+raster               min     max    mean
+ksat_rosetta        6.79   13.24   12.41
+ssurgo_ksat_r      32.40  100.80   99.84
 ```
 
 Both panels share one absolute color table, log-spaced over the NRCS class range.
@@ -417,7 +421,7 @@ rules = """3 205:226:251
 nv 255:255:255
 """
 for name in ["ksat_rosetta", "ssurgo_ksat_r"]:
-    tools.r_colors(map=name, rules="-", stdin=rules)
+    tools.r_colors(map=name, rules="-", stdin=io.StringIO(rules))
 
 ksat_cmp = gj.Map(width=700, height=760)
 ksat_cmp.d_shade(shade="relief", color="ksat_rosetta", brighten=22)
@@ -606,7 +610,7 @@ rules = """
 5:5:0.20:0.20
 6:6:0.03:0.03
 """
-tools.r_recode(input="landcover", output="manning", rules="-", stdin=rules)
+tools.r_recode(input="landcover", output="manning", rules="-", stdin=io.StringIO(rules))
 ```
 
 `manning` takes six values, so for display we reclass it to ordered classes
@@ -621,7 +625,7 @@ reclass = """2 = 1 0.011  paved road
 5 = 6 0.200  forest
 """
 tools.r_reclass(
-    input="landcover", output="manning_class", rules="-", stdin=reclass
+    input="landcover", output="manning_class", rules="-", stdin=io.StringIO(reclass)
 )
 tools.r_colors(map="manning_class", color="greens")
 
@@ -696,8 +700,6 @@ tools.r_sim_water(
 )
 ```
 
-`random_seed` is set so the runs use the same walker sampling. Without it, Monte
-Carlo noise would be included in the differences computed below.
 
 ::: {.callout-tip title="Simulation run time"}
 Each run covers 525,000 cells with roughly a million walkers, so expect several
@@ -741,7 +743,7 @@ rules = """0 226:197:164
 nv 255:255:255
 """
 for name in ["depth_uniform", "depth_rosetta", "depth_ssurgo"]:
-    tools.r_colors(map=name, rules="-", stdin=rules)
+    tools.r_colors(map=name, rules="-", stdin=io.StringIO(rules))
 
 depth_map = gj.Map(width=700, height=760)
 depth_map.d_shade(shade="relief", color="depth_rosetta", brighten=50)
