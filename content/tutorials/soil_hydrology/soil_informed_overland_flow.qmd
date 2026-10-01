@@ -682,15 +682,36 @@ tools.r_sim_water(
 
 # Results
 
-The three depth maps share one absolute color scale and can be compared directly.
+The three runs share one color table so the panels can be compared directly. Flow
+depth at this site spans four orders of magnitude, from a sheet a fraction of a
+millimeter deep over most of the surface to more than a meter in the ponds, so
+the color breaks are spaced logarithmically. A linear ramp would put almost every
+cell in the first class and show little more than the channels.
 
-::: {layout-ncol=3}
-![Uniform 12.4 mm/hr](images/depth_uniform.webp)
+```{python}
+rules = """0 226:197:164
+0.002 191:172:131
+0.008 127:154:132
+0.03 77:128:131
+0.12 39:99:120
+0.45 10:70:103
+1.8 3:42:76
+nv 255:255:255
+"""
+for name in ["depth_uniform", "depth_rosetta", "depth_ssurgo"]:
+    tools.r_colors(map=name, rules="-", stdin=rules)
 
-![ROSETTA field](images/depth_rosetta.webp)
+depth_map = gj.Map(width=700, height=760)
+depth_map.d_shade(shade="relief", color="depth_rosetta", brighten=50)
+depth_map.d_vect(map="streams", color="90:90:90", width=1)
+depth_map.d_legend(
+    raster="depth_rosetta", at=(6, 10, 10, 90), flags="stl",
+    range=(0.001, 1.8), title="Water depth (m)",
+)
+depth_map.show()
+```
 
-![SSURGO Ksat](images/depth_ssurgo.webp)
-:::
+![](images/depth_comparison.webp)
 
 ```{python}
 for name in ["depth_uniform", "depth_rosetta", "depth_ssurgo"]:
