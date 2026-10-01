@@ -526,40 +526,40 @@ walker-based) method [@mitas_distributed_1998; @mitasova_path_2004]. Besides
 elevation it needs a surface roughness map, a rainfall rate, and an infiltration
 rate. The partial derivatives of the surface are computed internally.
 
-Manning's n comes from land cover, using standard overland flow roughness values
-ranging from 0.011 for pavement to 0.20 for forest floor.
+Manning's n comes from land cover through the
+[r.manning](https://grass.osgeo.org/grass-stable/manuals/addons/r.manning.html)
+addon, which ships coefficients for NLCD and ESA WorldCover and takes a
+`code,n` rules file for anything else. The SECREF classes are custom, so we
+supply our own, ranging from 0.011 for pavement to 0.20 for forest floor.
 
 ```{python}
-rules = """
-1:1:0.05:0.05
-2:2:0.011:0.011
-3:3:0.02:0.02
-4:4:0.10:0.10
-5:5:0.20:0.20
-6:6:0.03:0.03
+tools.g_extension(extension="r.manning")
+
+rules = """# code,n
+1,0.05
+2,0.011
+3,0.02
+4,0.10
+5,0.20
+6,0.03
 """
-tools.r_recode(input="landcover", output="manning", rules="-", stdin=io.StringIO(rules))
+rules_file = Path("manning_rules.csv")
+rules_file.write_text(rules)
+
+tools.r_manning(
+    input="landcover",
+    output="manning",
+    landcover="custom",
+    rules=str(rules_file),
+)
 ```
 
-`manning` takes six values, so for display we reclass it to ordered classes
-labelled with the n value and the cover type it came from.
-
 ```{python}
-reclass = """2 = 1 0.011  paved road
-3 = 2 0.020  compacted road
-6 = 3 0.030  water
-1 = 4 0.050  developed
-4 = 5 0.100  herbaceous
-5 = 6 0.200  forest
-"""
-tools.r_reclass(
-    input="landcover", output="manning_class", rules="-", stdin=io.StringIO(reclass)
-)
-tools.r_colors(map="manning_class", color="greens")
-
 manning_map = gj.Map(width=900, height=900)
-manning_map.d_rast(map="manning_class")
-manning_map.d_legend(raster="manning_class", at=(38, 62, 4, 8), flags="cn")
+manning_map.d_rast(map="manning")
+manning_map.d_legend(
+    raster="manning", at=(6, 10, 10, 90), flags="stl", title="Manning's n"
+)
 manning_map.show()
 ```
 
