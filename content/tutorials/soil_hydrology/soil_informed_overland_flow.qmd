@@ -235,7 +235,7 @@ road, herbaceous, forest, water) will supply the surface roughness values later.
 
 ```{python}
 lc = gj.Map(width=900, height=900)
-lc.d_rast(map="landcover")
+lc.d_shade(shade="relief", color="landcover", brighten=35)
 lc.d_legend(raster="landcover", at=(4, 26, 3, 6), flags="cb", fontsize=12)
 lc.show()
 ```
@@ -558,7 +558,7 @@ tools.r_manning(
 
 ```{python}
 manning_map = gj.Map(width=900, height=900)
-manning_map.d_rast(map="manning")
+manning_map.d_shade(shade="relief", color="manning", brighten=35)
 manning_map.d_legend(
     raster="manning", at=(6, 10, 10, 90), flags="stl", title="Manning's n"
 )
