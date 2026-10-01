@@ -1,0 +1,8 @@
+COMMAND: v.overlay ainput="soils" alayer="1" atype="auto" binput="temp_376471" blayer="1" btype="area" operator="and" output="soils_clipped" olayer="0,1,0" snap=1e-8 minsize=0
+GISDBASE: /home/akratoc/grassdata
+LOCATION: raleigh_northcarolina_usa_epsg6542 MAPSET: SIMWE USER: akratoc DATE: Mon Sep 28 09:04:00 2026
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+COMMAND: v.db.addcolumn map=soils 'columns=hsg INTEGER'
+GISDBASE: /home/akratoc/grassdata
+LOCATION: raleigh_northcarolina_usa_epsg6542 MAPSET: SIMWE USER: akratoc DATE: Mon Sep 28 09:04:03 2026

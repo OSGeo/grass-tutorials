@@ -123,6 +123,114 @@ The plots later in the tutorial use pandas, seaborn, and matplotlib.
 !pip install rosetta-soil pandas seaborn matplotlib
 ```
 
+The maps in this tutorial put their legend outside the map frame, and several
+place two or three panels side by side under one shared legend. `d.legend`
+draws inside the frame, so these figures are assembled from separate renders
+with Pillow. The helpers below do that assembly and are used by every figure
+that follows.
+
+```{python}
+#| code-fold: true
+#| code-summary: "Show the figure helpers"
+from PIL import Image, ImageChops, ImageDraw, ImageFont
+
+FONT = "DejaVuSerif"
+FONT_FILE = "/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf"
+WHITE = (255, 255, 255)
+INK = (11, 11, 11)
+LEG_FS, LEG_TITLE_FS = 16, 18
+
+
+def flatten(path, size=None):
+    """Composite a cairo PNG onto an opaque white canvas."""
+    img = Image.open(path).convert("RGBA")
+    bg = Image.new("RGB", size or img.size, WHITE)
+    bg.paste(img, (0, 0), mask=img.split()[3])
+    return bg
+
+
+def trim(img, pad=6):
+    """Crop a white-background figure to its content, leaving an even border."""
+    bbox = ImageChops.difference(img, Image.new("RGB", img.size, WHITE)).getbbox()
+    if bbox is None:
+        return img
+    left, top, right, bottom = bbox
+    return img.crop((max(0, left - pad), max(0, top - pad),
+                     min(img.width, right + pad), min(img.height, bottom + pad)))
+
+
+def legend_strip(raster, title, width, rng=None, log=False, fontsize=LEG_FS,
+                 title_fontsize=LEG_TITLE_FS, height=142):
+    """A horizontal legend on its own canvas, for placing under a map."""
+    path = Path(f"_legend_{raster}.png")
+    strip = gj.Map(width=width, height=height, filename=str(path), font=FONT)
+    kwargs = {"raster": raster, "title": title, "at": (33, 57, 8, 92),
+              "flags": "stl" if log else "st",
+              "fontsize": fontsize, "title_fontsize": title_fontsize}
+    if rng:
+        kwargs["range"] = rng
+    strip.d_legend(**kwargs)
+    return flatten(path, size=(width, height))
+
+
+def legend_panel(raster, title, width=330, height=900):
+    """A vertical legend for a categorical map, for placing beside it."""
+    path = Path(f"_legend_{raster}.png")
+    panel = gj.Map(width=width, height=height, filename=str(path), font=FONT)
+    panel.d_legend(raster=raster, title=title, at=(38, 62, 8, 17), flags="n",
+                   fontsize=LEG_FS, title_fontsize=LEG_TITLE_FS)
+    return flatten(path, size=(width, height))
+
+
+def barscale_strip(width, height, length, pad=14):
+    """A bar scale cropped from a full-size frame, so its length stays true."""
+    path = Path("_barscale.png")
+    bar = gj.Map(width=width, height=height, filename=str(path), font=FONT)
+    bar.d_barscale(at=(30, 8), flags="n", fontsize=LEG_FS, length=length,
+                   units="meters")
+    img = Image.open(path).convert("RGBA")
+    content = img.crop(img.split()[3].getbbox())
+    strip = Image.new("RGB", (width, content.height + 2 * pad), WHITE)
+    strip.paste(content, ((width - content.width) // 2, pad),
+                mask=content.split()[3])
+    return strip
+
+
+def stack(map_png, legend, gap=10):
+    """Map above, legend centered below."""
+    top = flatten(map_png)
+    canvas = Image.new("RGB", (top.width, top.height + gap + legend.height), WHITE)
+    canvas.paste(top, (0, 0))
+    canvas.paste(legend, ((top.width - legend.width) // 2, top.height + gap))
+    return trim(canvas)
+
+
+def stack_left(map_png, legend, gap=10):
+    """Legend to the left of the map, vertically centered."""
+    right = flatten(map_png)
+    canvas = Image.new("RGB", (legend.width + gap + right.width, right.height), WHITE)
+    canvas.paste(legend, (0, (right.height - legend.height) // 2))
+    canvas.paste(right, (legend.width + gap, 0))
+    return trim(canvas)
+
+
+def panels(map_pngs, labels, legend, gap=18, label_h=58, label_size=38):
+    """Several maps side by side with captions and one shared legend below."""
+    maps = [flatten(p) for p in map_pngs]
+    pw, ph = maps[0].width, maps[0].height
+    total = pw * len(maps) + gap * (len(maps) - 1)
+    canvas = Image.new("RGB", (total, label_h + ph + legend.height), WHITE)
+    draw = ImageDraw.Draw(canvas)
+    font = ImageFont.truetype(FONT_FILE, label_size)
+    for i, (img, label) in enumerate(zip(maps, labels)):
+        x = i * (pw + gap)
+        canvas.paste(img, (x, label_h))
+        draw.text((x + (pw - draw.textlength(label, font=font)) / 2, 10),
+                  label, font=font, fill=INK)
+    canvas.paste(legend, ((total - legend.width) // 2, label_h + ph))
+    return trim(canvas)
+```
+
 ## Download the sample dataset
 
 The SECREF project is a complete GRASS project in EPSG:6542 (NAD83(2011) /
@@ -222,11 +330,11 @@ gravel access roads, and wooded margins.
 ```{python}
 #| code-fold: true
 #| code-summary: "Show the figure code"
-site = gj.Map(width=900, height=900)
+site = gj.Map(width=900, height=900, filename="study_area.png", font=FONT)
 site.d_rgb(red="naip.1", green="naip.2", blue="naip.3")
 site.d_vect(map="streams", color="30:120:220", width=2)
-site.d_barscale(at=(4, 6), flags="n")
-site.show()
+
+stack("study_area.png", barscale_strip(900, 900, length=200))
 ```
 
 ![](images/study_area.webp)
@@ -240,12 +348,13 @@ as the base for the maps that follow.
 #| code-fold: true
 #| code-summary: "Show the figure code"
 tools.r_relief(input="elevation", output="relief", zscale=2)
+tools.r_colors(map="elevation", color="elevation")
 
-dem = gj.Map(width=900, height=900)
+dem = gj.Map(width=900, height=900, filename="elevation.png", font=FONT)
 dem.d_shade(shade="relief", color="elevation", brighten=30)
 dem.d_vect(map="streams", color="30:120:220", width=2)
-dem.d_legend(raster="elevation", at=(5, 45, 3, 6), flags="b", title="m", fontsize=11)
-dem.show()
+
+stack("elevation.png", legend_strip("elevation", "Elevation (m)", 900))
 ```
 
 ![](images/elevation.webp)
@@ -257,10 +366,10 @@ road, herbaceous, forest, water) will supply the surface roughness values later.
 ```{python}
 #| code-fold: true
 #| code-summary: "Show the figure code"
-lc = gj.Map(width=900, height=900)
+lc = gj.Map(width=900, height=900, filename="landcover.png", font=FONT)
 lc.d_shade(shade="relief", color="landcover", brighten=35)
-lc.d_legend(raster="landcover", at=(4, 26, 3, 6), flags="cb", fontsize=12)
-lc.show()
+
+stack_left("landcover.png", legend_panel("landcover", "Land cover"))
 ```
 
 ![](images/landcover.webp)
@@ -325,16 +434,19 @@ rules = """0 241:230:218
 70 84:53:15
 nv 255:255:255
 """
+pngs = []
 for name in ["sand", "silt", "clay"]:
     tools.r_colors(map=name, rules="-", stdin=io.StringIO(rules))
+    m = gj.Map(width=700, height=760, filename=f"texture_{name}.png", font=FONT)
+    m.d_shade(shade="relief", color=name, brighten=25)
+    pngs.append(f"texture_{name}.png")
 
-texture = gj.Map(width=700, height=760)
-texture.d_shade(shade="relief", color="sand", brighten=25)
-texture.d_legend(
-    raster="sand", at=(6, 10, 10, 90), flags="st",
-    range=(0, 70), title="Fraction of mineral soil (%)",
+panels(
+    pngs,
+    ["Sand", "Silt", "Clay"],
+    legend_strip("sand", "Fraction of mineral soil (%)", 1280, rng=(0, 70),
+                 fontsize=30, title_fontsize=34, height=210),
 )
-texture.show()
 ```
 
 ![](images/texture_comparison.webp)
@@ -403,12 +515,21 @@ ROSETTA reports conductivity in cm/day and `r.sim.water` expects mm/hr, so
 ```{python}
 #| code-fold: true
 #| code-summary: "Show the figure code"
-ksat_map = gj.Map(width=900, height=900)
-ksat_map.d_shade(shade="relief", color="ksat_rosetta", brighten=40)
-ksat_map.d_legend(
-    raster="ksat_rosetta", at=(5, 45, 3, 6), flags="b", title="mm/hr", fontsize=12
-)
-ksat_map.show()
+ksat_rules = """0% 205:226:251
+20% 158:197:244
+40% 109:167:236
+60% 57:135:229
+80% 28:92:171
+100% 13:54:107
+nv 255:255:255
+"""
+tools.r_colors(map="ksat_rosetta", rules="-", stdin=io.StringIO(ksat_rules))
+
+m = gj.Map(width=900, height=900, filename="ksat_rosetta.png", font=FONT)
+m.d_shade(shade="relief", color="ksat_rosetta", brighten=25)
+
+stack("ksat_rosetta.png",
+      legend_strip("ksat_rosetta", "Saturated hydraulic conductivity (mm/hr)", 900))
 ```
 
 ![](images/ksat_rosetta.webp)
@@ -417,6 +538,27 @@ Estimated conductivity ranges from 6.8 to 13.2 mm/hr. The lowest values fall on
 the map unit carrying 23% clay, which follows the drainage line through the
 southern half of the site. Saturated water content (i.e., the pore space
 available to hold water) ranges from 0.36 to 0.41 cm³/cm³.
+
+```{python}
+#| code-fold: true
+#| code-summary: "Show the figure code"
+theta_rules = """0% 220:240:236
+17% 176:218:209
+33% 134:192:181
+50% 96:164:152
+67% 60:132:121
+83% 31:101:91
+100% 12:70:62
+nv 255:255:255
+"""
+tools.r_colors(map="theta_s", rules="-", stdin=io.StringIO(theta_rules))
+
+m = gj.Map(width=900, height=900, filename="theta_s.png", font=FONT)
+m.d_shade(shade="relief", color="theta_s", brighten=25)
+
+stack("theta_s.png",
+      legend_strip("theta_s", "Saturated water content (cm3/cm3)", 900))
+```
 
 ![](images/theta_s.webp)
 
@@ -455,16 +597,19 @@ rules = """3 205:226:251
 110 13:54:107
 nv 255:255:255
 """
+pngs = []
 for name in ["ksat_rosetta", "ssurgo_ksat_r"]:
     tools.r_colors(map=name, rules="-", stdin=io.StringIO(rules))
+    m = gj.Map(width=700, height=760, filename=f"cmp_{name}.png", font=FONT)
+    m.d_shade(shade="relief", color=name, brighten=22)
+    pngs.append(f"cmp_{name}.png")
 
-ksat_cmp = gj.Map(width=700, height=760)
-ksat_cmp.d_shade(shade="relief", color="ksat_rosetta", brighten=22)
-ksat_cmp.d_legend(
-    raster="ksat_rosetta", at=(6, 10, 10, 90), flags="stl",
-    range=(3, 110), title="Saturated hydraulic conductivity (mm/hr)",
+panels(
+    pngs,
+    ["ROSETTA estimate", "SSURGO reported"],
+    legend_strip("ksat_rosetta", "Saturated hydraulic conductivity (mm/hr)", 1120,
+                 rng=(3, 110), log=True, fontsize=30, title_fontsize=34, height=210),
 )
-ksat_cmp.show()
 ```
 
 ![](images/ksat_comparison.webp)
@@ -526,27 +671,60 @@ SSURGO and ROSETTA evaluation in the ncss-tech ROSETTA API documentation
 ```{python}
 #| code-fold: true
 #| code-summary: "Show the figure code"
-import seaborn as sns
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
+import seaborn as sns
+
+INK, INK2, SURFACE, ACCENT = "#0b0b0b", "#52514e", "#fcfcfb", "#b3261e"
+sns.set_theme(style="whitegrid", rc={
+    "figure.facecolor": SURFACE, "axes.facecolor": SURFACE,
+    "axes.edgecolor": "#d8d7d3", "axes.labelcolor": INK,
+    "grid.color": "#d8d7d3", "grid.linewidth": 0.6, "text.color": INK,
+    "xtick.color": INK2, "ytick.color": INK2, "font.size": 11,
+})
+
+# NRCS standard Ksat classes, um/s converted to mm/hr
+CLASSES = [("very low", 0.0, 0.036), ("low", 0.036, 0.36),
+           ("moderately low", 0.36, 3.6), ("moderately high", 3.6, 36.0),
+           ("high", 36.0, 360.0), ("very high", 360.0, 2538.0)]
 
 fig, ax = plt.subplots(figsize=(7.2, 6.4))
 lims = (3, 400)
-ax.plot(lims, lims, "--", color="#b3261e", linewidth=1.5)
+ax.plot(lims, lims, "--", color=ACCENT, linewidth=1.5, zorder=2)
+ax.annotate("1:1", xy=(320, 320), color=ACCENT, fontsize=10, ha="right", va="bottom")
 
-# NRCS Ksat class limits, um/s converted to mm/hr
-for edge in (0.036, 0.36, 3.6, 36.0, 360.0):
-    ax.axhline(edge, color="#d8d7d3", linewidth=0.7)
-    ax.axvline(edge, color="#d8d7d3", linewidth=0.7)
+for _, lo, hi in CLASSES:
+    for edge in (lo, hi):
+        if lims[0] < edge < lims[1]:
+            ax.axhline(edge, color="#d8d7d3", linewidth=0.7, zorder=1)
+            ax.axvline(edge, color="#d8d7d3", linewidth=0.7, zorder=1)
+for label, lo, hi in CLASSES:
+    mid = np.sqrt(max(lo, lims[0]) * hi)
+    if lims[0] * 1.25 < mid < lims[1] / 1.25:
+        ax.text(lims[0] * 1.05, mid, label, color=INK2, fontsize=9,
+                va="center", style="italic")
 
 sns.scatterplot(
     data=units.sort_values("share", ascending=False),
     x="ksat_rosetta", y="ssurgo_ksat_r", size="share", sizes=(90, 900),
-    color="#256abf", edgecolor="#fcfcfb", linewidth=1.2, legend=False, ax=ax,
+    color="#256abf", edgecolor=SURFACE, linewidth=1.2, alpha=0.92,
+    legend=False, ax=ax, zorder=3,
 )
+ax.annotate("two map units,\n85% of the site", xy=(12.48, 100.53),
+            xytext=(30, -40), textcoords="offset points", color=INK2, fontsize=10,
+            arrowprops=dict(arrowstyle="-", color=INK2, linewidth=0.9))
+
 ax.set(xscale="log", yscale="log", xlim=lims, ylim=lims)
 ax.set_xlabel("ROSETTA estimated Ksat (mm/hr)")
 ax.set_ylabel("SSURGO reported Ksat (mm/hr)")
+ax.set_title("Every map unit falls above the 1:1 line", fontsize=13, pad=22, loc="left")
+ax.text(0, 1.015, "Marker area is the share of the site each map unit covers",
+        transform=ax.transAxes, color=INK2, fontsize=10)
+for axis in (ax.xaxis, ax.yaxis):
+    axis.set_major_formatter(matplotlib.ticker.FuncFormatter(lambda v, _: f"{v:g}"))
+    axis.set_minor_formatter(matplotlib.ticker.NullFormatter())
+sns.despine(ax=ax)
 plt.show()
 ```
 
@@ -594,12 +772,21 @@ tools.r_manning(
 ```{python}
 #| code-fold: true
 #| code-summary: "Show the figure code"
-manning_map = gj.Map(width=900, height=900)
-manning_map.d_shade(shade="relief", color="manning", brighten=35)
-manning_map.d_legend(
-    raster="manning", at=(6, 10, 10, 90), flags="stl", title="Manning's n"
-)
-manning_map.show()
+manning_colors = """0.011 142:191:148
+0.02 107:165:115
+0.03 77:138:87
+0.05 54:110:64
+0.10 34:83:44
+0.2001 19:57:27
+nv 255:255:255
+"""
+tools.r_colors(map="manning", rules="-", stdin=io.StringIO(manning_colors))
+
+m = gj.Map(width=900, height=900, filename="manning.png", font=FONT)
+m.d_shade(shade="relief", color="manning", brighten=35)
+
+stack("manning.png",
+      legend_strip("manning", "Manning's n", 900, rng=(0.011, 0.2), log=True))
 ```
 
 ![](images/manning.webp)
@@ -710,17 +897,20 @@ rules = """0 226:197:164
 1.8 3:42:76
 nv 255:255:255
 """
+pngs = []
 for name in ["depth_noinfil", "depth_rosetta", "depth_ssurgo"]:
     tools.r_colors(map=name, rules="-", stdin=io.StringIO(rules))
+    m = gj.Map(width=700, height=760, filename=f"{name}.png", font=FONT)
+    m.d_shade(shade="relief", color=name, brighten=50)
+    m.d_vect(map="streams", color="90:90:90", width=1)
+    pngs.append(f"{name}.png")
 
-depth_map = gj.Map(width=700, height=760)
-depth_map.d_shade(shade="relief", color="depth_rosetta", brighten=50)
-depth_map.d_vect(map="streams", color="90:90:90", width=1)
-depth_map.d_legend(
-    raster="depth_rosetta", at=(6, 10, 10, 90), flags="stl",
-    range=(0.001, 1.8), title="Water depth (m)",
+panels(
+    pngs,
+    ["No infiltration", "ROSETTA field", "SSURGO Ksat"],
+    legend_strip("depth_rosetta", "Water depth (m)", 1280, rng=(0.001, 1.8),
+                 log=True, fontsize=30, title_fontsize=34, height=210),
 )
-depth_map.show()
 ```
 
 ![](images/depth_comparison.webp)
@@ -753,12 +943,11 @@ from 21.9 mm to 18.5 mm. We map the difference to see where it went.
 tools.r_mapcalc(expression="depth_diff = depth_rosetta - depth_noinfil")
 tools.r_colors(map="depth_diff", color="differences")
 
-diff_map = gj.Map(width=900, height=900)
-diff_map.d_shade(shade="relief", color="depth_diff", brighten=50)
-diff_map.d_legend(
-    raster="depth_diff", at=(5, 45, 3, 6), flags="b", title="m", fontsize=12
-)
-diff_map.show()
+m = gj.Map(width=900, height=900, filename="depth_difference.png", font=FONT)
+m.d_shade(shade="relief", color="depth_diff", brighten=50)
+
+stack("depth_difference.png",
+      legend_strip("depth_diff", "Depth difference (m)", 900))
 ```
 
 ![](images/depth_difference.webp)
