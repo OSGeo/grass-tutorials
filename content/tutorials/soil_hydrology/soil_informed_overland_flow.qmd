@@ -591,15 +591,8 @@ for r in units.sort_values("clay", ascending=False).itertuples():
 
 SIMWE solves the shallow water flow equation using a path sampling (i.e.,
 walker-based) method [@mitas_distributed_1998; @mitasova_path_2004]. Besides
-elevation it requires the partial derivatives of the surface, a surface roughness
-map, a rainfall rate, and an infiltration rate.
-
-We compute the partial derivatives with
-[r.slope.aspect](https://grass.osgeo.org/grass-stable/manuals/r.slope.aspect.html).
-
-```{python}
-tools.r_slope_aspect(elevation="elevation", dx="dx", dy="dy")
-```
+elevation it needs a surface roughness map, a rainfall rate, and an infiltration
+rate. The partial derivatives of the surface are computed internally.
 
 Manning's n comes from land cover, using standard overland flow roughness values
 ranging from 0.011 for pavement to 0.20 for forest floor.
@@ -674,8 +667,6 @@ only difference between this run and the next.
 ```{python}
 tools.r_sim_water(
     elevation="elevation",
-    dx="dx",
-    dy="dy",
     rain_value=54,
     infil_value=12.4,
     man="manning",
@@ -693,8 +684,6 @@ The second run uses the ROSETTA field.
 ```{python}
 tools.r_sim_water(
     elevation="elevation",
-    dx="dx",
-    dy="dy",
     rain_value=54,
     infil="ksat_fill",
     man="manning",
@@ -724,8 +713,6 @@ tools.r_mapcalc(
 )
 tools.r_sim_water(
     elevation="elevation",
-    dx="dx",
-    dy="dy",
     rain_value=54,
     infil="ssurgo_ksat_fill",
     man="manning",
@@ -775,9 +762,9 @@ for name in ["depth_uniform", "depth_rosetta", "depth_ssurgo"]:
 ```
 
 ```text
-depth_uniform     mean=  18.528 mm   sum=    9673.6
-depth_rosetta     mean=  18.510 mm   sum=    9664.1
-depth_ssurgo      mean=   0.069 mm   sum=      36.0
+depth_uniform     mean=  18.527 mm   sum=    9726.4
+depth_rosetta     mean=  18.509 mm   sum=    9717.0
+depth_ssurgo      mean=   0.071 mm   sum=      37.3
 ```
 
 ## Uniform value compared to the ROSETTA field
@@ -806,7 +793,7 @@ print(f"min={stats['min']:.4f} max={stats['max']:.4f} stddev={stats['stddev']:.5
 ```
 
 ```text
-min=-0.0308 max=0.0226 stddev=0.00060
+min=-0.0306 max=0.0274 stddev=0.00072
 ```
 
 Local differences reach 3 cm in the concentrated flow paths. However, the
@@ -825,8 +812,8 @@ representative value gives nearly the same answer.
 
 ## ROSETTA Ksat compared to SSURGO Ksat
 
-The SSURGO-driven run left 36 units of water on the surface against the ROSETTA
-run's 9664, a factor of 268. SSURGO's representative conductivity averages
+The SSURGO-driven run left 37 units of water on the surface against the ROSETTA
+run's 9717, a factor of 260. SSURGO's representative conductivity averages
 99.8 mm/hr while the storm delivers 54 mm/hr, so infiltration keeps pace with
 rainfall across most of the site and only the wettest corner generates any flow
 depth.
@@ -863,7 +850,7 @@ to drive an overland flow simulation:
 
 At this site, exchanging a single infiltration value for a soil-derived map
 changed mean flow depth by 0.1%, while exchanging one published conductivity
-estimate for another changed total surface water by a factor of 268. Running
+estimate for another changed total surface water by a factor of 260. Running
 `r.univar` on a conductivity map and comparing its spread to its mean and to the
 rainfall rate indicates which of those two effects matters at a given site.
 
