@@ -682,11 +682,8 @@ tools.r_sim_water(
 
 # Results
 
-The three runs share one color table so the panels can be compared directly. Flow
-depth at this site spans four orders of magnitude, from a sheet a fraction of a
-millimeter deep over most of the surface to more than a meter in the ponds, so
-the color breaks are spaced logarithmically. A linear ramp would put almost every
-cell in the first class and show little more than the channels.
+The three runs share one color table, with breaks spaced logarithmically because
+depth spans four orders of magnitude.
 
 ```{python}
 rules = """0 226:197:164
