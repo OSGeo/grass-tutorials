@@ -393,11 +393,30 @@ ksat_rosetta    min=   6.79 max=  13.24 mean=  12.41
 ssurgo_ksat_r   min=  32.40 max= 100.80 mean=  99.84
 ```
 
-::: {layout-ncol=2}
-![ROSETTA estimate](images/cmp_ksat_rosetta.webp)
+Both panels share one absolute color table, log-spaced over the NRCS class range.
 
-![SSURGO reported value](images/cmp_ssurgo_ksat_r.webp)
-:::
+```{python}
+rules = """3 205:226:251
+6 158:197:244
+12 109:167:236
+25 57:135:229
+50 28:92:171
+110 13:54:107
+nv 255:255:255
+"""
+for name in ["ksat_rosetta", "ssurgo_ksat_r"]:
+    tools.r_colors(map=name, rules="-", stdin=rules)
+
+ksat_cmp = gj.Map(width=700, height=760)
+ksat_cmp.d_shade(shade="relief", color="ksat_rosetta", brighten=22)
+ksat_cmp.d_legend(
+    raster="ksat_rosetta", at=(6, 10, 10, 90), flags="stl",
+    range=(3, 110), title="Saturated hydraulic conductivity (mm/hr)",
+)
+ksat_cmp.show()
+```
+
+![](images/ksat_comparison.webp)
 
 SSURGO's representative value averages about eight times higher than the ROSETTA
 estimate. The two are produced differently: SSURGO's is a soil scientist's
