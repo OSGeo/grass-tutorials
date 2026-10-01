@@ -654,12 +654,17 @@ All three runs use a 54 mm/hr rainfall rate held for 60 minutes, approximately a
 10-year, 1-hour storm for Raleigh. The infiltration input is the only thing that
 changes between them.
 
-::: {.callout-warning title="Infiltration enters the model once"}
-Saturated conductivity can reach `r.sim.water` two ways. It can be passed as
-`infil`, the infiltration loss applied to flowing water, or subtracted from the
-rainfall rate with `r.mapcalc` and passed as `rain`. Both treat Ksat as a
-steady-state infiltration rate, and using them together counts infiltration
-twice. We use `infil` throughout.
+::: {.callout-warning title="`rain` and `infil` act at different points"}
+`rain` takes a rainfall excess rate, rainfall minus infiltration. You do that
+subtraction yourself before the run, so the removed water never enters the flow
+at all.
+
+`infil` applies to water that is already moving across a cell, which drinks from
+it at a fixed rate. That is what captures runoff generated on pavement losing
+volume as it crosses a lawn downslope, and it is what we use here.
+
+Neither rate responds to the soil filling up. Both stay constant for the whole
+simulation.
 :::
 
 The first run uses a single infiltration value for the whole site. We set it to
@@ -836,9 +841,9 @@ at the site.
 * Depth averaging over the top 25.4 cm discards horizon structure, and because
   ROSETTA is nonlinear the estimate is not equivalent to a per-horizon
   calculation.
-* Treating Ksat as a steady-state infiltration rate ignores the decline in
-  infiltration capacity as the soil wets during a storm, so these runs understate
-  runoff late in the event.
+* Ksat is the conductivity of an already saturated soil, and `infil` holds it
+  constant for the whole run. Dry soil takes water faster than that, so these
+  runs understate infiltration and overstate runoff early in the storm.
 * Manning's n values are assigned by land cover class from published tables
   rather than calibrated at this site.
 * None of the runs are validated against observed discharge at SECREF, so the
