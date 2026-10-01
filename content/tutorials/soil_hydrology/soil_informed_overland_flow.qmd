@@ -158,46 +158,60 @@ tools = Tools(session=session)
 The project contains six rasters and three vectors:
 
 ```{python}
-print(tools.g_list(type="raster", mapset="PERMANENT", flags="m").text)
-print(tools.g_list(type="vector", mapset="PERMANENT", flags="m").text)
+#| code-fold: true
+#| code-summary: "Show the table code"
+pd.DataFrame(
+    [
+        {
+            "type": kind,
+            "maps": ", ".join(
+                m["name"]
+                for m in tools.g_list(
+                    type=kind, mapset="PERMANENT", format="json"
+                ).json
+            ),
+        }
+        for kind in ["raster", "vector"]
+    ]
+)
 ```
 
-```text
-elevation@PERMANENT
-landcover@PERMANENT
-naip.1@PERMANENT
-naip.2@PERMANENT
-naip.3@PERMANENT
-naip.4@PERMANENT
-
-roads@PERMANENT
-soils@PERMANENT
-streams@PERMANENT
-```
+| type   | maps                                                 |
+|:-------|:-----------------------------------------------------|
+| raster | elevation, landcover, naip.1, naip.2, naip.3, naip.4 |
+| vector | roads, soils, streams                                |
 
 We set the computational region to the elevation map. Everything that follows
 inherits this region, 700 by 750 cells at 1 m.
 
 ```{python}
+#| code-fold: true
+#| code-summary: "Show the table code"
 tools.g_region(raster="elevation")
-print(tools.g_region(flags="p").text)
+
+region = tools.g_region(flags="p", format="json").json
+pd.DataFrame(
+    [{"setting": "CRS", "value": region["crs"]["name"]}]
+    + [
+        {"setting": key, "value": region[key]}
+        for key in ["north", "south", "west", "east",
+                    "nsres", "ewres", "rows", "cols", "cells"]
+    ]
+)
 ```
 
-```text
-projection: 99 (NAD83(2011) / North Carolina)
-zone:       0
-datum:      nad83_2011
-ellipsoid:  grs80
-north:      220750
-south:      220000
-west:       638300
-east:       639000
-nsres:      1
-ewres:      1
-rows:       750
-cols:       700
-cells:      525000
-```
+| setting | value                        |
+|:--------|:-----------------------------|
+| CRS     | NAD83(2011) / North Carolina |
+| north   | 220750                       |
+| south   | 220000                       |
+| west    | 638300                       |
+| east    | 639000                       |
+| nsres   | 1                            |
+| ewres   | 1                            |
+| rows    | 750                          |
+| cols    | 700                          |
+| cells   | 525000                       |
 
 # The study area
 
