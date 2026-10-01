@@ -360,10 +360,7 @@ tools.r_soils_rosetta(
     clay="clay",
     bulk_density="bd",
     ksat="ksat_rosetta",
-    theta_r="theta_r",
     theta_s="theta_s",
-    alpha="vg_alpha",
-    n="vg_n",
     version=3,
     ksat_units="mm_per_hour",
 )
@@ -462,7 +459,7 @@ one row per map unit with
 ```{python}
 import pandas as pd
 
-params = ["ksat_rosetta", "ssurgo_ksat_r", "theta_r", "theta_s", "vg_alpha", "vg_n", "clay"]
+params = ["ksat_rosetta", "ssurgo_ksat_r", "clay"]
 rows = {}
 for p in params:
     for zone in tools.r_univar(map=p, zones="mukey", format="json").json:
@@ -521,75 +518,6 @@ plt.show()
 Every map unit sits above the 1:1 line. The two map units covering 85% of the
 site place ROSETTA in the moderately high class and SSURGO in the high class,
 one full class apart.
-
-## Water retention curves
-
-Ksat is only one of the five ROSETTA outputs. The other four describe how
-tightly the soil holds water, through the van Genuchten retention function
-[@vangenuchten_closed_1980]:
-
-$$
-\theta(h) = \theta_r + \frac{\theta_s - \theta_r}{\left[1 + (\alpha h)^n\right]^{1 - 1/n}}
-$$
-
-where $h$ is suction in cm of water. Plotting it for each map unit, after the
-theoretical retention curves in the ncss-tech documentation
-[@beaudette_rosetta_api], shows what the parameters mean.
-
-```{python}
-def theta(suction_kpa, theta_r, theta_s, alpha, n):
-    """van Genuchten water retention. Suction in kPa, alpha in 1/cm."""
-    h = np.maximum(suction_kpa, 1e-6) * 10.197  # kPa to cm of water
-    return theta_r + (theta_s - theta_r) / (1 + (alpha * h) ** n) ** (1 - 1 / n)
-
-
-suction = np.logspace(-1, 5, 400)
-curves = pd.concat(
-    [
-        pd.DataFrame({
-            "suction": suction,
-            "theta": theta(suction, r.theta_r, r.theta_s, r.vg_alpha, r.vg_n),
-            "unit": f"{r.clay:.0f}% clay ({r.share:.1%} of site)",
-        })
-        for r in units.sort_values("clay", ascending=False).itertuples()
-    ]
-)
-
-fig, ax = plt.subplots(figsize=(7.2, 6.4))
-sns.lineplot(data=curves, x="theta", y="suction", hue="unit", linewidth=2, ax=ax)
-for value in (33, 1500):
-    ax.axhline(value, color="#b3261e", linestyle="--", linewidth=1.2)
-ax.set(yscale="log", ylim=(0.1, 1e5), xlim=(0, 0.42))
-ax.set_xlabel("Volumetric water content (cm3/cm3)")
-ax.set_ylabel("Suction (kPa)")
-plt.show()
-```
-
-![](images/water_retention_curves.webp)
-
-The dashed lines mark field capacity (33 kPa) and the wilting point (1500 kPa).
-Water held between them is plant available, so the gap between the two
-intersections is the available water capacity (AWC) [@schaap_comparison_2004].
-The 23% clay unit holds 0.160 cm³/cm³, roughly half again as much as the sandier
-units at 0.104 to 0.113 cm³/cm³, which is the same contrast that gives it the
-lowest Ksat.
-
-```{python}
-for r in units.sort_values("clay", ascending=False).itertuples():
-    awc = theta(33, r.theta_r, r.theta_s, r.vg_alpha, r.vg_n) - theta(
-        1500, r.theta_r, r.theta_s, r.vg_alpha, r.vg_n
-    )
-    print(f"{r.clay:4.0f}% clay   AWC={awc:.3f} cm3/cm3   {r.share:6.1%} of site")
-```
-
-```text
-  23% clay   AWC=0.160 cm3/cm3     1.4% of site
-  13% clay   AWC=0.113 cm3/cm3     0.3% of site
-  12% clay   AWC=0.106 cm3/cm3    43.3% of site
-  12% clay   AWC=0.106 cm3/cm3    41.4% of site
-  10% clay   AWC=0.109 cm3/cm3     8.7% of site
-  10% clay   AWC=0.104 cm3/cm3     4.8% of site
-```
 
 # Preparing the SIMWE inputs
 
@@ -664,18 +592,17 @@ Neither rate responds to the soil filling up. Both stay constant for the whole
 simulation.
 :::
 
-The first run uses a single infiltration value for the whole site. We set it to
-12.4 mm/hr, the site mean of the ROSETTA field, so that spatial variation is the
-only difference between this run and the next.
+The first run is the baseline a modeler gets with no soil data at all. Leaving
+`infil` off defaults it to zero, so every millimeter of rain stays on the
+surface.
 
 ```{python}
 tools.r_sim_water(
     elevation="elevation",
     rain_value=54,
-    infil_value=12.4,
     man="manning",
-    depth="depth_uniform",
-    discharge="disch_uniform",
+    depth="depth_noinfil",
+    discharge="disch_noinfil",
     duration=60,
     output_step=60,
     random_seed=7,
@@ -742,7 +669,7 @@ rules = """0 226:197:164
 1.8 3:42:76
 nv 255:255:255
 """
-for name in ["depth_uniform", "depth_rosetta", "depth_ssurgo"]:
+for name in ["depth_noinfil", "depth_rosetta", "depth_ssurgo"]:
     tools.r_colors(map=name, rules="-", stdin=io.StringIO(rules))
 
 depth_map = gj.Map(width=700, height=760)
@@ -758,25 +685,24 @@ depth_map.show()
 ![](images/depth_comparison.webp)
 
 ```{python}
-for name in ["depth_uniform", "depth_rosetta", "depth_ssurgo"]:
+for name in ["depth_noinfil", "depth_rosetta", "depth_ssurgo"]:
     stats = tools.r_univar(map=name, format="json")
     print(f"{name:15s} mean={stats['mean'] * 1000:8.3f} mm   sum={stats['sum']:10.1f}")
 ```
 
 ```text
-depth_uniform     mean=  18.527 mm   sum=    9726.4
+depth_noinfil     mean=  21.931 mm   sum=   11513.7
 depth_rosetta     mean=  18.509 mm   sum=    9717.0
 depth_ssurgo      mean=   0.071 mm   sum=      37.3
 ```
 
-## Uniform value compared to the ROSETTA field
+## ROSETTA infiltration against none
 
-Replacing 12.4 mm/hr everywhere with the ROSETTA field changed mean flow depth by
-0.018 mm, about one tenth of one percent. We map the difference to see where the
-change occurs.
+The ROSETTA field removed 15.6% of the surface water, dropping mean flow depth
+from 21.9 mm to 18.5 mm. We map the difference to see where it went.
 
 ```{python}
-tools.r_mapcalc(expression="depth_diff = depth_rosetta - depth_uniform")
+tools.r_mapcalc(expression="depth_diff = depth_rosetta - depth_noinfil")
 tools.r_colors(map="depth_diff", color="differences")
 
 diff_map = gj.Map(width=900, height=900)
@@ -791,25 +717,27 @@ diff_map.show()
 
 ```{python}
 stats = tools.r_univar(map="depth_diff", format="json")
-print(f"min={stats['min']:.4f} max={stats['max']:.4f} stddev={stats['stddev']:.5f}")
+print(
+    f"min={stats['min']:.4f} max={stats['max']:.4f} "
+    f"mean={stats['mean']:.4f} stddev={stats['stddev']:.5f}"
+)
 ```
 
 ```text
-min=-0.0306 max=0.0274 stddev=0.00072
+min=-0.2984 max=0.0096 mean=-0.0034 stddev=0.01220
 ```
 
-Local differences reach 3 cm in the concentrated flow paths. However, the
-aggregate effect is small because the seven SSURGO map units at this site span
-only 6.8 to 13.2 mm/hr, a standard deviation of 0.7 mm/hr. A site with contrasting
-soils (e.g., sand against a clay pan) would produce a larger difference.
+The loss is concentrated where water collects. Cells in the ponds and the main
+drainage line drop by up to 30 cm, while the sheet flow over the plots loses
+almost nothing, since a cell only infiltrates from the water crossing it.
 
-::: {.callout-note title="When does mapping infiltration pay off?"}
-The benefit of a spatially varying infiltration field scales with how much the
-soil varies across the model domain relative to the rainfall rate. Check the
-spread of a conductivity map with
-[r.univar](https://grass.osgeo.org/grass-stable/manuals/r.univar.html) first.
-Where the standard deviation is small compared to the mean, a single
-representative value gives nearly the same answer.
+::: {.callout-note title="The spatial pattern matters less than the level"}
+The seven SSURGO map units at this site span only 6.8 to 13.2 mm/hr, a standard
+deviation of 0.7 mm/hr. Swapping that field for its own site mean of 12.4 mm/hr
+moves mean flow depth by about one tenth of one percent. Check the spread of a
+conductivity map with
+[r.univar](https://grass.osgeo.org/grass-stable/manuals/r.univar.html) before
+assuming the detail earns its keep.
 :::
 
 ## ROSETTA Ksat compared to SSURGO Ksat
@@ -820,10 +748,10 @@ run's 9717, a factor of 260. SSURGO's representative conductivity averages
 rainfall across most of the site and only the wettest corner generates any flow
 depth.
 
-The choice of conductivity estimate therefore changed the result by two orders of
-magnitude, while the spatial pattern changed it by one tenth of one percent.
-Deciding between the two estimates requires a field measurement of conductivity
-at the site.
+Adding a soil-derived infiltration field to the model changed the result by 16%.
+Choosing between two published estimates of that soil property changed it by two
+orders of magnitude. Deciding between them requires a field measurement of
+conductivity at the site.
 
 # Assumptions and limitations
 
@@ -850,11 +778,11 @@ to drive an overland flow simulation:
   writes saturated hydraulic conductivity in the units `r.sim.water` expects.
 * `r.sim.water` takes that conductivity as its `infil` input.
 
-At this site, exchanging a single infiltration value for a soil-derived map
-changed mean flow depth by 0.1%, while exchanging one published conductivity
-estimate for another changed total surface water by a factor of 260. Running
-`r.univar` on a conductivity map and comparing its spread to its mean and to the
-rainfall rate indicates which of those two effects matters at a given site.
+At this site, adding a soil-derived infiltration field removed 16% of the surface
+water, while exchanging one published conductivity estimate for another changed
+it by a factor of 260. The magnitude of Ksat drives the result; its spatial
+pattern is a second-order correction, worth checking with `r.univar` before
+investing in resolution.
 
 Next steps:
 
