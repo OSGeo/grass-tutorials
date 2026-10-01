@@ -96,6 +96,8 @@ sys.path.append(
     subprocess.check_output(["grass", "--config", "python_path"], text=True).strip()
 )
 
+import pandas as pd
+
 import grass.script as gs
 import grass.jupyter as gj
 from grass.tools import Tools
@@ -204,6 +206,8 @@ National Agriculture Imagery Program (NAIP) imagery shows the research plots,
 gravel access roads, and wooded margins.
 
 ```{python}
+#| code-fold: true
+#| code-summary: "Show the figure code"
 site = gj.Map(width=900, height=900)
 site.d_rgb(red="naip.1", green="naip.2", blue="naip.3")
 site.d_vect(map="streams", color="30:120:220", width=2)
@@ -219,6 +223,8 @@ relief map with
 as the base for the maps that follow.
 
 ```{python}
+#| code-fold: true
+#| code-summary: "Show the figure code"
 tools.r_relief(input="elevation", output="relief", zscale=2)
 
 dem = gj.Map(width=900, height=900)
@@ -235,6 +241,8 @@ OpenStreetMap roads. Its six classes (i.e., developed, paved road, compacted
 road, herbaceous, forest, water) will supply the surface roughness values later.
 
 ```{python}
+#| code-fold: true
+#| code-summary: "Show the figure code"
 lc = gj.Map(width=900, height=900)
 lc.d_shade(shade="relief", color="landcover", brighten=35)
 lc.d_legend(raster="landcover", at=(4, 26, 3, 6), flags="cb", fontsize=12)
@@ -292,6 +300,8 @@ All three share one 0 to 70% color table, so the panels show their relative size
 as well as their internal variation.
 
 ```{python}
+#| code-fold: true
+#| code-summary: "Show the figure code"
 rules = """0 241:230:218
 12 222:200:177
 23 202:171:138
@@ -320,19 +330,20 @@ constant because SSURGO reports one value per map unit, and seven map units
 cover the entire site (15 polygons, several of which share a map unit key).
 
 ```{python}
-print(f"{'raster':<8}{'min':>8}{'max':>8}{'mean':>8}")
+rows = []
 for name in ["sand", "silt", "clay", "bd"]:
-    stats = tools.r_univar(map=name, format="json")
-    print(f"{name:<8}{stats['min']:>8.2f}{stats['max']:>8.2f}{stats['mean']:>8.2f}")
+    s = tools.r_univar(map=name, format="json")
+    rows.append({"raster": name, "min": s["min"], "max": s["max"], "mean": s["mean"]})
+
+pd.DataFrame(rows).round(2)
 ```
 
-```text
-raster       min     max    mean
-sand       40.00   68.00   67.20
-silt       20.00   37.00   20.92
-clay       10.00   23.00   11.89
-bd          1.38    1.58    1.58
-```
+| raster |   min |    max |  mean |
+|:-------|------:|-------:|------:|
+| sand   | 40.00 |  68.00 | 67.20 |
+| silt   | 20.00 |  37.00 | 20.92 |
+| clay   | 10.00 |  23.00 | 11.89 |
+| bd     |  1.38 |   1.58 |  1.58 |
 
 # Estimating hydraulic parameters with ROSETTA
 
@@ -374,6 +385,8 @@ ROSETTA reports conductivity in cm/day and `r.sim.water` expects mm/hr, so
 `ksat_units="mm_per_hour"` has the tool convert the output.
 
 ```{python}
+#| code-fold: true
+#| code-summary: "Show the figure code"
 ksat_map = gj.Map(width=900, height=900)
 ksat_map.d_shade(shade="relief", color="ksat_rosetta", brighten=40)
 ksat_map.d_legend(
@@ -398,21 +411,24 @@ imported above as `ssurgo_ksat_r`. We compare the two on a shared absolute color
 scale.
 
 ```{python}
-print(f"{'raster':<16}{'min':>8}{'max':>8}{'mean':>8}")
+rows = []
 for name in ["ksat_rosetta", "ssurgo_ksat_r"]:
-    stats = tools.r_univar(map=name, format="json")
-    print(f"{name:<16}{stats['min']:>8.2f}{stats['max']:>8.2f}{stats['mean']:>8.2f}")
+    s = tools.r_univar(map=name, format="json")
+    rows.append({"raster": name, "min": s["min"], "max": s["max"], "mean": s["mean"]})
+
+pd.DataFrame(rows).round(2)
 ```
 
-```text
-raster               min     max    mean
-ksat_rosetta        6.79   13.24   12.41
-ssurgo_ksat_r      32.40  100.80   99.84
-```
+| raster        |   min |    max |  mean |
+|:--------------|------:|-------:|------:|
+| ksat_rosetta  |  6.79 |  13.24 | 12.41 |
+| ssurgo_ksat_r | 32.40 | 100.80 | 99.84 |
 
 Both panels share one absolute color table, log-spaced over the NRCS class range.
 
 ```{python}
+#| code-fold: true
+#| code-summary: "Show the figure code"
 rules = """3 205:226:251
 6 158:197:244
 12 109:167:236
@@ -461,8 +477,6 @@ one row per map unit with
 `mukey` raster as zones.
 
 ```{python}
-import pandas as pd
-
 params = ["ksat_rosetta", "ssurgo_ksat_r", "clay"]
 rows = {}
 for p in params:
@@ -472,19 +486,17 @@ for p in params:
 units = pd.DataFrame.from_dict(rows, orient="index").rename_axis("mukey")
 units = units[units["cells"] > 0]
 units["share"] = units["cells"] / units["cells"].sum()
-print(units[["ksat_rosetta", "ssurgo_ksat_r", "clay", "share"]].round(3))
+units[["ksat_rosetta", "ssurgo_ksat_r", "clay", "share"]].round(3)
 ```
 
-```text
-         ksat_rosetta  ssurgo_ksat_r  clay  share
-mukey
-2538507        12.070        100.800  10.0  0.087
-2557360         6.793         32.400  23.0  0.014
-2739852        13.238        100.800  10.0  0.048
-3050232        10.702        100.800  13.0  0.003
-3050241        12.497        100.800  12.0  0.433
-3050242        12.497        100.800  12.0  0.414
-```
+|   mukey | ksat_rosetta | ssurgo_ksat_r | clay | share |
+|--------:|-------------:|--------------:|-----:|------:|
+| 2538507 |       12.070 |         100.8 | 10.0 | 0.087 |
+| 2557360 |        6.793 |          32.4 | 23.0 | 0.014 |
+| 2739852 |       13.238 |         100.8 | 10.0 | 0.048 |
+| 3050232 |       10.702 |         100.8 | 13.0 | 0.003 |
+| 3050241 |       12.497 |         100.8 | 12.0 | 0.433 |
+| 3050242 |       12.497 |         100.8 | 12.0 | 0.414 |
 
 The reference lines are the NRCS standard Ksat classes [@soilsurveystaff_manual_2017],
 converted from micrometers per second to mm/hr. This comparison follows the
@@ -492,6 +504,8 @@ SSURGO and ROSETTA evaluation in the ncss-tech ROSETTA API documentation
 [@beaudette_rosetta_api], computed here from the SECREF data.
 
 ```{python}
+#| code-fold: true
+#| code-summary: "Show the figure code"
 import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
@@ -558,6 +572,8 @@ tools.r_manning(
 ```
 
 ```{python}
+#| code-fold: true
+#| code-summary: "Show the figure code"
 manning_map = gj.Map(width=900, height=900)
 manning_map.d_shade(shade="relief", color="manning", brighten=35)
 manning_map.d_legend(
@@ -663,6 +679,8 @@ The three runs share one color table, with breaks spaced logarithmically because
 depth spans four orders of magnitude.
 
 ```{python}
+#| code-fold: true
+#| code-summary: "Show the figure code"
 rules = """0 226:197:164
 0.002 191:172:131
 0.008 127:154:132
@@ -688,16 +706,19 @@ depth_map.show()
 ![](images/depth_comparison.webp)
 
 ```{python}
+rows = []
 for name in ["depth_noinfil", "depth_rosetta", "depth_ssurgo"]:
-    stats = tools.r_univar(map=name, format="json")
-    print(f"{name:15s} mean={stats['mean'] * 1000:8.3f} mm   sum={stats['sum']:10.1f}")
+    s = tools.r_univar(map=name, format="json")
+    rows.append({"run": name, "mean depth (mm)": s["mean"] * 1000, "total": s["sum"]})
+
+pd.DataFrame(rows).round(3)
 ```
 
-```text
-depth_noinfil     mean=  21.931 mm   sum=   11513.7
-depth_rosetta     mean=  18.509 mm   sum=    9717.0
-depth_ssurgo      mean=   0.071 mm   sum=      37.3
-```
+| run           | mean depth (mm) |   total |
+|:--------------|----------------:|--------:|
+| depth_noinfil |          21.931 | 11513.7 |
+| depth_rosetta |          18.509 |  9717.0 |
+| depth_ssurgo  |           0.071 |    37.3 |
 
 ## ROSETTA infiltration against none
 
@@ -705,6 +726,8 @@ The ROSETTA field removed 15.6% of the surface water, dropping mean flow depth
 from 21.9 mm to 18.5 mm. We map the difference to see where it went.
 
 ```{python}
+#| code-fold: true
+#| code-summary: "Show the figure code"
 tools.r_mapcalc(expression="depth_diff = depth_rosetta - depth_noinfil")
 tools.r_colors(map="depth_diff", color="differences")
 
