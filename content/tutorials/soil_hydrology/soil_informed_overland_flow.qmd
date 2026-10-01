@@ -872,6 +872,11 @@ Next steps:
 * Add sediment transport with
   [r.sim.sediment](https://grass.osgeo.org/grass-stable/manuals/r.sim.sediment.html),
   which reuses the depth and discharge maps produced here.
+* Work through the same soil-informed workflow at catchment scale in the SIMWE
+  Soils Project notebooks [@white_nrcs_simwe], which add curve number, time of
+  concentration, NOAA Atlas 14 design storms, and walker velocity animation at
+  [Coweeta, NC](https://ncsu-geoforall-lab.github.io/NRCS_SIMWE/notebooks/ssurgo.html)
+  and [Clay Center, KS](https://ncsu-geoforall-lab.github.io/NRCS_SIMWE/notebooks/ssurgo_clay_center.html).
 
 # See also
 
@@ -879,6 +884,8 @@ Next steps:
 * [r.soils.rosetta](https://grass.osgeo.org/grass-stable/manuals/addons/r.soils.rosetta.html)
 * [r.sim.water](https://grass.osgeo.org/grass-stable/manuals/r.sim.water.html)
 * [Parallelization of overland flow and sediment transport simulation](../parallelization/SIMWE_parallelization.qmd)
+* [SIMWE Soils Project](https://ncsu-geoforall-lab.github.io/NRCS_SIMWE/),
+  the NRCS work this workflow comes out of
 * [SECREF sample dataset on Zenodo](https://doi.org/10.5281/zenodo.23017720)
 
 # References
