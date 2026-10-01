@@ -277,8 +277,8 @@ web service for the current region, which is what we do here. Supplying a local
 archive instead, either a Web Soil Survey area export or a state-wide gSSURGO
 database, avoids the network and scales to large areas. The
 [SIMWE parallelization tutorial](../parallelization/SIMWE_parallelization.qmd)
-uses the local mode with a state-wide gSSURGO file. The local mode requires the
-`duckdb` Python package.
+uses the local mode with a state-wide gSSURGO file. The local mode works best
+with the `duckdb` Python package, and falls back to a SQLite backend without it.
 :::
 
 The three texture separates (i.e., sand, silt, and clay) are the required
@@ -633,9 +633,9 @@ manning_map.show()
 
 ![](images/manning.webp)
 
-The SSURGO polygons leave 72 cells out of 525,000 without soil data, and
-`r.sim.water` reads a NULL infiltration cell as missing data rather than as zero,
-so we fill those cells with the site mean.
+The SSURGO polygons leave 72 cells out of 525,000 without soil data.
+`r.sim.water` applies no infiltration where the `infil` map is NULL, so those
+cells would shed water as if they were paved. We fill them with the site mean.
 
 ```{python}
 tools.r_mapcalc(expression="ksat_fill = if(isnull(ksat_rosetta), 12.4, ksat_rosetta)")
