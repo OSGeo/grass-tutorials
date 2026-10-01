@@ -31,12 +31,15 @@ and use it to drive overland flow simulations with the SIMWE model at a 52 ha
 research site in Raleigh, North Carolina.
 
 [r.sim.water](https://grass.osgeo.org/grass-stable/manuals/r.sim.water.html)
-represents infiltration with the `infil` parameter in mm/hr, which is often set
-to a single value for an entire study area. Replacing that value with a raster
-requires saturated hydraulic conductivity (Ksat) for every cell. Soil surveys do
-not report Ksat in a form ready for modeling, they report texture, bulk density,
-and horizon depths, so Ksat has to be estimated from those measurements with a
-pedotransfer function.
+accepts infiltration two ways. The `rain` parameter takes a rainfall excess rate,
+rainfall minus infiltration, which you subtract before the run. The `infil`
+parameter takes an infiltration rate in mm/hr applied to water already crossing a
+cell, and is the one we map here. Either needs saturated hydraulic conductivity
+(Ksat), and both are commonly set to a single value for an entire study area.
+
+Soil surveys do not report Ksat in a form ready for modeling, they report
+texture, bulk density, and horizon depths, so Ksat has to be estimated from those
+measurements with a pedotransfer function.
 
 We will:
 
