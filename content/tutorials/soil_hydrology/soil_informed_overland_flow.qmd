@@ -330,6 +330,8 @@ constant because SSURGO reports one value per map unit, and seven map units
 cover the entire site (15 polygons, several of which share a map unit key).
 
 ```{python}
+#| code-fold: true
+#| code-summary: "Show the table code"
 rows = []
 for name in ["sand", "silt", "clay", "bd"]:
     s = tools.r_univar(map=name, format="json")
@@ -411,6 +413,8 @@ imported above as `ssurgo_ksat_r`. We compare the two on a shared absolute color
 scale.
 
 ```{python}
+#| code-fold: true
+#| code-summary: "Show the table code"
 rows = []
 for name in ["ksat_rosetta", "ssurgo_ksat_r"]:
     s = tools.r_univar(map=name, format="json")
@@ -477,6 +481,8 @@ one row per map unit with
 `mukey` raster as zones.
 
 ```{python}
+#| code-fold: true
+#| code-summary: "Show the table code"
 params = ["ksat_rosetta", "ssurgo_ksat_r", "clay"]
 rows = {}
 for p in params:
@@ -706,6 +712,8 @@ depth_map.show()
 ![](images/depth_comparison.webp)
 
 ```{python}
+#| code-fold: true
+#| code-summary: "Show the table code"
 rows = []
 for name in ["depth_noinfil", "depth_rosetta", "depth_ssurgo"]:
     s = tools.r_univar(map=name, format="json")
