@@ -60,7 +60,7 @@ Additional concepts covered in this tutorial:
 The study site is the North Carolina State University Sediment and Erosion
 Control Research and Education Facility (SECREF). The data come from a GRASS
 sample dataset assembled for SIMWE work and published by Anna Petrasova
-[@petrasova2026secref].
+[@petrasova_secref_2026].
 
 ::: {.callout-note title="How to run this tutorial?"}
 This tutorial is prepared to be run in a Jupyter notebook locally or using
@@ -110,9 +110,11 @@ tools.g_extension(extension="r.soils.rosetta")
 installed and falls back to a web API when it is not. Install it to keep the run
 reproducible and to enable the uncertainty outputs.
 
+The plots later in the tutorial use pandas, seaborn, and matplotlib.
+
 ```{python}
 # | eval: false
-!pip install rosetta-soil
+!pip install rosetta-soil pandas seaborn matplotlib
 ```
 
 ## Download the sample dataset
@@ -259,6 +261,7 @@ tools.r_in_ssurgo(
     bulk_density="bd",
     ksat_r="ssurgo_ksat_r",
     hydgrp="hydgrp",
+    mukey="mukey",
     hzdept_r=0,
     hzdepb_r=25.4,
 )
@@ -297,8 +300,8 @@ for name, label in [("sand", "Sand %"), ("clay", "Clay %")]:
 :::
 
 The site averages 67% sand and 12% clay. The texture rasters are piecewise
-constant because SSURGO reports one value per map unit, and 15 map units cover
-the entire site.
+constant because SSURGO reports one value per map unit, and seven map units
+cover the entire site (15 polygons, several of which share a map unit key).
 
 ```{python}
 for name in ["sand", "silt", "clay", "bd"]:
@@ -316,9 +319,9 @@ bd    min=   1.38 max=   1.58 mean=   1.58
 # Estimating hydraulic parameters with ROSETTA
 
 ROSETTA is a hierarchical pedotransfer model that estimates the
-Mualem-van Genuchten parameters from soil texture [@schaap2001rosetta;
-@vangenuchten1980]. `r.soils.rosetta` applies it cell by cell using the
-recalibrated Rosetta3 coefficients [@zhang2017rosetta3].
+Mualem-van Genuchten parameters from soil texture [@schaap_rosetta_2001;
+@vangenuchten_closed_1980]. `r.soils.rosetta` applies it cell by cell using the
+recalibrated Rosetta3 coefficients [@zhang_weighted_2017].
 
 ::: {.callout-note title="What is a pedotransfer function?"}
 Measuring saturated hydraulic conductivity in the field is slow and expensive, so
@@ -343,7 +346,10 @@ tools.r_soils_rosetta(
     clay="clay",
     bulk_density="bd",
     ksat="ksat_rosetta",
+    theta_r="theta_r",
     theta_s="theta_s",
+    alpha="vg_alpha",
+    n="vg_n",
     version=3,
     ksat_units="mm_per_hour",
 )
@@ -411,10 +417,149 @@ the same result as applying it per horizon and averaging afterward. We requested
 texture already averaged over the top 25.4 cm, so the estimate inherits that
 approximation.
 
+## A map unit table
+
+Both maps are constant within each SSURGO map unit, so we can collapse them to
+one row per map unit with
+[r.univar](https://grass.osgeo.org/grass-stable/manuals/r.univar.html) using the
+`mukey` raster as zones. The same table drives the two plots that follow.
+
+```{python}
+import pandas as pd
+
+params = ["ksat_rosetta", "ssurgo_ksat_r", "theta_r", "theta_s", "vg_alpha", "vg_n", "clay"]
+rows = {}
+for p in params:
+    for zone in tools.r_univar(map=p, zones="mukey", format="json").json:
+        rows.setdefault(zone["zone"], {"cells": zone["n"]})[p] = zone["mean"]
+
+units = pd.DataFrame.from_dict(rows, orient="index").rename_axis("mukey")
+units = units[units["cells"] > 0]
+units["share"] = units["cells"] / units["cells"].sum()
+print(units[["ksat_rosetta", "ssurgo_ksat_r", "clay", "share"]].round(3))
+```
+
+```text
+         ksat_rosetta  ssurgo_ksat_r  clay  share
+mukey
+2538507        12.070        100.800  10.0  0.087
+2557360         6.793         32.400  23.0  0.014
+2739852        13.238        100.800  10.0  0.048
+3050232        10.702        100.800  13.0  0.003
+3050241        12.497        100.800  12.0  0.433
+3050242        12.497        100.800  12.0  0.414
+```
+
+Plotting the pairs against a 1:1 line shows the disagreement directly. The
+reference lines are the NRCS standard Ksat classes [@soilsurveystaff_manual_2017],
+converted from micrometers per second to mm/hr. This comparison follows the
+SSURGO and ROSETTA evaluation in the ncss-tech ROSETTA API documentation
+[@beaudette_rosetta_api], computed here from the SECREF data.
+
+```{python}
+import seaborn as sns
+import matplotlib.pyplot as plt
+import numpy as np
+
+fig, ax = plt.subplots(figsize=(7.2, 6.4))
+lims = (3, 400)
+ax.plot(lims, lims, "--", color="#b3261e", linewidth=1.5)
+
+# NRCS Ksat class limits, um/s converted to mm/hr
+for edge in (0.036, 0.36, 3.6, 36.0, 360.0):
+    ax.axhline(edge, color="#d8d7d3", linewidth=0.7)
+    ax.axvline(edge, color="#d8d7d3", linewidth=0.7)
+
+sns.scatterplot(
+    data=units.sort_values("share", ascending=False),
+    x="ksat_rosetta", y="ssurgo_ksat_r", size="share", sizes=(90, 900),
+    color="#256abf", edgecolor="#fcfcfb", linewidth=1.2, legend=False, ax=ax,
+)
+ax.set(xscale="log", yscale="log", xlim=lims, ylim=lims)
+ax.set_xlabel("ROSETTA estimated Ksat (mm/hr)")
+ax.set_ylabel("SSURGO reported Ksat (mm/hr)")
+plt.show()
+```
+
+![](images/ksat_rosetta_vs_ssurgo.webp)
+
+Every map unit sits above the 1:1 line. The two map units covering 85% of the
+site place ROSETTA in the moderately high class and SSURGO in the high class,
+one full class apart.
+
+## Water retention curves
+
+Ksat is only one of the five ROSETTA outputs. The other four describe how
+tightly the soil holds water, through the van Genuchten retention function
+[@vangenuchten_closed_1980]:
+
+$$
+\theta(h) = \theta_r + \frac{\theta_s - \theta_r}{\left[1 + (\alpha h)^n\right]^{1 - 1/n}}
+$$
+
+where $h$ is suction in cm of water. Plotting it for each map unit, after the
+theoretical retention curves in the ncss-tech documentation
+[@beaudette_rosetta_api], shows what the parameters mean.
+
+```{python}
+def theta(suction_kpa, theta_r, theta_s, alpha, n):
+    """van Genuchten water retention. Suction in kPa, alpha in 1/cm."""
+    h = np.maximum(suction_kpa, 1e-6) * 10.197  # kPa to cm of water
+    return theta_r + (theta_s - theta_r) / (1 + (alpha * h) ** n) ** (1 - 1 / n)
+
+
+suction = np.logspace(-1, 5, 400)
+curves = pd.concat(
+    [
+        pd.DataFrame({
+            "suction": suction,
+            "theta": theta(suction, r.theta_r, r.theta_s, r.vg_alpha, r.vg_n),
+            "unit": f"{r.clay:.0f}% clay ({r.share:.1%} of site)",
+        })
+        for r in units.sort_values("clay", ascending=False).itertuples()
+    ]
+)
+
+fig, ax = plt.subplots(figsize=(7.2, 6.4))
+sns.lineplot(data=curves, x="theta", y="suction", hue="unit", linewidth=2, ax=ax)
+for value in (33, 1500):
+    ax.axhline(value, color="#b3261e", linestyle="--", linewidth=1.2)
+ax.set(yscale="log", ylim=(0.1, 1e5), xlim=(0, 0.42))
+ax.set_xlabel("Volumetric water content (cm3/cm3)")
+ax.set_ylabel("Suction (kPa)")
+plt.show()
+```
+
+![](images/water_retention_curves.webp)
+
+The dashed lines mark field capacity (33 kPa) and the wilting point (1500 kPa).
+Water held between them is plant available, so the gap between the two
+intersections is the available water capacity (AWC) [@schaap_comparison_2004].
+The 23% clay unit holds 0.160 cm³/cm³, roughly half again as much as the sandier
+units at 0.104 to 0.113 cm³/cm³, which is the same contrast that gives it the
+lowest Ksat.
+
+```{python}
+for r in units.sort_values("clay", ascending=False).itertuples():
+    awc = theta(33, r.theta_r, r.theta_s, r.vg_alpha, r.vg_n) - theta(
+        1500, r.theta_r, r.theta_s, r.vg_alpha, r.vg_n
+    )
+    print(f"{r.clay:4.0f}% clay   AWC={awc:.3f} cm3/cm3   {r.share:6.1%} of site")
+```
+
+```text
+  23% clay   AWC=0.160 cm3/cm3     1.4% of site
+  13% clay   AWC=0.113 cm3/cm3     0.3% of site
+  12% clay   AWC=0.106 cm3/cm3    43.3% of site
+  12% clay   AWC=0.106 cm3/cm3    41.4% of site
+  10% clay   AWC=0.109 cm3/cm3     8.7% of site
+  10% clay   AWC=0.104 cm3/cm3     4.8% of site
+```
+
 # Preparing the SIMWE inputs
 
 SIMWE solves the shallow water flow equation using a path sampling (i.e.,
-walker-based) method [@mitas1998distributed; @mitasova2004simwe]. Besides
+walker-based) method [@mitas_distributed_1998; @mitasova_path_2004]. Besides
 elevation it requires the partial derivatives of the surface, a surface roughness
 map, a rainfall rate, and an infiltration rate.
 
@@ -589,8 +734,8 @@ min=-0.0308 max=0.0226 stddev=0.00060
 ```
 
 Local differences reach 3 cm in the concentrated flow paths. However, the
-aggregate effect is small because the 15 SSURGO map units at this site span only
-6.8 to 13.2 mm/hr, a standard deviation of 0.7 mm/hr. A site with contrasting
+aggregate effect is small because the seven SSURGO map units at this site span
+only 6.8 to 13.2 mm/hr, a standard deviation of 0.7 mm/hr. A site with contrasting
 soils (e.g., sand against a clay pan) would produce a larger difference.
 
 ::: {.callout-note title="When does mapping infiltration pay off?"}
