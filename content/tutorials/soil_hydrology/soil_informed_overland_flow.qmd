@@ -1,5 +1,5 @@
 ---
-title: "Soil-informed overland flow: from SSURGO texture to SIMWE"
+title: "Estimating infiltration from soil survey data for overland flow modeling"
 author: "Corey T. White"
 date: 2026-09-30
 date-modified: today
@@ -7,9 +7,9 @@ lightbox: true
 image: images/thumbnail.webp
 categories: [Python, hydrology, soil, raster, intermediate]
 description: >
-  Turn USDA SSURGO soil texture into a spatially varying infiltration field with
-  the ROSETTA pedotransfer model, then run the SIMWE overland flow model with it
-  and see what the soil data changes.
+  Use the ROSETTA pedotransfer model to turn USDA SSURGO soil texture into a
+  saturated hydraulic conductivity map, then drive SIMWE overland flow
+  simulations with it.
 bibliography: references.bib
 format:
   ipynb: default
@@ -26,29 +26,41 @@ jupyter: python3
 
 # Introduction
 
-Every overland flow model has to decide how much rain becomes runoff. In
-[r.sim.water](https://grass.osgeo.org/grass-stable/manuals/r.sim.water.html),
-that decision lives in a single parameter: the infiltration rate. Leave it at a
-constant and the whole landscape sheds water at the same rate. Give it a map and
-the model starts to respond to the soil under each cell.
+In this tutorial, we will estimate soil infiltration from USDA soil survey data
+and use it to drive overland flow simulations with the SIMWE model at a 52 ha
+research site in Raleigh, North Carolina.
 
-Getting that map is the hard part. Soil surveys report texture, not hydraulic
-conductivity. This tutorial closes that gap with a *pedotransfer function*, an
-empirical model that predicts hydraulic properties from the properties that
-surveys actually measure. We will:
+[r.sim.water](https://grass.osgeo.org/grass-stable/manuals/r.sim.water.html)
+represents infiltration with the `infil` parameter in mm/hr, which is often set
+to a single value for an entire study area. Replacing that value with a raster
+requires saturated hydraulic conductivity (Ksat) for every cell. Soil surveys do
+not report Ksat in a form ready for modeling, they report texture, bulk density,
+and horizon depths, so Ksat has to be estimated from those measurements with a
+pedotransfer function.
+
+We will:
 
 1. Import USDA SSURGO soil texture with
    [r.in.ssurgo](https://grass.osgeo.org/grass-stable/manuals/addons/r.in.ssurgo.html)
-2. Predict saturated hydraulic conductivity with
-   [r.soils.rosetta](https://grass.osgeo.org/grass-stable/manuals/addons/r.soils.rosetta.html)
+2. Estimate Ksat with
+   [r.soils.rosetta](https://grass.osgeo.org/grass-stable/manuals/addons/r.soils.rosetta.html),
+   which implements the ROSETTA pedotransfer model
 3. Run [r.sim.water](https://grass.osgeo.org/grass-stable/manuals/r.sim.water.html)
-   three times, with a single infiltration value, with the predicted field, and
-   with the conductivity SSURGO reports directly, and compare the results
+   three times, with a single infiltration value, with the estimated Ksat field,
+   and with the Ksat SSURGO reports directly
+
+Additional concepts covered in this tutorial:
+
+* Downloading and initializing a published GRASS sample project
+* Querying the Soil Data Access web service from the computational region
+* Depth-weighted aggregation of soil horizon data
+* Deriving Manning's n from land cover
+* Comparing simulation runs that differ in one input
 
 The study site is the North Carolina State University Sediment and Erosion
-Control Research and Education Facility (SECREF) in south Raleigh, a 52 ha
-research site with 1 m lidar elevation. Anna Petrasova published it as a GRASS
-sample dataset built specifically for SIMWE work [@petrasova2026secref].
+Control Research and Education Facility (SECREF). The data come from a GRASS
+sample dataset assembled for SIMWE work and published by Anna Petrasova
+[@petrasova2026secref].
 
 ::: {.callout-note title="How to run this tutorial?"}
 This tutorial is prepared to be run in a Jupyter notebook locally or using
@@ -60,14 +72,14 @@ If you are not sure how to get started with GRASS, check out the tutorials
 and [Get started with GRASS in Google Colab](../get_started/grass_gis_in_google_colab.qmd).
 :::
 
-If you are looking for the empirical alternative to this workflow, the
+For the empirical alternative to this workflow, the
 [SIMWE parallelization tutorial](../parallelization/SIMWE_parallelization.qmd)
-takes soil data to runoff through the SCS Curve Number method instead.
+derives runoff from the SCS Curve Number method instead.
 
 # Setup
 
-Start by importing the Python packages. To import the _grass_ package, you need
-to tell Python where the GRASS Python package is (this can be skipped in some
+Start with importing Python packages. To import the _grass_ package, you need to
+tell Python where the GRASS Python package is (can be skipped for some
 environments).
 
 ```{python}
@@ -85,16 +97,18 @@ import grass.jupyter as gj
 from grass.tools import Tools
 ```
 
-This workflow needs two addons and one Python package. `r.soils.rosetta` uses
-the offline [rosetta-soil](https://pypi.org/project/rosetta-soil/) package when
-it is available and falls back to a web API when it is not. Installing it keeps
-the run reproducible and enables the uncertainty outputs.
+We will install the two addons used in this tutorial.
 
 ```{python}
 tools = Tools()
 tools.g_extension(extension="r.in.ssurgo")
 tools.g_extension(extension="r.soils.rosetta")
 ```
+
+`r.soils.rosetta` runs the offline
+[rosetta-soil](https://pypi.org/project/rosetta-soil/) package when it is
+installed and falls back to a web API when it is not. Install it to keep the run
+reproducible and to enable the uncertainty outputs.
 
 ```{python}
 # | eval: false
@@ -103,9 +117,9 @@ tools.g_extension(extension="r.soils.rosetta")
 
 ## Download the sample dataset
 
-The SECREF project is a ready-made GRASS project in EPSG:6542
-(NAD83(2011) / North Carolina, meters) at 1 m resolution. Download it from
-Zenodo and unpack it into a directory of your choosing.
+The SECREF project is a complete GRASS project in EPSG:6542 (NAD83(2011) /
+North Carolina, meters) at 1 m resolution. We will download it from Zenodo and
+unpack it into a directory of our choosing.
 
 ```{python}
 import urllib.request
@@ -123,8 +137,8 @@ with zipfile.ZipFile("secref.zip") as archive:
     archive.extractall(grassdata)
 ```
 
-The download is about 24 MB. We will work in a new mapset so that the downloaded
-PERMANENT mapset stays as published.
+The download is about 24 MB. We will work in a new mapset so that the published
+PERMANENT mapset stays as distributed.
 
 ```{python}
 project = grassdata / "secref_northcarolina_usa_epsg6542"
@@ -132,7 +146,7 @@ session = gj.init(project, mapset="work", create=True)
 tools = Tools(session=session)
 ```
 
-The project ships six rasters and three vectors:
+The project contains six rasters and three vectors:
 
 ```{python}
 print(tools.g_list(type="raster", mapset="PERMANENT", flags="m").text)
@@ -152,7 +166,7 @@ soils@PERMANENT
 streams@PERMANENT
 ```
 
-Set the computational region to the elevation map. Everything from here on
+We set the computational region to the elevation map. Everything that follows
 inherits this region, 700 by 750 cells at 1 m.
 
 ```{python}
@@ -178,9 +192,9 @@ cells:      525000
 
 # The study area
 
-SECREF sits on a low Piedmont ridge draining to a pair of small streams. The
-0.6 m NAIP imagery shows the research plots, the access roads, and the wooded
-margins.
+SECREF is on a low Piedmont ridge draining to two small streams. The 0.6 m USDA
+National Agriculture Imagery Program (NAIP) imagery shows the research plots,
+gravel access roads, and wooded margins.
 
 ```{python}
 site = gj.Map(width=900, height=900)
@@ -193,9 +207,10 @@ site.show()
 
 ![](images/study_area.webp)
 
-The terrain spans only 29 m of relief, from 102.6 m to 131.6 m. At 1 m
-resolution that is enough to route water through the plot boundaries and road
-ditches that dominate this site.
+Relief across the site spans 29 m, from 102.6 m to 131.6 m. We create a shaded
+relief map with
+[r.relief](https://grass.osgeo.org/grass-stable/manuals/r.relief.html) and use it
+as the base for the maps that follow.
 
 ```{python}
 tools.r_relief(input="elevation", output="relief", zscale=2)
@@ -209,8 +224,9 @@ dem.show()
 
 ![](images/elevation.webp)
 
-The packaged land cover raster was derived by combining lidar, NAIP, and
-OpenStreetMap roads. Its six classes drive the surface roughness later on.
+The packaged land cover raster was derived by combining lidar, NAIP imagery, and
+OpenStreetMap roads. Its six classes (i.e., developed, paved road, compacted
+road, herbaceous, forest, water) will supply the surface roughness values later.
 
 ```{python}
 lc = gj.Map(width=900, height=900)
@@ -221,19 +237,18 @@ lc.show()
 
 ![](images/landcover.webp)
 
-# Soil texture from SSURGO
+# Importing soil texture from SSURGO
 
-[SSURGO](https://www.nrcs.usda.gov/resources/data-and-reports/soil-survey-geographic-database-ssurgo)
-is the USDA's detailed soil survey [@ssurgo]. It is delivered as map unit
-polygons linked to tables of soil components and horizons, which makes it
-awkward to use directly as raster model input. `r.in.ssurgo` does that
-translation: it pulls the survey, aggregates the component and horizon tables
-over a depth interval you choose, and writes the result as rasters.
+The Soil Survey Geographic Database (SSURGO) is the USDA's detailed soil survey
+[@ssurgo]. It is distributed as map unit polygons linked to tables of soil
+components and horizons, so it needs aggregation before it can be used as raster
+model input. `r.in.ssurgo` pulls the survey, aggregates the component and horizon
+tables over a depth interval, and writes the result as rasters.
 
-With no `ssurgo_path` given, the tool builds an area of interest from the
+When `ssurgo_path` is left empty, the tool builds an area of interest from the
 current computational region and queries the
-[Soil Data Access](https://sdmdataaccess.nrcs.usda.gov/) (SDA) web service. For
-a 52 ha region that is a small query, so no manual download is needed.
+[Soil Data Access](https://sdmdataaccess.nrcs.usda.gov/) (SDA) web service, so
+for a 52 ha region no manual download is required.
 
 ```{python}
 tools.r_in_ssurgo(
@@ -250,21 +265,21 @@ tools.r_in_ssurgo(
 ```
 
 `hzdept_r=0` and `hzdepb_r=25.4` request a depth-weighted average over the top
-25.4 cm (10 inches), the layer that governs infiltration during a short storm.
-The SDA query takes a couple of minutes.
+25.4 cm (i.e., 10 inches), the layer that governs infiltration during a short
+storm. The SDA query takes a couple of minutes.
 
 ::: {.callout-note title="SDA or a local archive?"}
 `r.in.ssurgo` reads SSURGO two ways. Leaving `ssurgo_path` empty queries the SDA
-web service for the current region, which is what we do here. Passing a local
-archive, either a Web Soil Survey area export or a state-wide gSSURGO database,
-skips the network entirely and scales to large areas. The
+web service for the current region, which is what we do here. Supplying a local
+archive instead, either a Web Soil Survey area export or a state-wide gSSURGO
+database, avoids the network and scales to large areas. The
 [SIMWE parallelization tutorial](../parallelization/SIMWE_parallelization.qmd)
-uses the local mode with a state-wide gSSURGO file. The local mode needs the
+uses the local mode with a state-wide gSSURGO file. The local mode requires the
 `duckdb` Python package.
 :::
 
-The three texture separates are what ROSETTA needs. Bulk density is optional but
-improves the prediction.
+The three texture separates (i.e., sand, silt, and clay) are the required
+ROSETTA inputs. Bulk density is optional and improves the estimate.
 
 ```{python}
 for name, label in [("sand", "Sand %"), ("clay", "Clay %")]:
@@ -281,10 +296,9 @@ for name, label in [("sand", "Sand %"), ("clay", "Clay %")]:
 ![Clay content](images/texture_clay.webp)
 :::
 
-The site is sandy: 67% sand and 12% clay on average, with a narrow spread. Note
-how the texture is piecewise constant. SSURGO reports one value per map unit, and
-there are only 15 map units across the whole site, so these rasters are step
-functions rather than smooth surfaces.
+The site averages 67% sand and 12% clay. The texture rasters are piecewise
+constant because SSURGO reports one value per map unit, and 15 map units cover
+the entire site.
 
 ```{python}
 for name in ["sand", "silt", "clay", "bd"]:
@@ -299,28 +313,28 @@ clay  min=  10.00 max=  23.00 mean=  11.89
 bd    min=   1.38 max=   1.58 mean=   1.58
 ```
 
-# From texture to hydraulic parameters
+# Estimating hydraulic parameters with ROSETTA
 
-ROSETTA is a hierarchical pedotransfer model that predicts the
+ROSETTA is a hierarchical pedotransfer model that estimates the
 Mualem-van Genuchten parameters from soil texture [@schaap2001rosetta;
-@vangenuchten1980]. `r.soils.rosetta` applies it cell by cell, using the
+@vangenuchten1980]. `r.soils.rosetta` applies it cell by cell using the
 recalibrated Rosetta3 coefficients [@zhang2017rosetta3].
 
 ::: {.callout-note title="What is a pedotransfer function?"}
-Measuring saturated hydraulic conductivity in the field is slow and expensive,
-so it is rarely mapped. Texture, on the other hand, is measured everywhere a soil
-survey goes. A pedotransfer function is a statistical model fit to the soils
-where both were measured, which then predicts the expensive property from the
-cheap one. ROSETTA was trained on roughly 2000 soil samples and predicts five
-parameters: residual and saturated water content (`theta_r`, `theta_s`), the van
-Genuchten shape parameters `alpha` and `n`, and saturated hydraulic conductivity
-`ksat`.
+Measuring saturated hydraulic conductivity in the field is slow and expensive, so
+it is rarely mapped over large areas, while texture is recorded everywhere a soil
+survey goes. A pedotransfer function is a statistical model fit to soils where
+both quantities were measured, and it estimates the expensive property from the
+inexpensive one. ROSETTA was trained on roughly 2000 soil samples and estimates
+five parameters: residual and saturated water content (`theta_r`, `theta_s`), the
+van Genuchten shape parameters `alpha` and `n`, and saturated hydraulic
+conductivity (`ksat`).
 :::
 
-Which inputs you supply selects the model. Texture alone gives model 2, adding
-bulk density gives model 3, and water content at 33 kPa and 1500 kPa give models
-4 and 5. We have bulk density, so this is a model 3 run. Only the outputs you
-name are computed.
+The combination of inputs supplied selects the model version. Texture alone gives
+model 2, adding bulk density gives model 3, and adding water content at 33 kPa
+and 1500 kPa gives models 4 and 5. We have bulk density, so this is a model 3
+run. Only the outputs that are named get computed.
 
 ```{python}
 tools.r_soils_rosetta(
@@ -335,8 +349,8 @@ tools.r_soils_rosetta(
 )
 ```
 
-`ksat_units="mm_per_hour"` matters. ROSETTA reports conductivity in cm/day, and
-`r.sim.water` expects mm/hr, so the tool converts for you.
+ROSETTA reports conductivity in cm/day and `r.sim.water` expects mm/hr, so
+`ksat_units="mm_per_hour"` has the tool convert the output.
 
 ```{python}
 ksat_map = gj.Map(width=900, height=900)
@@ -349,16 +363,18 @@ ksat_map.show()
 
 ![](images/ksat_rosetta.webp)
 
-The predicted conductivity runs from 6.8 to 13.2 mm/hr, with the lowest values
-on the one map unit with 23% clay. Saturated water content, the pore space
-available to hold water, ranges from 0.36 to 0.41 cm³/cm³.
+Estimated conductivity ranges from 6.8 to 13.2 mm/hr. The lowest values fall on
+the map unit carrying 23% clay, which follows the drainage line through the
+southern half of the site. Saturated water content (i.e., the pore space
+available to hold water) ranges from 0.36 to 0.41 cm³/cm³.
 
 ![](images/theta_s.webp)
 
-## A reality check against SSURGO
+## Comparing against the Ksat reported by SSURGO
 
-SSURGO reports its own saturated hydraulic conductivity, so we can put the two
-side by side on a shared color scale. They disagree, and by a lot.
+SSURGO reports a representative saturated hydraulic conductivity of its own,
+imported above as `ssurgo_ksat_r`. We compare the two on a shared absolute color
+scale.
 
 ```{python}
 for name in ["ksat_rosetta", "ssurgo_ksat_r"]:
@@ -372,45 +388,45 @@ ssurgo_ksat_r   min=  32.40 max= 100.80 mean=  99.84
 ```
 
 ::: {layout-ncol=2}
-![ROSETTA prediction](images/cmp_ksat_rosetta.webp)
+![ROSETTA estimate](images/cmp_ksat_rosetta.webp)
 
 ![SSURGO reported value](images/cmp_ssurgo_ksat_r.webp)
 :::
 
 SSURGO's representative value averages about eight times higher than the ROSETTA
-prediction. Both are labeled saturated hydraulic conductivity, but they come from
-different places: SSURGO's is a soil scientist's estimate for the component,
-often anchored to field observation and class ranges, while ROSETTA's is a
-regression on texture and bulk density. Neither is ground truth here.
+estimate. The two are produced differently: SSURGO's is a soil scientist's
+estimate for the component, anchored to field observation and conductivity class
+ranges, while ROSETTA's is a regression on texture and bulk density. Neither is a
+measurement at this site. We will run the simulation with both.
 
-::: {.callout-important title="Pedotransfer predictions carry real uncertainty"}
-An eight-fold spread between two defensible estimates of the same quantity is
-normal for hydraulic conductivity, which varies over orders of magnitude and is
-notoriously hard to pin down. Run `r.soils.rosetta` with the `-u` flag to get
-per-parameter standard deviation maps, and treat any single conductivity map as
-one plausible scenario. If your conclusions flip between these two inputs, the
-honest result is that your model cannot resolve the question with the data you
-have.
+::: {.callout-important title="Pedotransfer estimates carry uncertainty"}
+Saturated hydraulic conductivity varies over orders of magnitude and is difficult
+to constrain, so an eight-fold spread between two defensible estimates is not
+unusual. Running `r.soils.rosetta` with the `-u` flag produces per-parameter
+standard deviation maps.
 :::
 
-There is a second reason to be careful. ROSETTA is nonlinear, so applying it to
-depth-averaged texture is not the same as applying it per horizon and averaging
-the results afterward. We asked `r.in.ssurgo` for texture already averaged over
-the top 25.4 cm, so the prediction inherits that approximation.
+ROSETTA is also nonlinear, so applying it to depth-averaged texture does not give
+the same result as applying it per horizon and averaging afterward. We requested
+texture already averaged over the top 25.4 cm, so the estimate inherits that
+approximation.
 
 # Preparing the SIMWE inputs
 
-SIMWE solves the shallow water flow equation with a path sampling (walker)
-method [@mitas1998distributed; @mitasova2004simwe]. Besides elevation it needs
-the partial derivatives of the surface, a surface roughness map, a rainfall rate,
-and an infiltration rate.
+SIMWE solves the shallow water flow equation using a path sampling (i.e.,
+walker-based) method [@mitas1998distributed; @mitasova2004simwe]. Besides
+elevation it requires the partial derivatives of the surface, a surface roughness
+map, a rainfall rate, and an infiltration rate.
+
+We compute the partial derivatives with
+[r.slope.aspect](https://grass.osgeo.org/grass-stable/manuals/r.slope.aspect.html).
 
 ```{python}
 tools.r_slope_aspect(elevation="elevation", dx="dx", dy="dy")
 ```
 
-Manning's n comes from land cover. These are standard overland flow roughness
-values: pavement is smooth, forest floor is rough.
+Manning's n comes from land cover, using standard overland flow roughness values
+ranging from 0.011 for pavement to 0.20 for forest floor.
 
 ```{python}
 rules = """
@@ -426,31 +442,31 @@ tools.r_recode(input="landcover", output="manning", rules="-", stdin=rules)
 
 ![](images/manning.webp)
 
-One housekeeping step before the simulation. The SSURGO polygons leave a handful
-of cells without soil data, 72 out of 525,000 here, and `r.sim.water` treats NULL
-infiltration as no data rather than zero. Fill them with the site mean.
+The SSURGO polygons leave 72 cells out of 525,000 without soil data, and
+`r.sim.water` reads a NULL infiltration cell as missing data rather than as zero,
+so we fill those cells with the site mean.
 
 ```{python}
 tools.r_mapcalc(expression="ksat_fill = if(isnull(ksat_rosetta), 12.4, ksat_rosetta)")
 ```
 
-# Three simulations
+# Running the simulations
 
-We drive every run with a 54 mm/hr rainfall rate held for 60 minutes, roughly a
-10-year, 1-hour storm for Raleigh. The only thing that changes between them is
-the infiltration input.
+All three runs use a 54 mm/hr rainfall rate held for 60 minutes, approximately a
+10-year, 1-hour storm for Raleigh. The infiltration input is the only thing that
+changes between them.
 
-::: {.callout-warning title="Infiltration goes in once"}
-Saturated conductivity can enter `r.sim.water` two ways. Either pass it as
-`infil`, the infiltration loss applied to flowing water, or subtract it from the
-rainfall rate with `r.mapcalc` and pass the result as `rain`. Both treat Ksat as
-a steady-state infiltration rate. Using both at once counts infiltration twice.
-We use `infil` throughout.
+::: {.callout-warning title="Infiltration enters the model once"}
+Saturated conductivity can reach `r.sim.water` two ways. It can be passed as
+`infil`, the infiltration loss applied to flowing water, or subtracted from the
+rainfall rate with `r.mapcalc` and passed as `rain`. Both treat Ksat as a
+steady-state infiltration rate, and using them together counts infiltration
+twice. We use `infil` throughout.
 :::
 
-The baseline is what you run without soil data: one representative infiltration
-value for the whole site. We use 12.4 mm/hr, the site mean of the ROSETTA field,
-so the only thing that changes between the runs is spatial variation.
+The first run uses a single infiltration value for the whole site. We set it to
+12.4 mm/hr, the site mean of the ROSETTA field, so that spatial variation is the
+only difference between this run and the next.
 
 ```{python}
 tools.r_sim_water(
@@ -469,7 +485,7 @@ tools.r_sim_water(
 )
 ```
 
-Then the same storm with the ROSETTA field:
+The second run uses the ROSETTA field.
 
 ```{python}
 tools.r_sim_water(
@@ -488,18 +504,16 @@ tools.r_sim_water(
 )
 ```
 
-::: {.callout-tip title="This takes a while"}
-Each run is about 525,000 cells with roughly a million walkers. Expect several
-minutes per simulation. Raise `nprocs` if you have the cores, and drop `duration`
-to 20 minutes while you are still adjusting the workflow.
+`random_seed` is set so the runs use the same walker sampling. Without it, Monte
+Carlo noise would be included in the differences computed below.
+
+::: {.callout-tip title="Simulation run time"}
+Each run covers 525,000 cells with roughly a million walkers, so expect several
+minutes per simulation. Increase `nprocs` if more cores are available, and reduce
+`duration` to 20 minutes while adjusting the workflow.
 :::
 
-`random_seed` is set so the runs use the same walker sampling. Without it the
-Monte Carlo noise between runs would be mixed into the differences we are about
-to compute.
-
-Finally, the same storm driven by SSURGO's own reported conductivity, to see what
-that eight-fold disagreement does to the answer.
+The third run uses the Ksat reported by SSURGO.
 
 ```{python}
 tools.r_mapcalc(
@@ -521,10 +535,9 @@ tools.r_sim_water(
 )
 ```
 
-# Comparing the runs
+# Results
 
-All three maps share one absolute color scale, so the panels are directly
-comparable.
+The three depth maps share one absolute color scale and can be compared directly.
 
 ::: {layout-ncol=3}
 ![Uniform 12.4 mm/hr](images/depth_uniform.webp)
@@ -546,13 +559,11 @@ depth_rosetta     mean=  18.510 mm   sum=    9664.1
 depth_ssurgo      mean=   0.069 mm   sum=      36.0
 ```
 
-Two findings, and the smaller one comes first.
+## Uniform value compared to the ROSETTA field
 
-## The spatial pattern barely moved the result
-
-Replacing the single 12.4 mm/hr value with the full ROSETTA field changed mean
-flow depth by 0.018 mm, about one tenth of one percent. The difference map shows
-where it went.
+Replacing 12.4 mm/hr everywhere with the ROSETTA field changed mean flow depth by
+0.018 mm, about one tenth of one percent. We map the difference to see where the
+change occurs.
 
 ```{python}
 tools.r_mapcalc(expression="depth_diff = depth_rosetta - depth_uniform")
@@ -577,65 +588,71 @@ print(f"min={stats['min']:.4f} max={stats['max']:.4f} stddev={stats['stddev']:.5
 min=-0.0308 max=0.0226 stddev=0.00060
 ```
 
-Local differences reach 3 cm in the concentrated flow paths, so the pattern is
-not nothing. It is just small, and the reason is visible back in the texture
-maps: SSURGO resolves this site into 15 map units whose predicted conductivity
-spans 6.8 to 13.2 mm/hr, a standard deviation of 0.7 mm/hr. There is very little
-spatial signal to transmit. A site with contrasting soils, say sand against a
-clay pan, would behave differently.
+Local differences reach 3 cm in the concentrated flow paths. However, the
+aggregate effect is small because the 15 SSURGO map units at this site span only
+6.8 to 13.2 mm/hr, a standard deviation of 0.7 mm/hr. A site with contrasting
+soils (e.g., sand against a clay pan) would produce a larger difference.
 
 ::: {.callout-note title="When does mapping infiltration pay off?"}
-The value of a spatially varying infiltration field scales with how much the
-soil actually varies across the model domain, relative to the rainfall rate.
-Check the spread of your conductivity map with `r.univar` before assuming the
-detail matters. If the standard deviation is small compared to the mean, a
-single representative value will give you nearly the same answer.
+The benefit of a spatially varying infiltration field scales with how much the
+soil varies across the model domain relative to the rainfall rate. Check the
+spread of a conductivity map with
+[r.univar](https://grass.osgeo.org/grass-stable/manuals/r.univar.html) first.
+Where the standard deviation is small compared to the mean, a single
+representative value gives nearly the same answer.
 :::
 
-## The level of Ksat changed everything
+## ROSETTA Ksat compared to SSURGO Ksat
 
-The SSURGO-driven run put 36 units of water on the surface against the ROSETTA
-run's 9664, a factor of 268. The reason is simple arithmetic: SSURGO's
-representative conductivity averages 99.8 mm/hr, the storm delivers 54 mm/hr,
-and a soil that can absorb water faster than it arrives generates almost no
-overland flow. Only the wettest corner of the site produces any depth at all.
+The SSURGO-driven run left 36 units of water on the surface against the ROSETTA
+run's 9664, a factor of 268. SSURGO's representative conductivity averages
+99.8 mm/hr while the storm delivers 54 mm/hr, so infiltration keeps pace with
+rainfall across most of the site and only the wettest corner generates any flow
+depth.
 
-So the same site, the same storm, the same model, and two published estimates of
-the same soil property give either a fully developed drainage response or
-essentially nothing. Which one is right is a question this workflow cannot
-answer. It is a question for a field measurement.
+The choice of conductivity estimate therefore changed the result by two orders of
+magnitude, while the spatial pattern changed it by one tenth of one percent.
+Deciding between the two estimates requires a field measurement of conductivity
+at the site.
+
+# Assumptions and limitations
+
+* Depth averaging over the top 25.4 cm discards horizon structure, and because
+  ROSETTA is nonlinear the estimate is not equivalent to a per-horizon
+  calculation.
+* Treating Ksat as a steady-state infiltration rate ignores the decline in
+  infiltration capacity as the soil wets during a storm, so these runs understate
+  runoff late in the event.
+* Manning's n values are assigned by land cover class from published tables
+  rather than calibrated at this site.
+* None of the runs are validated against observed discharge at SECREF, so the
+  comparisons describe model sensitivity rather than model accuracy.
 
 # Summary
 
-Starting from a published sample dataset and nothing else, we built a spatially
-varying infiltration field out of a soil survey and ran an overland flow model
-with it. The pieces:
+We derived a spatially varying infiltration field from a soil survey and used it
+to drive an overland flow simulation:
 
-* `r.in.ssurgo` turns SSURGO map units into depth-weighted texture rasters, over
-  the SDA web service for small areas or from a local archive for large ones.
+* `r.in.ssurgo` converts SSURGO map units into depth-weighted texture rasters,
+  over the SDA web service for small areas or from a local archive for large
+  ones.
 * `r.soils.rosetta` applies the ROSETTA pedotransfer model to those rasters and
   writes saturated hydraulic conductivity in the units `r.sim.water` expects.
-* `r.sim.water` accepts that conductivity as its `infil` input.
+* `r.sim.water` takes that conductivity as its `infil` input.
 
-The result worth carrying forward is the ranking. At this site, swapping a single
-infiltration value for a full soil-derived map changed mean flow depth by 0.1%.
-Swapping between two published estimates of that same soil property changed the
-total water on the surface by a factor of 268. Getting the magnitude of
-saturated conductivity right dominates everything else, and the spatial detail
-only earns its keep once the soil itself varies.
+At this site, exchanging a single infiltration value for a soil-derived map
+changed mean flow depth by 0.1%, while exchanging one published conductivity
+estimate for another changed total surface water by a factor of 268. Running
+`r.univar` on a conductivity map and comparing its spread to its mean and to the
+rainfall rate indicates which of those two effects matters at a given site.
 
-That ordering is worth checking before investing in resolution. Run `r.univar` on
-your conductivity map, compare its spread to its mean and to your rainfall rate,
-and you will know which of the two problems you actually have.
+Next steps:
 
-Where to go next:
-
-* Add the `-u` flag to `r.soils.rosetta` for uncertainty maps and run the
-  simulation at the bounds.
-* Use `r.sim.water` with the `-t` flag and `output_step` to get a time series,
-  then register it with
-  [t.register](https://grass.osgeo.org/grass-stable/manuals/t.register.html) and
-  animate it.
+* Add the `-u` flag to `r.soils.rosetta` for uncertainty maps, and run the
+  simulation at the bounds to put an interval around these depths.
+* Use the `-t` flag with `output_step` to produce a time series, register it with
+  [t.register](https://grass.osgeo.org/grass-stable/manuals/t.register.html), and
+  animate the evolving flow.
 * Add sediment transport with
   [r.sim.sediment](https://grass.osgeo.org/grass-stable/manuals/r.sim.sediment.html),
   which reuses the depth and discharge maps produced here.
@@ -645,8 +662,7 @@ Where to go next:
 * [r.in.ssurgo](https://grass.osgeo.org/grass-stable/manuals/addons/r.in.ssurgo.html)
 * [r.soils.rosetta](https://grass.osgeo.org/grass-stable/manuals/addons/r.soils.rosetta.html)
 * [r.sim.water](https://grass.osgeo.org/grass-stable/manuals/r.sim.water.html)
-* [Parallelization of overland flow and sediment transport simulation](../parallelization/SIMWE_parallelization.qmd),
-  the Curve Number route to the same input
+* [Parallelization of overland flow and sediment transport simulation](../parallelization/SIMWE_parallelization.qmd)
 * [SECREF sample dataset on Zenodo](https://doi.org/10.5281/zenodo.23017720)
 
 # References
