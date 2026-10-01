@@ -764,16 +764,17 @@ diff_map.show()
 ![](images/depth_difference.webp)
 
 ```{python}
+#| code-fold: true
+#| code-summary: "Show the table code"
 stats = tools.r_univar(map="depth_diff", format="json")
-print(
-    f"min={stats['min']:.4f} max={stats['max']:.4f} "
-    f"mean={stats['mean']:.4f} stddev={stats['stddev']:.5f}"
-)
+pd.DataFrame(
+    [{key: stats[key] for key in ["min", "max", "mean", "stddev"]}]
+).round(4)
 ```
 
-```text
-min=-0.2984 max=0.0096 mean=-0.0034 stddev=0.01220
-```
+|     min |    max |    mean | stddev |
+|--------:|-------:|--------:|-------:|
+| -0.2984 | 0.0096 | -0.0034 | 0.0122 |
 
 The loss is concentrated where water collects. Cells in the ponds and the main
 drainage line drop by up to 30 cm, while the sheet flow over the plots loses
