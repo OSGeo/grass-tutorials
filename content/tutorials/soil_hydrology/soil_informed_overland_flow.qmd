@@ -59,8 +59,7 @@ Additional concepts covered in this tutorial:
 
 The study site is the North Carolina State University Sediment and Erosion
 Control Research and Education Facility (SECREF). The data come from a GRASS
-sample dataset assembled for SIMWE work and published by Anna Petrasova
-[@petrasova_secref_2026].
+sample dataset assembled for SIMWE work [@petrasova_secref_2026].
 
 ::: {.callout-note title="How to run this tutorial?"}
 This tutorial is prepared to be run in a Jupyter notebook locally or using
@@ -143,8 +142,9 @@ The download is about 24 MB. We will work in a new mapset so that the published
 PERMANENT mapset stays as distributed.
 
 ```{python}
-project = grassdata / "secref_northcarolina_usa_epsg6542"
-session = gj.init(project, mapset="work", create=True)
+mapset_path = grassdata / "secref_northcarolina_usa_epsg6542" / "work"
+gs.create_mapset(mapset_path)
+session = gj.init(mapset_path)
 tools = Tools(session=session)
 ```
 
