@@ -616,6 +616,28 @@ rules = """
 tools.r_recode(input="landcover", output="manning", rules="-", stdin=rules)
 ```
 
+`manning` takes six values, so for display we reclass it to ordered classes
+labelled with the n value and the cover type it came from.
+
+```{python}
+reclass = """2 = 1 0.011  paved road
+3 = 2 0.020  compacted road
+6 = 3 0.030  water
+1 = 4 0.050  developed
+4 = 5 0.100  herbaceous
+5 = 6 0.200  forest
+"""
+tools.r_reclass(
+    input="landcover", output="manning_class", rules="-", stdin=reclass
+)
+tools.r_colors(map="manning_class", color="greens")
+
+manning_map = gj.Map(width=900, height=900)
+manning_map.d_rast(map="manning_class")
+manning_map.d_legend(raster="manning_class", at=(38, 62, 4, 8), flags="cn")
+manning_map.show()
+```
+
 ![](images/manning.webp)
 
 The SSURGO polygons leave 72 cells out of 525,000 without soil data, and
