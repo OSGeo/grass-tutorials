@@ -34,7 +34,7 @@ research site in Raleigh, North Carolina.
 accepts infiltration two ways. The `rain` parameter takes a rainfall excess rate,
 rainfall minus infiltration, which you subtract before the run. The `infil`
 parameter takes an infiltration rate in mm/hr applied to water already crossing a
-cell, and is the one we map here. Either needs saturated hydraulic conductivity
+cell, and is the one we map here. Both need saturated hydraulic conductivity
 (Ksat), and both are commonly set to a single value for an entire study area.
 
 Soil surveys do not report Ksat in a form ready for modeling, they report
@@ -123,8 +123,8 @@ The plots later in the tutorial use pandas, seaborn, and matplotlib.
 ## Download the sample dataset
 
 The SECREF project is a complete GRASS project in EPSG:6542 (NAD83(2011) /
-North Carolina, meters) at 1 m resolution. We will download it from Zenodo and
-unpack it into a directory of our choosing.
+North Carolina, meters) at 1 m resolution. We download it from Zenodo and
+unpack it.
 
 ```{python}
 import urllib.request
@@ -457,7 +457,7 @@ approximation.
 Both maps are constant within each SSURGO map unit, so we can collapse them to
 one row per map unit with
 [r.univar](https://grass.osgeo.org/grass-stable/manuals/r.univar.html) using the
-`mukey` raster as zones. The same table drives the two plots that follow.
+`mukey` raster as zones.
 
 ```{python}
 import pandas as pd
@@ -485,8 +485,7 @@ mukey
 3050242        12.497        100.800  12.0  0.414
 ```
 
-Plotting the pairs against a 1:1 line shows the disagreement directly. The
-reference lines are the NRCS standard Ksat classes [@soilsurveystaff_manual_2017],
+The reference lines are the NRCS standard Ksat classes [@soilsurveystaff_manual_2017],
 converted from micrometers per second to mm/hr. This comparison follows the
 SSURGO and ROSETTA evaluation in the ncss-tech ROSETTA API documentation
 [@beaudette_rosetta_api], computed here from the SECREF data.
@@ -740,7 +739,7 @@ deviation of 0.7 mm/hr. Swapping that field for its own site mean of 12.4 mm/hr
 moves mean flow depth by about one tenth of one percent. Check the spread of a
 conductivity map with
 [r.univar](https://grass.osgeo.org/grass-stable/manuals/r.univar.html) before
-assuming the detail earns its keep.
+mapping it at full resolution.
 :::
 
 ## ROSETTA Ksat compared to SSURGO Ksat
@@ -783,9 +782,8 @@ to drive an overland flow simulation:
 
 At this site, adding a soil-derived infiltration field removed 16% of the surface
 water, while exchanging one published conductivity estimate for another changed
-it by a factor of 260. The magnitude of Ksat drives the result; its spatial
-pattern is a second-order correction, worth checking with `r.univar` before
-investing in resolution.
+it by a factor of 260. The magnitude of Ksat matters more than its spatial
+pattern, and `r.univar` will tell you that before you map it.
 
 Next steps:
 
