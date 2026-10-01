@@ -31,17 +31,18 @@ and use it to drive overland flow simulations with the SIMWE model at a 52 ha
 research site in Raleigh, North Carolina.
 
 [r.sim.water](https://grass.osgeo.org/grass-stable/manuals/r.sim.water.html)
-accepts infiltration two ways. The `rain` parameter takes a rainfall excess rate,
-rainfall minus infiltration, which you subtract before the run. The `infil`
-parameter takes an infiltration rate in mm/hr applied to water already crossing a
-cell, and is the one we map here. Both need saturated hydraulic conductivity
-(Ksat), and both are commonly set to a single value for an entire study area.
+accepts infiltration two ways: by setting the rainfall excess rate, where
+**rainfall excess** is $\text{rainfall} - \text{infiltration}$, or by setting the
+**infiltration rate** in mm/hr applied to water already crossing a cell. Both are
+commonly set to a single value for an entire study area through the
+`rain_value` and `infil_value` parameters, or defined by a spatially variable
+raster through `rain` and `infil`.
 
-Soil surveys do not report Ksat in a form ready for modeling, they report
-texture, bulk density, and horizon depths, so Ksat has to be estimated from those
-measurements with a pedotransfer function.
-
-We will:
+During this tutorial we approximate the infiltration rate (`infil`) using the
+USDA SSURGO soil survey dataset, which supplies texture, bulk density, and
+horizon depths. From those measurements we estimate saturated hydraulic
+conductivity (Ksat) with a pedotransfer function (ROSETTA). To do this we will
+follow the steps outlined below.
 
 1. Import USDA SSURGO soil texture with
    [r.in.ssurgo](https://grass.osgeo.org/grass-stable/manuals/addons/r.in.ssurgo.html)
