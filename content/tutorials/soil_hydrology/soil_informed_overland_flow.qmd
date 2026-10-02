@@ -249,13 +249,19 @@ gravel access roads, and wooded margins.
 ```{python}
 #| code-fold: true
 #| code-summary: "Show the figure code"
-with gs.RegionManager(s="s-150"):
-    site = gj.Map(width=900, height=1157, font=FONT, use_region=True)
-    site.d_rgb(red="naip.1", green="naip.2", blue="naip.3")
-    site.d_vect(map="streams", color="30:120:220", width=2)
-    site.d_graph(stdin=io.StringIO(BLANK))
-    site.d_barscale(at=(35, 8), flags="n", fontsize=18, length=200, units="meters")
-    site.show()
+site = gj.Map(width=900, height=900, font=FONT, use_region=True)
+site.d_rgb(red="naip.1", green="naip.2", blue="naip.3")
+site.d_vect(map="streams", color="30:120:220", width=2)
+site.d_barscale(
+    at=(4, 7),
+    flags="n",
+    fontsize=18,
+    length=200, units="meters",
+    style="down_ticks",
+    color="white", bgcolor="none",
+    width_scale=1.5, font="OpenSans-Bold"
+)
+site.show()
 ```
 
 ![](images/study_area.webp)
@@ -893,7 +899,20 @@ from 21.9 mm to 18.5 mm. We map the difference to see where it went.
 #| code-fold: true
 #| code-summary: "Show the figure code"
 tools.r_mapcalc(expression="depth_diff = depth_rosetta - depth_noinfil")
-tools.r_colors(map="depth_diff", color="differences")
+
+# Red where infiltration removed water, blue where it added, tan at no change.
+# Breaks are tight near zero because 95% of cells fall within a centimetre of it.
+diff_rules = """-0.30 103:0:13
+-0.08 178:24:43
+-0.02 214:96:77
+-0.005 240:160:110
+-0.001 226:200:150
+0 219:194:122
+0.001 180:205:220
+0.01 33:102:172
+nv 255:255:255
+"""
+tools.r_colors(map="depth_diff", rules="-", stdin=io.StringIO(diff_rules))
 
 with gs.RegionManager(s="s-150"):
     m = gj.Map(width=900, height=1157, font=FONT, use_region=True)
