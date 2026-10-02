@@ -123,94 +123,25 @@ The plots later in the tutorial use pandas, seaborn, and matplotlib.
 !pip install rosetta-soil pandas seaborn matplotlib
 ```
 
-The maps in this tutorial put their legend outside the map frame, and several
-place two or three panels side by side under one shared legend. `d.legend`
-draws inside the frame, so these figures are assembled from separate renders
-with Pillow. The helpers below do that assembly and are used by every figure
-that follows.
+The maps below place their legend outside the map frame. `d.legend` draws
+inside the frame, so each figure widens the computational region with
+[RegionManager](https://grass.osgeo.org/grass-stable/manuals/libpython/grass.script.html#grass.script.RegionManager)
+and draws the legend into the empty map that creates.
 
 ```{python}
 #| code-fold: true
-#| code-summary: "Show the figure helpers"
-from PIL import Image, ImageChops, ImageDraw, ImageFont
-
+#| code-summary: "Show the figure settings"
 FONT = "DejaVuSerif"
-FONT_FILE = "/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf"
-WHITE = (255, 255, 255)
-INK = (11, 11, 11)
-LEG_FS, LEG_TITLE_FS = 16, 18
 
-
-def flatten(path, size=None):
-    """Composite a cairo PNG onto an opaque white canvas."""
-    img = Image.open(path).convert("RGBA")
-    bg = Image.new("RGB", size or img.size, WHITE)
-    bg.paste(img, (0, 0), mask=img.split()[3])
-    return bg
-
-
-def trim(img, pad=6):
-    """Crop a white-background figure to its content, leaving an even border."""
-    bbox = ImageChops.difference(img, Image.new("RGB", img.size, WHITE)).getbbox()
-    if bbox is None:
-        return img
-    left, top, right, bottom = bbox
-    return img.crop((max(0, left - pad), max(0, top - pad),
-                     min(img.width, right + pad), min(img.height, bottom + pad)))
-
-
-def legend_strip(raster, title, width, rng=None, log=False, fontsize=LEG_FS,
-                 title_fontsize=LEG_TITLE_FS, height=142):
-    """A horizontal legend on its own canvas, for placing under a map."""
-    path = Path(f"_legend_{raster}.png")
-    strip = gj.Map(width=width, height=height, filename=str(path), font=FONT)
-    kwargs = {"raster": raster, "title": title, "at": (33, 57, 8, 92),
-              "flags": "stl" if log else "st",
-              "fontsize": fontsize, "title_fontsize": title_fontsize}
-    if rng:
-        kwargs["range"] = rng
-    strip.d_legend(**kwargs)
-    return flatten(path, size=(width, height))
-
-
-def barscale_strip(width, height, length, pad=14):
-    """A bar scale cropped from a full-size frame, so its length stays true."""
-    path = Path("_barscale.png")
-    bar = gj.Map(width=width, height=height, filename=str(path), font=FONT)
-    bar.d_barscale(at=(30, 8), flags="n", fontsize=LEG_FS, length=length,
-                   units="meters")
-    img = Image.open(path).convert("RGBA")
-    content = img.crop(img.split()[3].getbbox())
-    strip = Image.new("RGB", (width, content.height + 2 * pad), WHITE)
-    strip.paste(content, ((width - content.width) // 2, pad),
-                mask=content.split()[3])
-    return strip
-
-
-def stack(map_png, legend, gap=10):
-    """Map above, legend centered below."""
-    top = flatten(map_png)
-    canvas = Image.new("RGB", (top.width, top.height + gap + legend.height), WHITE)
-    canvas.paste(top, (0, 0))
-    canvas.paste(legend, ((top.width - legend.width) // 2, top.height + gap))
-    return trim(canvas)
-
-
-def panels(map_pngs, labels, legend, gap=18, label_h=58, label_size=38):
-    """Several maps side by side with captions and one shared legend below."""
-    maps = [flatten(p) for p in map_pngs]
-    pw, ph = maps[0].width, maps[0].height
-    total = pw * len(maps) + gap * (len(maps) - 1)
-    canvas = Image.new("RGB", (total, label_h + ph + legend.height), WHITE)
-    draw = ImageDraw.Draw(canvas)
-    font = ImageFont.truetype(FONT_FILE, label_size)
-    for i, (img, label) in enumerate(zip(maps, labels)):
-        x = i * (pw + gap)
-        canvas.paste(img, (x, label_h))
-        draw.text((x + (pw - draw.textlength(label, font=font)) / 2, 10),
-                  label, font=font, fill=INK)
-    canvas.paste(legend, ((total - legend.width) // 2, label_h + ph))
-    return trim(canvas)
+# Adding 150 m to the south of the 750 m region puts the legend in the bottom
+# 150 / 900 = 16.7% of the frame. Blank that strip so vectors do not run into it.
+BLANK = """color white
+polygon
+ 0 0
+ 100 0
+ 100 16.7
+ 0 16.7
+"""
 ```
 
 ## Download the sample dataset
@@ -312,11 +243,13 @@ gravel access roads, and wooded margins.
 ```{python}
 #| code-fold: true
 #| code-summary: "Show the figure code"
-site = gj.Map(width=900, height=900, filename="study_area.png", font=FONT)
-site.d_rgb(red="naip.1", green="naip.2", blue="naip.3")
-site.d_vect(map="streams", color="30:120:220", width=2)
-
-stack("study_area.png", barscale_strip(900, 900, length=200))
+with gs.RegionManager(s="s-150"):
+    site = gj.Map(width=900, height=1157, font=FONT, use_region=True)
+    site.d_rgb(red="naip.1", green="naip.2", blue="naip.3")
+    site.d_vect(map="streams", color="30:120:220", width=2)
+    site.d_graph(stdin=io.StringIO(BLANK))
+    site.d_barscale(at=(35, 8), flags="n", fontsize=18, length=200, units="meters")
+    site.show()
 ```
 
 ![](images/study_area.webp)
@@ -332,11 +265,14 @@ as the base for the maps that follow.
 tools.r_relief(input="elevation", output="relief", zscale=2)
 tools.r_colors(map="elevation", color="elevation")
 
-dem = gj.Map(width=900, height=900, filename="elevation.png", font=FONT)
-dem.d_shade(shade="relief", color="elevation", brighten=30)
-dem.d_vect(map="streams", color="30:120:220", width=2)
-
-stack("elevation.png", legend_strip("elevation", "Elevation (m)", 900))
+with gs.RegionManager(s="s-150"):
+    dem = gj.Map(width=900, height=1157, font=FONT, use_region=True)
+    dem.d_shade(shade="relief", color="elevation", brighten=30)
+    dem.d_vect(map="streams", color="30:120:220", width=2)
+    dem.d_graph(stdin=io.StringIO(BLANK))
+    dem.d_legend(raster="elevation", title="Elevation (m)", at=(4, 9, 10, 90),
+                 flags="st", fontsize=18, title_fontsize=22)
+    dem.show()
 ```
 
 ![](images/elevation.webp)
@@ -350,13 +286,11 @@ road, herbaceous, forest, water) will supply the surface roughness values later.
 #| code-summary: "Show the figure code"
 # Widen the region 500 m to the west so d.legend has empty map to sit in.
 with gs.RegionManager(w="w-500"):
-    lc = gj.Map(width=1200, height=750, filename="landcover.png", font=FONT,
-                use_region=True)
+    lc = gj.Map(width=1200, height=750, font=FONT, use_region=True)
     lc.d_shade(shade="relief", color="landcover", brighten=35)
     lc.d_legend(raster="landcover", title="Land cover", at=(20, 70, 5, 20),
                 flags="nc", fontsize=18, title_fontsize=24)
-
-trim(flatten("landcover.png"))
+    lc.show()
 ```
 
 ![](images/landcover.webp)
@@ -421,22 +355,28 @@ rules = """0 241:230:218
 70 84:53:15
 nv 255:255:255
 """
-pngs = []
 for name in ["sand", "silt", "clay"]:
     tools.r_colors(map=name, rules="-", stdin=io.StringIO(rules))
-    m = gj.Map(width=700, height=760, filename=f"texture_{name}.png", font=FONT)
+    m = gj.Map(width=700, height=750, font=FONT)
     m.d_shade(shade="relief", color=name, brighten=25)
-    pngs.append(f"texture_{name}.png")
+    m.show()
 
-panels(
-    pngs,
-    ["Sand", "Silt", "Clay"],
-    legend_strip("sand", "Fraction of mineral soil (%)", 1280, rng=(0, 70),
-                 fontsize=30, title_fontsize=34, height=210),
-)
+# one legend for all three, on its own frame
+leg = gj.Map(width=1200, height=150, font=FONT)
+leg.d_legend(raster="sand", title="Fraction of mineral soil (%)", range=(0, 70),
+             at=(30, 55, 6, 94), flags="st", fontsize=20, title_fontsize=24)
+leg.show()
 ```
 
-![](images/texture_comparison.webp)
+::: {layout-ncol=3}
+![Sand](images/texture_sand.webp)
+
+![Silt](images/texture_silt.webp)
+
+![Clay](images/texture_clay.webp)
+:::
+
+![](images/texture_legend.webp)
 
 The site averages 67% sand and 12% clay. The texture rasters are piecewise
 constant because SSURGO reports one value per map unit, and seven map units
@@ -512,11 +452,14 @@ nv 255:255:255
 """
 tools.r_colors(map="ksat_rosetta", rules="-", stdin=io.StringIO(ksat_rules))
 
-m = gj.Map(width=900, height=900, filename="ksat_rosetta.png", font=FONT)
-m.d_shade(shade="relief", color="ksat_rosetta", brighten=25)
-
-stack("ksat_rosetta.png",
-      legend_strip("ksat_rosetta", "Saturated hydraulic conductivity (mm/hr)", 900))
+with gs.RegionManager(s="s-150"):
+    m = gj.Map(width=900, height=1157, font=FONT, use_region=True)
+    m.d_shade(shade="relief", color="ksat_rosetta", brighten=25)
+    m.d_graph(stdin=io.StringIO(BLANK))
+    m.d_legend(raster="ksat_rosetta", at=(4, 9, 10, 90), flags="st",
+               title="Saturated hydraulic conductivity (mm/hr)",
+               fontsize=18, title_fontsize=22)
+    m.show()
 ```
 
 ![](images/ksat_rosetta.webp)
@@ -540,11 +483,13 @@ nv 255:255:255
 """
 tools.r_colors(map="theta_s", rules="-", stdin=io.StringIO(theta_rules))
 
-m = gj.Map(width=900, height=900, filename="theta_s.png", font=FONT)
-m.d_shade(shade="relief", color="theta_s", brighten=25)
-
-stack("theta_s.png",
-      legend_strip("theta_s", "Saturated water content (cm3/cm3)", 900))
+with gs.RegionManager(s="s-150"):
+    m = gj.Map(width=900, height=1157, font=FONT, use_region=True)
+    m.d_shade(shade="relief", color="theta_s", brighten=25)
+    m.d_graph(stdin=io.StringIO(BLANK))
+    m.d_legend(raster="theta_s", title="Saturated water content (cm3/cm3)",
+               at=(4, 9, 10, 90), flags="st", fontsize=18, title_fontsize=22)
+    m.show()
 ```
 
 ![](images/theta_s.webp)
@@ -584,22 +529,26 @@ rules = """3 205:226:251
 110 13:54:107
 nv 255:255:255
 """
-pngs = []
 for name in ["ksat_rosetta", "ssurgo_ksat_r"]:
     tools.r_colors(map=name, rules="-", stdin=io.StringIO(rules))
-    m = gj.Map(width=700, height=760, filename=f"cmp_{name}.png", font=FONT)
+    m = gj.Map(width=700, height=750, font=FONT)
     m.d_shade(shade="relief", color=name, brighten=22)
-    pngs.append(f"cmp_{name}.png")
+    m.show()
 
-panels(
-    pngs,
-    ["ROSETTA estimate", "SSURGO reported"],
-    legend_strip("ksat_rosetta", "Saturated hydraulic conductivity (mm/hr)", 1120,
-                 rng=(3, 110), log=True, fontsize=30, title_fontsize=34, height=210),
-)
+leg = gj.Map(width=1200, height=150, font=FONT)
+leg.d_legend(raster="ksat_rosetta", range=(3, 110), at=(30, 55, 6, 94), flags="stl",
+             title="Saturated hydraulic conductivity (mm/hr)",
+             fontsize=20, title_fontsize=24)
+leg.show()
 ```
 
-![](images/ksat_comparison.webp)
+::: {layout-ncol=2}
+![ROSETTA estimate](images/cmp_ksat_rosetta.webp)
+
+![SSURGO reported](images/cmp_ssurgo_ksat_r.webp)
+:::
+
+![](images/ksat_legend.webp)
 
 SSURGO's representative value averages about eight times higher than the ROSETTA
 estimate. The two are produced differently: SSURGO's is a soil scientist's
@@ -769,11 +718,13 @@ nv 255:255:255
 """
 tools.r_colors(map="manning", rules="-", stdin=io.StringIO(manning_colors))
 
-m = gj.Map(width=900, height=900, filename="manning.png", font=FONT)
-m.d_shade(shade="relief", color="manning", brighten=35)
-
-stack("manning.png",
-      legend_strip("manning", "Manning's n", 900, rng=(0.011, 0.2), log=True))
+with gs.RegionManager(s="s-150"):
+    m = gj.Map(width=900, height=1157, font=FONT, use_region=True)
+    m.d_shade(shade="relief", color="manning", brighten=35)
+    m.d_graph(stdin=io.StringIO(BLANK))
+    m.d_legend(raster="manning", title="Manning's n", range=(0.011, 0.2),
+               at=(4, 9, 10, 90), flags="stl", fontsize=18, title_fontsize=22)
+    m.show()
 ```
 
 ![](images/manning.webp)
@@ -884,23 +835,28 @@ rules = """0 226:197:164
 1.8 3:42:76
 nv 255:255:255
 """
-pngs = []
 for name in ["depth_noinfil", "depth_rosetta", "depth_ssurgo"]:
     tools.r_colors(map=name, rules="-", stdin=io.StringIO(rules))
-    m = gj.Map(width=700, height=760, filename=f"{name}.png", font=FONT)
+    m = gj.Map(width=700, height=750, font=FONT)
     m.d_shade(shade="relief", color=name, brighten=50)
     m.d_vect(map="streams", color="90:90:90", width=1)
-    pngs.append(f"{name}.png")
+    m.show()
 
-panels(
-    pngs,
-    ["No infiltration", "ROSETTA field", "SSURGO Ksat"],
-    legend_strip("depth_rosetta", "Water depth (m)", 1280, rng=(0.001, 1.8),
-                 log=True, fontsize=30, title_fontsize=34, height=210),
-)
+leg = gj.Map(width=1200, height=150, font=FONT)
+leg.d_legend(raster="depth_rosetta", title="Water depth (m)", range=(0.001, 1.8),
+             at=(30, 55, 6, 94), flags="stl", fontsize=20, title_fontsize=24)
+leg.show()
 ```
 
-![](images/depth_comparison.webp)
+::: {layout-ncol=3}
+![No infiltration](images/depth_noinfil.webp)
+
+![ROSETTA field](images/depth_rosetta.webp)
+
+![SSURGO Ksat](images/depth_ssurgo.webp)
+:::
+
+![](images/depth_legend.webp)
 
 ```{python}
 #| code-fold: true
@@ -930,11 +886,13 @@ from 21.9 mm to 18.5 mm. We map the difference to see where it went.
 tools.r_mapcalc(expression="depth_diff = depth_rosetta - depth_noinfil")
 tools.r_colors(map="depth_diff", color="differences")
 
-m = gj.Map(width=900, height=900, filename="depth_difference.png", font=FONT)
-m.d_shade(shade="relief", color="depth_diff", brighten=50)
-
-stack("depth_difference.png",
-      legend_strip("depth_diff", "Depth difference (m)", 900))
+with gs.RegionManager(s="s-150"):
+    m = gj.Map(width=900, height=1157, font=FONT, use_region=True)
+    m.d_shade(shade="relief", color="depth_diff", brighten=50)
+    m.d_graph(stdin=io.StringIO(BLANK))
+    m.d_legend(raster="depth_diff", title="Depth difference (m)",
+               at=(4, 9, 10, 90), flags="st", fontsize=18, title_fontsize=22)
+    m.show()
 ```
 
 ![](images/depth_difference.webp)
