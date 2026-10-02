@@ -18,6 +18,12 @@ format:
     code-tools: true
     code-copy: true
     code-fold: false
+    include-in-header:
+      text: |
+        <style>
+        figure figcaption,
+        .quarto-layout-cell figcaption { color: #00393f; }
+        </style>
 engine: jupyter
 execute:
   eval: false
