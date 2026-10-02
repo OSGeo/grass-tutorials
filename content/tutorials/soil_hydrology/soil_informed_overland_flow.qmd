@@ -141,12 +141,21 @@ FONT = "OpenSans-Regular"
 
 # Adding 150 m to the south of the 750 m region puts the legend in the bottom
 # 150 / 900 = 16.7% of the frame. Blank that strip so vectors do not run into it.
-BLANK = """color white
+BLANK = """color 240:240:241
 polygon
  0 0
  100 0
  100 16.7
  0 16.7
+"""
+
+# 400 m added to the west of the 700 m region is the left 36.4% of the frame
+BLANK_WEST = """color 240:240:241
+polygon
+ 0 0
+ 36.4 0
+ 36.4 100
+ 0 100
 """
 ```
 
@@ -249,7 +258,7 @@ gravel access roads, and wooded margins.
 ```{python}
 #| code-fold: true
 #| code-summary: "Show the figure code"
-site = gj.Map(width=900, height=900, font=FONT, use_region=True)
+site = gj.Map(width=900, font=FONT, use_region=True)
 site.d_rgb(red="naip.1", green="naip.2", blue="naip.3")
 site.d_vect(map="streams", color="30:120:220", width=2)
 site.d_barscale(
@@ -298,12 +307,13 @@ road, herbaceous, forest, water) will supply the surface roughness values later.
 #| code-summary: "Show the figure code"
 # Widen the region 500 m to the west so d.legend has empty map to sit in.
 # The widened region is 1200 x 750 m, so the frame keeps that 1.6 aspect.
-with gs.RegionManager(w="w-500"):
-    lc = gj.Map(width=900, height=563, font=FONT, use_region=True)
+with gs.RegionManager(w="w-400"):
+    lc = gj.Map(width=900, font=FONT, use_region=True)
     lc.d_shade(shade="relief", color="landcover", brighten=35)
+    lc.d_graph(stdin=io.StringIO(BLANK_WEST))
     lc.d_legend(raster="landcover", title="Land cover",
-        at=(3, 82, 5, 20), flags="nc",
-        fontsize=18, title_fontsize=24
+        at=(15, 85, 4, 25), flags="nc",
+        fontsize=18, title_fontsize=24, bgcolor="none"
     )
     lc.show()
 ```
@@ -918,13 +928,19 @@ with gs.RegionManager(s="s-150"):
     m = gj.Map(width=900, height=1157, font=FONT, use_region=True)
     m.d_shade(shade="relief", color="depth_diff", brighten=50)
     m.d_graph(stdin=io.StringIO(BLANK))
-    # -0.03 to 0.01 covers 98% of cells and puts a tick on zero; losses run
-    # to -0.30, so the clipped end is labelled over the bar
+    # -0.05 to 0.01 covers 99% of cells; losses run to -0.30, so the clipped
+    # end is labelled over the bar. label_values puts a tick on zero.
     m.d_legend(raster="depth_diff", title="Depth difference (m)",
-               range=(-0.03, 0.01), at=(4, 9, 10, 90), flags="st",
-               fontsize=18, title_fontsize=22)
-    m.d_text(text="< -0.03", at=(14, 6.5), align="cc", color="white",
-             size=1.6, font="OpenSans-Bold")
+               range=(-0.05, 0.01), at=(4, 9, 10, 90), flags="st",
+               label_values=[-0.04, -0.03, -0.02, -0.01, 0, 0.01],
+               digits=2, fontsize=18, title_fontsize=22)
+    # the clipped end gets its own axis label in place of a plain -0.05
+    m.d_text(
+        text="< -0.05", at=(10, 2.29), align="cc",
+        color="black",
+        size=2.1,
+        font=FONT
+        )
     m.show()
 ```
 
