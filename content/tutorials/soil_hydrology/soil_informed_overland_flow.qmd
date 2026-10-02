@@ -918,10 +918,13 @@ with gs.RegionManager(s="s-150"):
     m = gj.Map(width=900, height=1157, font=FONT, use_region=True)
     m.d_shade(shade="relief", color="depth_diff", brighten=50)
     m.d_graph(stdin=io.StringIO(BLANK))
-    # the bar covers the range 99% of cells fall in; losses run to -0.30
+    # -0.03 to 0.01 covers 98% of cells and puts a tick on zero; losses run
+    # to -0.30, so the clipped end is labelled over the bar
     m.d_legend(raster="depth_diff", title="Depth difference (m)",
-               range=(-0.05, 0.01), at=(4, 9, 10, 90), flags="st",
+               range=(-0.03, 0.01), at=(4, 9, 10, 90), flags="st",
                fontsize=18, title_fontsize=22)
+    m.d_text(text="< -0.03", at=(14, 6.5), align="cc", color="white",
+             size=1.6, font="OpenSans-Bold")
     m.show()
 ```
 
