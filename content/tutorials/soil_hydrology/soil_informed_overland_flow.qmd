@@ -131,7 +131,7 @@ and draws the legend into the empty map that creates.
 ```{python}
 #| code-fold: true
 #| code-summary: "Show the figure settings"
-FONT = "DejaVuSerif"
+FONT = "OpenSans-Regular"
 
 # Adding 150 m to the south of the 750 m region puts the legend in the bottom
 # 150 / 900 = 16.7% of the frame. Blank that strip so vectors do not run into it.
