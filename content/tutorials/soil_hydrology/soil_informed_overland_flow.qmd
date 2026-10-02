@@ -285,11 +285,12 @@ road, herbaceous, forest, water) will supply the surface roughness values later.
 #| code-fold: true
 #| code-summary: "Show the figure code"
 # Widen the region 500 m to the west so d.legend has empty map to sit in.
+# The widened region is 1200 x 750 m, so the frame keeps that 1.6 aspect.
 with gs.RegionManager(w="w-500"):
-    lc = gj.Map(width=900, height=900, font=FONT, use_region=True)
+    lc = gj.Map(width=900, height=563, font=FONT, use_region=True)
     lc.d_shade(shade="relief", color="landcover", brighten=35)
     lc.d_legend(raster="landcover", title="Land cover",
-        at=(20, 70, 5, 20), flags="nc",
+        at=(3, 82, 5, 20), flags="nc",
         fontsize=18, title_fontsize=24
     )
     lc.show()
