@@ -173,15 +173,6 @@ def legend_strip(raster, title, width, rng=None, log=False, fontsize=LEG_FS,
     return flatten(path, size=(width, height))
 
 
-def legend_panel(raster, title, width=330, height=900):
-    """A vertical legend for a categorical map, for placing beside it."""
-    path = Path(f"_legend_{raster}.png")
-    panel = gj.Map(width=width, height=height, filename=str(path), font=FONT)
-    panel.d_legend(raster=raster, title=title, at=(38, 62, 8, 17), flags="n",
-                   fontsize=LEG_FS, title_fontsize=LEG_TITLE_FS)
-    return flatten(path, size=(width, height))
-
-
 def barscale_strip(width, height, length, pad=14):
     """A bar scale cropped from a full-size frame, so its length stays true."""
     path = Path("_barscale.png")
@@ -202,15 +193,6 @@ def stack(map_png, legend, gap=10):
     canvas = Image.new("RGB", (top.width, top.height + gap + legend.height), WHITE)
     canvas.paste(top, (0, 0))
     canvas.paste(legend, ((top.width - legend.width) // 2, top.height + gap))
-    return trim(canvas)
-
-
-def stack_left(map_png, legend, gap=10):
-    """Legend to the left of the map, vertically centered."""
-    right = flatten(map_png)
-    canvas = Image.new("RGB", (legend.width + gap + right.width, right.height), WHITE)
-    canvas.paste(legend, (0, (right.height - legend.height) // 2))
-    canvas.paste(right, (legend.width + gap, 0))
     return trim(canvas)
 
 
@@ -366,10 +348,15 @@ road, herbaceous, forest, water) will supply the surface roughness values later.
 ```{python}
 #| code-fold: true
 #| code-summary: "Show the figure code"
-lc = gj.Map(width=900, height=900, filename="landcover.png", font=FONT)
-lc.d_shade(shade="relief", color="landcover", brighten=35)
+# Widen the region 500 m to the west so d.legend has empty map to sit in.
+with gs.RegionManager(w="w-500"):
+    lc = gj.Map(width=1200, height=750, filename="landcover.png", font=FONT,
+                use_region=True)
+    lc.d_shade(shade="relief", color="landcover", brighten=35)
+    lc.d_legend(raster="landcover", title="Land cover", at=(20, 70, 5, 20),
+                flags="nc", fontsize=18, title_fontsize=24)
 
-stack_left("landcover.png", legend_panel("landcover", "Land cover"))
+trim(flatten("landcover.png"))
 ```
 
 ![](images/landcover.webp)
