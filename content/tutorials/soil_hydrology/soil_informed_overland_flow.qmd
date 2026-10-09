@@ -38,7 +38,7 @@ research site in Raleigh, North Carolina.
 
 [r.sim.water](https://grass.osgeo.org/grass-stable/manuals/r.sim.water.html)
 accepts infiltration two ways: by setting the rainfall excess rate, where
-**rainfall excess** is $\text{rainfall} - \text{infiltration}$, or by setting the
+**rainfall excess** is `rainfall - infiltration`, or by setting the
 **infiltration rate** in mm/hr applied to water already crossing a cell. Both are
 commonly set to a single value for an entire study area through the
 `rain_value` and `infil_value` parameters, or defined by a spatially variable
@@ -50,7 +50,7 @@ horizon depths. From those measurements we estimate saturated hydraulic
 conductivity (Ksat) with a pedotransfer function (ROSETTA). To do this we will
 follow the steps outlined below.
 
-1. Import USDA SSURGO soil texture with
+1. Import USDA SSURGO soil texture and Ksat with
    [r.in.ssurgo](https://grass.osgeo.org/grass-stable/manuals/addons/r.in.ssurgo.html)
 2. Estimate Ksat with
    [r.soils.rosetta](https://grass.osgeo.org/grass-stable/manuals/addons/r.soils.rosetta.html),
@@ -107,14 +107,6 @@ import pandas as pd
 import grass.script as gs
 import grass.jupyter as gj
 from grass.tools import Tools
-```
-
-We will install the two addons used in this tutorial.
-
-```{python}
-tools = Tools()
-tools.g_extension(extension="r.in.ssurgo")
-tools.g_extension(extension="r.soils.rosetta")
 ```
 
 `r.soils.rosetta` runs the offline
@@ -188,7 +180,14 @@ PERMANENT mapset stays as distributed.
 mapset_path = grassdata / "secref_northcarolina_usa_epsg6542" / "work"
 gs.create_mapset(mapset_path)
 session = gj.init(mapset_path)
-tools = Tools(session=session)
+tools = Tools()
+```
+
+With a session running we can install the two addons this tutorial uses.
+
+```{python}
+tools.g_extension(extension="r.in.ssurgo")
+tools.g_extension(extension="r.soils.rosetta")
 ```
 
 The project contains six rasters and three vectors:
@@ -595,10 +594,11 @@ approximation.
 
 ## A map unit table
 
-Both maps are constant within each SSURGO map unit, so we can collapse them to
-one row per map unit with
+The scatter plot below needs one row per map unit rather than one per cell.
+Both conductivity maps are constant within a map unit, so we collapse them with
 [r.univar](https://grass.osgeo.org/grass-stable/manuals/r.univar.html) using the
-`mukey` raster as zones.
+`mukey` raster as zones. The result is seven rows holding each unit's two Ksat
+estimates, its clay content, and the share of the site it covers.
 
 ```{python}
 #| code-fold: true
@@ -691,9 +691,9 @@ plt.show()
 
 ![](images/ksat_rosetta_vs_ssurgo.webp)
 
-Every map unit sits above the 1:1 line. The two map units covering 85% of the
-site place ROSETTA in the moderately high class and SSURGO in the high class,
-one full class apart.
+SSURGO reports a higher conductivity than ROSETTA for every map unit. The two
+covering 85% of the site place ROSETTA in the moderately high class and SSURGO
+in the high class, one full class apart.
 
 # Preparing the SIMWE inputs
 
@@ -1015,22 +1015,6 @@ water, while exchanging one published conductivity estimate for another changed
 it by a factor of 260. The magnitude of Ksat matters more than its spatial
 pattern, and `r.univar` will tell you that before you map it.
 
-Next steps:
-
-* Add the `-u` flag to `r.soils.rosetta` for uncertainty maps, and run the
-  simulation at the bounds to put an interval around these depths.
-* Use the `-t` flag with `output_step` to produce a time series, register it with
-  [t.register](https://grass.osgeo.org/grass-stable/manuals/t.register.html), and
-  animate the evolving flow.
-* Add sediment transport with
-  [r.sim.sediment](https://grass.osgeo.org/grass-stable/manuals/r.sim.sediment.html),
-  which reuses the depth and discharge maps produced here.
-* Work through the same soil-informed workflow at catchment scale in the SIMWE
-  Soils Project notebooks [@white_nrcs_simwe], which add curve number, time of
-  concentration, NOAA Atlas 14 design storms, and walker velocity animation at
-  [Coweeta, NC](https://ncsu-geoforall-lab.github.io/NRCS_SIMWE/notebooks/ssurgo.html)
-  and [Clay Center, KS](https://ncsu-geoforall-lab.github.io/NRCS_SIMWE/notebooks/ssurgo_clay_center.html).
-
 # See also
 
 * [r.in.ssurgo](https://grass.osgeo.org/grass-stable/manuals/addons/r.in.ssurgo.html)
@@ -1038,7 +1022,10 @@ Next steps:
 * [r.sim.water](https://grass.osgeo.org/grass-stable/manuals/r.sim.water.html)
 * [Parallelization of overland flow and sediment transport simulation](../parallelization/SIMWE_parallelization.qmd)
 * [SIMWE Soils Project](https://ncsu-geoforall-lab.github.io/NRCS_SIMWE/),
-  the NRCS work this workflow comes out of
+  the NRCS work this workflow comes out of [@white_nrcs_simwe], with the same
+  workflow at catchment scale for
+  [Coweeta, NC](https://ncsu-geoforall-lab.github.io/NRCS_SIMWE/notebooks/ssurgo.html)
+  and [Clay Center, KS](https://ncsu-geoforall-lab.github.io/NRCS_SIMWE/notebooks/ssurgo_clay_center.html)
 * [SECREF sample dataset on Zenodo](https://doi.org/10.5281/zenodo.23017720)
 
 # References
