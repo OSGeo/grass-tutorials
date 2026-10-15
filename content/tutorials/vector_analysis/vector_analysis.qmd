@@ -334,7 +334,7 @@ using quantile classes so each color holds a similar number of areas.
 choropleth = gj.Map(width=500)
 choropleth.d_vect_thematic(
     map="zip_counts", column="n_schools", algorithm="qua", nclasses=5,
-    colors="255:245:215,255:200:120,240:140:60,200:70:30,140:20:20",
+    colors="240:249:255,189:215:231,107:174:214,49:130:189,8:81:156",
 )
 choropleth.d_vect(map="roadsmajor", color="120:120:120", width=1)
 choropleth.d_barscale(flags="n", at=(1, 10), length=5, units="kilometers",
