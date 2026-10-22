@@ -27,12 +27,13 @@ jupyter: python3
 Vector data represents geographic features as **points**, **lines**, and **areas**,
 each linked to a table of **attributes**. GRASS has a large family of `v.*` tools for
 working with them. This tutorial introduces the operations you will reach for most
-often, using a single worked example: analyzing how schools in Wake County, North
-Carolina relate to major roads and administrative areas.
+often, using a single worked example: analyzing how schools in central Raleigh, North
+Carolina relate to major roads and ZIP code areas.
 
 Along the way we will:
 
 - explore a vector map and its attribute table,
+- **clip** a map to the study area with [v.clip](https://grass.osgeo.org/grass-stable/manuals/v.clip.html),
 - **select by attribute** with [v.extract](https://grass.osgeo.org/grass-stable/manuals/v.extract.html),
 - **buffer** features with [v.buffer](https://grass.osgeo.org/grass-stable/manuals/v.buffer.html),
 - **select by location** with [v.select](https://grass.osgeo.org/grass-stable/manuals/v.select.html),
@@ -40,10 +41,11 @@ Along the way we will:
 - count features per area with [v.vect.stats](https://grass.osgeo.org/grass-stable/manuals/v.vect.stats.html).
 
 ::: {.callout-note title="Demo dataset"}
-This tutorial uses the standard GRASS
-[North Carolina sample dataset](https://grass.osgeo.org/sampledata/north_carolina/nc_spm_08_grass7.zip)
-(`nc_spm_08_grass7`), which includes `schools_wake` (points), `roadsmajor` (lines),
-and `zipcodes_wake` (areas).
+This tutorial uses the GRASS
+[North Carolina sample dataset](https://grass.osgeo.org/sampledata/raleigh_northcarolina_usa_epsg6542.zip)
+(`raleigh_northcarolina_usa_epsg6542`), which includes `schools` (points), `roads`
+(lines), and `zipcodes` (areas). The data lives in the `PERMANENT` mapset, and we
+work in the empty `mapset_1` that comes with it.
 :::
 
 ::: {.callout-note title="How to run this tutorial"}
@@ -56,10 +58,11 @@ tool name (for example `v.buffer`) with the same parameters.
 
 # Setup and exploration
 
-Start a GRASS session and set the
+Start a GRASS session in `mapset_1` and set the
 [computational region](https://grass.osgeo.org/grass-stable/manuals/g.region.html) to
-the extent of the ZIP code areas, which cover the whole county. For vector-only work
-the region mainly controls what the maps display.
+the dataset's default, a 24 x 13.5 km window over central Raleigh. For vector-only
+work the region mainly controls what the maps display, but we will also use it to clip
+a layer below.
 
 ```{python}
 import sys
@@ -73,10 +76,10 @@ import grass.script as gs
 import grass.jupyter as gj
 from grass.tools import Tools
 
-session = gj.init("~/grassdata/nc_spm_08_grass7/PERMANENT")
+session = gj.init("~/grassdata/raleigh_northcarolina_usa_epsg6542/mapset_1")
 tools = Tools()
 
-tools.g_region(vector="zipcodes_wake")
+tools.g_region(flags="d")
 ```
 
 ::: {.callout-note title="GRASS version"}
@@ -91,13 +94,13 @@ types and counts, and its `-c` flag lists the attribute columns.
 
 ```{python}
 # Feature summary (points, lines, areas ...)
-print(tools.v_info(map="schools_wake", flags="t").text)
+print(tools.v_info(map="schools", flags="t").text)
 
 # Attribute columns
-print(tools.v_info(map="schools_wake", flags="c").text)
+print(tools.v_info(map="schools", flags="c").text)
 ```
 
-`schools_wake` has 167 point features. Let's look at the attribute table itself.
+`schools` has 61 point features. Let's look at the attribute table itself.
 [v.db.select](https://grass.osgeo.org/grass-stable/manuals/v.db.select.html) can
 return the table as JSON, which [pandas](https://pandas.pydata.org/) turns into a tidy
 table:
@@ -107,61 +110,87 @@ import pandas as pd
 
 pd.DataFrame(
     tools.v_db_select(
-        map="schools_wake",
-        columns="NAMESHORT,GLEVEL,ADDRCITY,CORECAPACI",
+        map="schools",
+        columns="school_nam,phys_city,num_teach,elem,middle,high",
         format="json",
     )["records"]
 ).head()
 ```
 
-| NAMESHORT | GLEVEL | ADDRCITY | CORECAPACI |
-|---|---|---|---|
-| SWIFT CREEK | E | Raleigh | 448.0 |
-| BRIARCLIFF | E | Cary | 540.0 |
-| FARMINGTON WOODS | E | Cary | 523.0 |
-| CARY | H | Cary | 2287.0 |
-| ADAMS | E | Cary | 722.0 |
+| school_nam | phys_city | num_teach | elem | middle | high |
+|---|---|---|---|---|---|
+| Adams Elementary | Cary | 54 | yes | | |
+| Exploris | Raleigh | 17 | | yes | |
+| Athens Drive High | Raleigh | 128 | | | yes |
+| Aversboro Elementary | Garner | 39 | yes | | |
+| Longview | Raleigh | 27 | | yes | yes |
 
-The `GLEVEL` column records each school's level (`E` for elementary, `M` for
-middle, `H` for high, and so on), which we use next to select schools by
-attribute. Let's first draw an overview map: the ZIP code areas, the major roads, and
-the schools. In [grass.jupyter](https://grass.osgeo.org/grass-stable/manuals/libpython/grass.jupyter.html),
+The `elem`, `middle`, and `high` columns are set to `yes` for each level a school
+teaches. A school can teach more than one: Longview covers grades 6 to 12, so it has
+both `middle` and `high` set. We use these columns next to select schools by
+attribute.
+
+The study area is a rectangle over central Raleigh, and the schools and roads stop at
+its edge. The ZIP code areas do not: they are whole, and 13 of the 15 reach beyond it.
+Counting schools per whole ZIP code would undercount the ones that only partly overlap
+the study area, because their schools outside it are not in the data.
+[v.clip](https://grass.osgeo.org/grass-stable/manuals/v.clip.html) with the `-r` flag
+clips the ZIP code areas to the computational region, so we only work with the part we
+have data for:
+
+```{python}
+tools.v_clip(input="zipcodes", output="zipcodes_raleigh", flags="r")
+```
+
+Let's draw an overview map: the clipped ZIP code areas, the roads, and the schools.
+In [grass.jupyter](https://grass.osgeo.org/grass-stable/manuals/libpython/grass.jupyter.html),
 a `Map` object collects display layers and renders them together.
 
 ```{python}
 overview = gj.Map(width=500)
-overview.d_vect(map="zipcodes_wake", type="area",
+overview.d_vect(map="zipcodes_raleigh", type="area",
                 fill_color="235:235:235", color="180:180:180")
-overview.d_vect(map="roadsmajor", color="90:90:90", width=1)
-overview.d_vect(map="schools_wake", icon="basic/circle", size=7,
+overview.d_vect(map="roads", color="190:190:190", width=1)
+overview.d_vect(map="schools", icon="basic/circle", size=7,
                 fill_color="200:30:30", color="white")
-overview.d_barscale(flags="n", at=(58, 9), bgcolor="white")
+overview.d_barscale(flags="n", at=(1, 10), length=5, units="kilometers",
+                    bgcolor="white")
 overview.show()
 ```
 
-![Wake County: ZIP code areas (gray), major roads, and all 167 schools (red).](images/overview.webp)
+![Central Raleigh: ZIP code areas (gray), all roads, and the 61 schools (red).](images/overview.webp)
 
 # Selecting by attribute
 
-To keep just the **elementary schools** (`GLEVEL='E'`), use
+To keep just the **elementary schools** (`elem = 'yes'`), use
 [v.extract](https://grass.osgeo.org/grass-stable/manuals/v.extract.html) with a SQL
 `where` clause.
 
 ```{python}
-tools.v_extract(input="schools_wake", output="elementary", where="GLEVEL='E'")
-print(tools.v_info(map="elementary", flags="t").text)  # points=95
+tools.v_extract(input="schools", output="elementary", where="elem = 'yes'")
+print(tools.v_info(map="elementary", flags="t").text)  # points=31
+```
+
+The same tool picks out the major roads. The roads come from OpenStreetMap, where the
+`highway` column classifies each segment; motorways, trunk roads, and primary roads
+make up the major road network.
+
+```{python}
+tools.v_extract(input="roads", output="roadsmajor",
+                where="highway IN ('motorway', 'trunk', 'primary')")
 ```
 
 ```{python}
 attr_map = gj.Map(width=500)
-attr_map.d_vect(map="zipcodes_wake", type="area",
+attr_map.d_vect(map="zipcodes_raleigh", type="area",
                 fill_color="235:235:235", color="180:180:180")
 attr_map.d_vect(map="roadsmajor", color="90:90:90", width=1)
-attr_map.d_vect(map="schools_wake", icon="basic/circle", size=6,
+attr_map.d_vect(map="schools", icon="basic/circle", size=6,
                 fill_color="180:180:180", color="none")
 attr_map.d_vect(map="elementary", icon="basic/circle", size=8,
                 fill_color="30:120:200", color="white")
-attr_map.d_barscale(flags="n", at=(58, 9), bgcolor="white")
+attr_map.d_barscale(flags="n", at=(1, 10), length=5, units="kilometers",
+                    bgcolor="white")
 attr_map.show()
 ```
 
@@ -179,11 +208,12 @@ tools.v_buffer(input="roadsmajor", output="road_buffer", distance=500)
 
 ```{python}
 buffer_map = gj.Map(width=500)
-buffer_map.d_vect(map="zipcodes_wake", type="area",
+buffer_map.d_vect(map="zipcodes_raleigh", type="area",
                   fill_color="235:235:235", color="180:180:180")
 buffer_map.d_vect(map="road_buffer", type="area", fill_color="255:200:120", color="none")
 buffer_map.d_vect(map="roadsmajor", color="120:70:20", width=1)
-buffer_map.d_barscale(flags="n", at=(58, 9), bgcolor="white")
+buffer_map.d_barscale(flags="n", at=(1, 10), length=5, units="kilometers",
+                      bgcolor="white")
 buffer_map.show()
 ```
 
@@ -199,15 +229,16 @@ we keep the elementary schools that fall inside the road buffer.
 ```{python}
 tools.v_select(ainput="elementary", binput="road_buffer",
                output="schools_near", operator="overlap")
-print(tools.v_info(map="schools_near", flags="t").text)  # points=15
+print(tools.v_info(map="schools_near", flags="t").text)  # points=16
 ```
 
-Only **15 out of the 95 elementary schools** lie within 500 m of a major road, a
-reminder that major roads here are highways, while most schools sit on local streets.
+**16 out of the 31 elementary schools** lie within 500 m of a major road. Only 4 of
+them are that close to a motorway or trunk road; the other 12 qualify because of a
+primary road.
 
 ```{python}
 near_map = gj.Map(width=500)
-near_map.d_vect(map="zipcodes_wake", type="area",
+near_map.d_vect(map="zipcodes_raleigh", type="area",
                 fill_color="235:235:235", color="180:180:180")
 near_map.d_vect(map="road_buffer", type="area", fill_color="255:230:200", color="none")
 near_map.d_vect(map="roadsmajor", color="150:110:60", width=1)
@@ -215,7 +246,8 @@ near_map.d_vect(map="elementary", icon="basic/circle", size=7,
                 fill_color="150:150:150", color="none")
 near_map.d_vect(map="schools_near", icon="basic/circle", size=9,
                 fill_color="20:150:60", color="white")
-near_map.d_barscale(flags="n", at=(58, 9), bgcolor="white")
+near_map.d_barscale(flags="n", at=(1, 10), length=5, units="kilometers",
+                    bgcolor="white")
 near_map.show()
 ```
 
@@ -229,17 +261,18 @@ part of the road corridor that falls within each ZIP code area. The output keeps
 attributes of both inputs (prefixed `a_` and `b_`).
 
 ```{python}
-tools.v_overlay(ainput="road_buffer", binput="zipcodes_wake",
+tools.v_overlay(ainput="road_buffer", binput="zipcodes_raleigh",
                 operator="and", output="buffer_by_zip")
 ```
 
 ```{python}
 overlay_map = gj.Map(width=500)
-overlay_map.d_vect(map="zipcodes_wake", type="area",
+overlay_map.d_vect(map="zipcodes_raleigh", type="area",
                    fill_color="235:235:235", color="180:180:180")
 overlay_map.d_vect(map="buffer_by_zip", type="area",
                    fill_color="120:180:220", color="80:80:80", width=1)
-overlay_map.d_barscale(flags="n", at=(58, 9), bgcolor="white")
+overlay_map.d_barscale(flags="n", at=(1, 10), length=5, units="kilometers",
+                       bgcolor="white")
 overlay_map.show()
 ```
 
@@ -258,24 +291,25 @@ tools.v_to_db(map="buffer_by_zip", option="area", columns="reach_area", units="k
 # db.select also returns JSON, so the same pandas pattern works here
 pd.DataFrame(
     tools.db_select(
-        sql="SELECT b_ZIPNAME, ROUND(SUM(reach_area), 1) AS reach_km2 "
-            "FROM buffer_by_zip GROUP BY b_ZIPNAME ORDER BY reach_km2 DESC",
+        sql="SELECT b_ZCTA5CE10 AS zip_code, "
+            "ROUND(SUM(reach_area), 1) AS reach_km2 "
+            "FROM buffer_by_zip GROUP BY b_ZCTA5CE10 ORDER BY reach_km2 DESC",
         format="json",
     )["records"]
 ).head(6)
 ```
 
-| b_ZIPNAME | reach_km2 |
+| zip_code | reach_km2 |
 |---|---|
-| RALEIGH | 158.3 |
-| WAKE FOREST | 59.1 |
-| ZEBULON | 42.0 |
-| GARNER | 33.4 |
-| CARY | 32.2 |
-| APEX | 29.5 |
+| 27610 | 42.6 |
+| 27606 | 27.7 |
+| 27603 | 22.7 |
+| 27607 | 14.4 |
+| 27529 | 14.1 |
+| 27511 | 10.9 |
 
-Raleigh leads by a wide margin because it is the largest ZIP code and is crossed by
-the most major roads.
+ZIP code 27610 leads because it has both the most area inside the study area and the
+most kilometers of major road.
 
 # Counting features per area
 
@@ -287,11 +321,11 @@ map's attribute table. We first create a copy of the ZIP codes map with
 untouched.
 
 ```{python}
-tools.g_copy(vector=("zipcodes_wake", "zip_counts"))
-tools.v_vect_stats(points="schools_wake", areas="zip_counts", count_column="n_schools")
+tools.g_copy(vector=("zipcodes_raleigh", "zip_counts"))
+tools.v_vect_stats(points="schools", areas="zip_counts", count_column="n_schools")
 ```
 
-Each ZIP code now has an `n_schools` value (ranging from 0 to 17 here). We map it as a
+Each ZIP code now has an `n_schools` value (ranging from 0 to 16 here). We map it as a
 choropleth with
 [d.vect.thematic](https://grass.osgeo.org/grass-stable/manuals/d.vect.thematic.html),
 using quantile classes so each color holds a similar number of areas.
@@ -300,10 +334,11 @@ using quantile classes so each color holds a similar number of areas.
 choropleth = gj.Map(width=500)
 choropleth.d_vect_thematic(
     map="zip_counts", column="n_schools", algorithm="qua", nclasses=5,
-    colors="255:245:215,255:200:120,240:140:60,200:70:30,140:20:20",
+    colors="240:249:255,189:215:231,107:174:214,49:130:189,8:81:156",
 )
 choropleth.d_vect(map="roadsmajor", color="120:120:120", width=1)
-choropleth.d_barscale(flags="n", at=(58, 9), bgcolor="white")
+choropleth.d_barscale(flags="n", at=(1, 10), length=5, units="kilometers",
+                      bgcolor="white")
 choropleth.show()
 ```
 
@@ -314,10 +349,11 @@ See also a dedicated tutorial on
 
 # Summary
 
-Using the North Carolina schools, roads, and ZIP codes, we have worked through the
+Using the schools, roads, and ZIP codes of central Raleigh, we have worked through the
 core vector toolkit in GRASS:
 
 - exploring features and attributes with `v.info` and `v.db.select`,
+- **clipping** a map to the study area (`v.clip`),
 - **selecting by attribute** (`v.extract`) and **by location** (`v.select`),
 - **buffering** (`v.buffer`) and **overlaying** (`v.overlay`) layers, and
 - **counting** points per area (`v.vect.stats`) for a thematic map.
