@@ -135,3 +135,8 @@ docs
 
 
 **/*.quarto_ipynb
+
+# Notebook run artifacts (soil_hydrology downloads and renders into its own dir)
+content/tutorials/soil_hydrology/grassdata/
+content/tutorials/soil_hydrology/secref.zip
+content/tutorials/soil_hydrology/*.png
