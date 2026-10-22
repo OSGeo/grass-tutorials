@@ -575,23 +575,21 @@ leg.show()
 ![](images/ksat_legend.webp)
 
 SSURGO's representative value averages about eight times higher than the ROSETTA
-estimate. The two are produced differently: SSURGO's is a soil scientist's
-estimate for the component, anchored to field observation and conductivity class
-ranges, while ROSETTA's is a regression on texture and bulk density. Neither is a
-measurement at this site. We will run the simulation with both.
+estimate. These differences are reflective of the different methods used to produce
+the estimates, as neither represent direct field measurments of the site. SSURGO's is
+a soil scientist's estimate for the component, anchored to field observation and
+conductivity class ranges, while ROSETTA's is a regression on texture and bulk density.
 
 ::: {.callout-important title="Pedotransfer estimates carry uncertainty"}
 Saturated hydraulic conductivity varies over orders of magnitude and is difficult
-to constrain, so an eight-fold spread between two defensible estimates is not
-unusual. Running `r.soils.rosetta` with the `-u` flag produces per-parameter
-standard deviation maps.
+to constrain, so a large spread between two estimates is not unusual. Running `r.soils.rosetta`
+with the `-u` flag produces per-parameter standard deviation maps.
 :::
 
 ROSETTA is also nonlinear, so applying it to depth-averaged texture does not give
 the same result as applying it per horizon and averaging afterward. We requested
 texture already averaged over the top 25.4 cm, so the estimate inherits that
 approximation.
-
 
 # Preparing the SIMWE inputs
 
@@ -667,8 +665,8 @@ All three runs use a 54 mm/hr rainfall rate held for 60 minutes, approximately a
 changes between them.
 
 ::: {.callout-warning title="`rain` and `infil` act at different points"}
-`rain` takes a rainfall excess rate, rainfall minus infiltration. You do that
-subtraction yourself before the run, so the removed water never enters the flow
+The `rain` parameter takes the rainfall excess rate (rainfall minus infiltration). The
+subtraction occurs before the run, so the removed water never enters the flow
 at all.
 
 `infil` applies to water that is already moving across a cell, which drinks from
@@ -864,10 +862,7 @@ almost nothing, since a cell only infiltrates from the water crossing it.
 ::: {.callout-note title="The spatial pattern matters less than the level"}
 The seven SSURGO map units at this site span only 6.8 to 13.2 mm/hr, a standard
 deviation of 0.7 mm/hr. Swapping that field for its own site mean of 12.4 mm/hr
-moves mean flow depth by about one tenth of one percent. Check the spread of a
-conductivity map with
-[r.univar](https://grass.osgeo.org/grass-stable/manuals/r.univar.html) before
-mapping it at full resolution.
+moves mean flow depth by about one tenth of one percent.
 :::
 
 ## ROSETTA Ksat compared to SSURGO Ksat
@@ -910,8 +905,8 @@ to drive an overland flow simulation:
 
 At this site, adding a soil-derived infiltration field removed 16% of the surface
 water, while exchanging one published conductivity estimate for another changed
-it by a factor of 260. The magnitude of Ksat matters more than its spatial
-pattern, and `r.univar` will tell you that before you map it.
+it by a factor of 260. At this site the magnitude of Ksat matters more than its spatial
+pattern of overland flow.
 
 # See also
 
