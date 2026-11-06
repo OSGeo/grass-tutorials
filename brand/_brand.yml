@@ -33,10 +33,7 @@ logo:
       alt: "Large vector (svg) GRASS icon colored GRASS green with GRASS shape"
   small:
     light: logo-small-no-text-light
-    dark: logo-small-no-text-dark
   medium:
     light: logo-medium-no-text-light
-    dark: logo-medium-no-text-dark
   large:
     light: logo-large-no-text-light
-    dark: logo-large-no-text-dark
