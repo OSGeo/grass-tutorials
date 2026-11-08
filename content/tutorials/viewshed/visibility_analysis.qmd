@@ -59,7 +59,7 @@ tutorial. Every step also works from the GRASS GUI or command line; use the tool
 The towers are real places, so rather than use a prepackaged sample dataset we
 download the terrain around them from the USGS. We create a new GRASS project in UTM
 zone 17N (EPSG:32617) with
-[create_project](https://grass.osgeo.org/grass-stable/manuals/libpython/script.html#script.core.create_project),
+[create_project](https://grass.osgeo.org/grass-stable/manuals/libpython/grass.script.html#grass.script.create_project),
 then fetch 1 arc-second (about 30 m) elevation from the USGS National Map with
 [r.in.usgs](https://grass.osgeo.org/grass-stable/manuals/addons/r.in.usgs.html), an
 add-on installed with

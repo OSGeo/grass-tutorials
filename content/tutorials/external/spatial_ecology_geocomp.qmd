@@ -17,7 +17,7 @@ execute:
 ![](images/spatial_ecology.png){.preview-image}
 
 The following tutorials were developed as part of the
-[Spatial Ecology courses](https://spatial-ecology.net/training/),
+[Spatial Ecology courses](https://spatial-ecology.net/),
 where students are introduced to an array of powerful open-source geocomputation tools and machine learning methodologies under the Linux environment.
 
 ## GRASS Introduction
