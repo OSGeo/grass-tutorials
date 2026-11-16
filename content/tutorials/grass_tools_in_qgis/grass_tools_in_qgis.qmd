@@ -1,0 +1,142 @@
+---
+title: "Use GRASS tools in QGIS"
+author: "Rajveer Bishnoi"
+date: 2026-11-17
+date-modified: today
+lightbox: true
+format:
+  html:
+    toc: true
+    code-tools: true
+    code-copy: true
+    code-fold: false
+categories: [beginner, GUI, QGIS]
+description: Run GRASS tools from the QGIS Processing Toolbox, and get QGIS to find GRASS on macOS.
+execute:
+  eval: false
+---
+
+QGIS can run GRASS tools from its Processing Toolbox. You pick a layer, fill
+in a dialog, and QGIS runs GRASS for you in the background. You get GRASS
+analysis without leaving QGIS or setting up a GRASS project yourself.
+
+This tutorial shows how to get QGIS to find GRASS, how to run a GRASS tool
+on a raster layer, and what QGIS does when you click **Run**.
+
+## Install QGIS and GRASS
+
+You need both programs:
+
+- QGIS from <https://qgis.org/download/>. If you are not sure which version
+  to take, the download page recommends the LTR.
+- GRASS from <https://grass.osgeo.org/download/>.
+
+QGIS for macOS does not include GRASS, so install GRASS separately. On
+Windows with the OSGeo4W installer, the GRASS download page says you need
+the `qgis*-grass-plugin` packages to get GRASS in QGIS Processing.
+
+## Get QGIS to find GRASS
+
+The GRASS tools come from the GRASS Processing Provider plugin, which is
+enabled by default. On macOS, QGIS looks for GRASS only under the old
+GRASS 7 app names, so it does not find GRASS 8 on its own. What you see
+depends on the QGIS version:
+
+- QGIS 3.44: the Processing Toolbox has no GRASS group, and searching for a
+  GRASS tool finds nothing. The only hint is in **View ‣ Panels ‣ Log
+  Messages**, on the Processing tab: "Problem with GRASS installation: GRASS
+  was not found or is not correctly installed".
+- QGIS 4.2: the GRASS tools are listed, but opening one shows "Could not
+  locate GRASS folder. Please make sure that GRASS is correctly installed
+  before running GRASS algorithms."
+
+The fix is the same in both versions. Tell QGIS where GRASS is with the
+`GISBASE` variable, and add `OMP_NUM_THREADS` as a second row:
+
+1. Open **Settings ‣ Options…** and go to the **System** tab.
+2. Under **Environment**, check **Use custom variables**.
+3. Click the green **+** and set **Apply** to `Overwrite`, **Variable** to
+   `GISBASE` and **Value** to `/Applications/GRASS-8.5.app/Contents/Resources`.
+4. Click **+** again for a second row: `Overwrite`, `OMP_NUM_THREADS`, `1`.
+5. Click **OK**, then quit and reopen QGIS.
+
+![Both rows in the QGIS options](images/qgis_environment.webp)
+
+`OMP_NUM_THREADS=1` works around a bug in GRASS 8.5.0: on latitude-longitude
+data, *r.slope.aspect* running on several threads can write a wrong row
+into the slope map ([#8189](https://github.com/OSGeo/grass/issues/8189)).
+QGIS always runs it with the default number of threads, and with this row
+GRASS uses one. Every GRASS tool you run from QGIS then uses one thread,
+which can make tools that run in parallel slower on large maps. Remove the
+row once a GRASS release includes the fix
+([#8207](https://github.com/OSGeo/grass/pull/8207)).
+
+QGIS 4 keeps its settings apart from QGIS 3, so if you use both, set the
+variables in each.
+
+## Run a GRASS tool
+
+This example computes slope from `SRTM.tif`, the elevation model around
+Cape Town from the
+[QGIS training data](https://github.com/qgis/QGIS-Training-Data).
+Download
+[SRTM.tif](https://github.com/qgis/QGIS-Training-Data/raw/master/exercise_data/more_analysis/DEM/SRTM.tif)
+and add it with **Layer ‣ Add Layer ‣ Add Raster Layer…**.
+
+Search for `r.slope.aspect` in the Processing Toolbox and open it. Choose
+`SRTM` as **Elevation**. Leave **Multiplicative factor to convert elevation
+units to meters** at 1.0, because the elevation is in meters.
+
+![The r.slope.aspect dialog](images/slope_dialog_parameters.webp)
+
+The tool has nine outputs, and by default QGIS computes all of them and
+adds each one to the map. To get only the slope:
+
+- Next to **Slope**, click **…** and choose **Save to File…**. Pick the file
+  with the dialog. A path typed by hand with `~` fails, because QGIS passes
+  it to GRASS as it is.
+- For each of the other outputs, click **…** and choose **Skip Output**.
+  QGIS then leaves them out of the GRASS command, so GRASS does not compute
+  them at all.
+
+![Slope saved to a file, the other outputs skipped](images/slope_dialog_outputs.webp)
+
+Click **Run**. If you run the tool again, check **Elevation** first: after a
+run, QGIS may select the new slope layer there.
+
+Most of this area is gentle, so a color ramp from 0 to 30 degrees shows it
+better than one up to the steepest cell. For the map below, open the layer's
+**Properties ‣ Symbology**, choose **Singleband pseudocolor**, set **Min**
+to 0 and **Max** to 30, and pick the **YlOrRd** color ramp.
+
+![Slope of SRTM.tif. Cells of 30 degrees and steeper are dark red.](images/slope_result.webp){.preview-image width=70% fig-align="center"}
+
+## What QGIS does behind the scenes
+
+The **Log** tab of the dialog shows the GRASS commands QGIS runs. QGIS
+creates a temporary GRASS project in the CRS of the layer and gives the maps
+temporary names. Then it imports the layer, sets the computational region to
+its extent and resolution, runs the tool and exports the output:
+
+```
+r.in.gdal input="/Users/Shared/qgis_grass/SRTM.tif" band=1 output="rast_6afb8857b82624" --overwrite -o
+g.region n=-33.454002103 s=-34.374687925 e=18.872219805 w=18.269894211 res=0.0008330921078838172
+r.slope.aspect elevation=rast_6afb8857b82624 format="degrees" precision="FCELL" -a zscale=1 min_slope=0 slope=slopeec7496369fc14332a68c5751f610f9c6 --overwrite
+g.region raster=slopeec7496369fc14332a68c5751f610f9c6
+r.out.gdal -t -m input="slopeec7496369fc14332a68c5751f610f9c6" output="/Users/Shared/qgis_grass/slope.tif" format="GTiff" createopt="TFW=YES,COMPRESS=LZW" --overwrite
+```
+
+The red `ERROR 6` line about `SetColorTable()` in the log is harmless: the
+file is still written.
+
+## Not every GRASS tool is in QGIS
+
+The toolbox has most GRASS raster, vector and imagery tools. It has no
+temporal (`t.*`), 3D raster (`r3.*`), database (`db.*`) or display (`d.*`)
+tools. GRASS addons you install do not show up either, because QGIS only
+lists tools it has a description file for. For those, use GRASS itself,
+for example with the
+[Get started with GRASS GUI](../get_started/fast_track.qmd) tutorial.
+
+Tested on macOS with QGIS 3.44.15, QGIS 4.2.3 and GRASS 8.5.0. Not tested
+on Windows or Linux.
