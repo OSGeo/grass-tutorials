@@ -51,9 +51,7 @@ Cape Town from the
 [QGIS training data](https://github.com/qgis/QGIS-Training-Data).
 Download
 [SRTM.tif](https://github.com/qgis/QGIS-Training-Data/raw/master/exercise_data/more_analysis/DEM/SRTM.tif)
-and add it with **Layer ‣ Add Layer ‣ Add Raster Layer…**. With GRASS 8.5.0
-and this latitude-longitude data, first follow
-[Wrong rows in the slope map](#wrong-rows-in-the-slope-map).
+and add it with **Layer ‣ Add Layer ‣ Add Raster Layer…**.
 
 Search for `r.slope.aspect` in the Processing Toolbox and open it. Choose
 `SRTM` as **Elevation**. Leave **Multiplicative factor to convert elevation
@@ -101,6 +99,10 @@ r.out.gdal -t -m input="slopeec7496369fc14332a68c5751f610f9c6" output="/Users/Sh
 The red `ERROR 6` line about `SetColorTable()` in the log is harmless: the
 file is still written.
 
+QGIS runs GRASS tools with their default number of threads. To set it
+yourself, add an `OMP_NUM_THREADS` variable, for example `1`, under
+**Settings ‣ Options… ‣ System ‣ Environment** (see below) and restart QGIS.
+
 ## Not every GRASS tool is in QGIS
 
 The toolbox has most GRASS raster, vector and imagery tools. It has no
@@ -128,18 +130,7 @@ Tell QGIS where GRASS is with the `GISBASE` variable:
    app, for example `/Applications/GRASS-8.5.app/Contents/Resources`.
 4. Click **OK**, then quit and reopen QGIS.
 
-### Wrong rows in the slope map
-
-In GRASS 8.5.0, *r.slope.aspect* running on several threads can write a
-wrong row into the slope map of latitude-longitude data
-([#8189](https://github.com/OSGeo/grass/issues/8189)). QGIS runs GRASS tools
-with the default number of threads. To make GRASS use one, add a row in the
-same **Environment** table: `Overwrite`, `OMP_NUM_THREADS`, `1`, and restart
-QGIS. Every GRASS tool you run from QGIS then uses one thread, which can make
-tools that run in parallel slower on large maps. Remove the row once a GRASS
-release includes the fix ([#8207](https://github.com/OSGeo/grass/pull/8207)).
-
-![Both variables set in the QGIS options](images/qgis_environment.webp)
+![GISBASE and OMP_NUM_THREADS in the QGIS options](images/qgis_environment.webp)
 
 Tested on macOS with QGIS 3.44.15, QGIS 4.2.3 and GRASS 8.5.0. Not tested
 on Windows or Linux.
