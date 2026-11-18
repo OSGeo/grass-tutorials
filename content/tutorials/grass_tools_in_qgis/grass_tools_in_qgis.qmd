@@ -112,6 +112,10 @@ lists tools it has a description file for. For those, use GRASS itself,
 for example with the
 [Get started with GRASS GUI](../get_started/fast_track.qmd) tutorial.
 
+The QGIS training manual has a
+[GRASS module](https://docs.qgis.org/latest/en/docs/training_manual/grass/)
+with more examples of GRASS tools in QGIS.
+
 ## Troubleshooting
 
 ### GRASS not found on macOS
