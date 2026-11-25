@@ -68,7 +68,7 @@ Start at <https://colab.research.google.com/> and create a new notebook. Let's f
 ```
 
 At the time of writing this tutorial, Colab has Linux
-[Ubuntu 22.04.4 LTS](https://medium.com/google-colab/colab-updated-to-ubuntu-22-04-lts-709a91555b3c).
+[Ubuntu 22.04 LTS](https://medium.com/google-colab/colab-updated-to-ubuntu-22-04-lts-709a91555b3c).
 So we add the ppa:ubuntugis repository, update and install GRASS. It might
 take a couple of minutes according to the resources available.
 
@@ -107,12 +107,28 @@ import grass.jupyter as gj
 :::{.callout-note}
 By default we have access to the `/content` folder within Colab, and any data we
 create and download will be placed there. We can change that of course, it is just a Linux
-file system. In any case, we should bare in mind that whatever data we download
+file system. In any case, we should bear in mind that whatever data we download
 within Colab, will disappear if the runtime gets disconnected because of inactivity
 or once we close the Colab session.
 :::
 
-# Create a new GRASS project
+::: {.callout-important title="Pick one path from here on"}
+Installing GRASS as shown above is needed in every new session or notebook. The
+sections that follow are **alternatives, not consecutive steps**:
+
+* **Option A** -- create a new, empty project and import your own data.
+* **Option B** -- start from a ready-made sample GRASS project (recommended if you are
+  learning GRASS).
+* **Option C** -- either of the above, but with the project stored in your Google
+  Drive so that it survives the end of the session.
+:::
+
+# Option A: Create a new GRASS project
+
+A GRASS project is a directory that holds data in a single coordinate reference
+system. See
+[GRASS projects](https://grass.osgeo.org/grass-stable/manuals/grass_projects.html)
+in the manual for details.
 
 To create a new project we can use the `create_project` function from the
 grass.script library.
@@ -133,18 +149,18 @@ session = gj.init("nc_sentinel")
 Now you can import data and start your analysis, following the
 [GRASS and Python tutorial, part A](fast_track_grass_and_python.qmd#a.-use-grass-tools-within-your-python-spatial-workflows).
 
-# Start GRASS with a sample dataset
+# Option B: Start from an existing sample GRASS project
 
 If you want to learn data analysis with GRASS, instead of creating a new project from scratch,
-you can download a ready-to-use sample dataset to play with.
+you can download a ready-to-use sample GRASS project to play with.
 
 ## Download sample data
 
-Let's get the North Carolina sample dataset into Colab to show a data
+Let's get the Raleigh, North Carolina sample project into Colab to show a data
 download workflow.
 
 ```{python}
-!wget -c https://grass.osgeo.org/sampledata/north_carolina/nc_basic_spm_grass7.zip -O nc.zip
+!wget -c https://grass.osgeo.org/sampledata/raleigh_northcarolina_usa_epsg6542.zip -O nc.zip
 ```
 
 We unzip the downloaded file in /content
@@ -162,16 +178,22 @@ import os
 os.listdir()
 ```
 
-You should see *nc_basic_spm_grass7* sample dataset, which is a GRASS project.
+You should see the *raleigh_northcarolina_usa_epsg6542* directory, which is a GRASS project.
 
 ## Start GRASS
 
 We have GRASS installed and a sample project to play around, so we are ready
-to start GRASS within the North Carolina project.
+to start GRASS within the Raleigh, North Carolina project.
+
+::: {.callout-note}
+If you already started a session in Option A, end it with `session.finish()` before
+starting a new one. Calling `gj.init()` again switches the active session, so any
+tool you run afterwards operates in the new project.
+:::
 
 ```{python}
 # Start GRASS in default project mapset
-session = gj.init("nc_basic_spm_grass7")
+session = gj.init("raleigh_northcarolina_usa_epsg6542")
 ```
 
 Just as an example, we will list the raster maps and display one of them using
@@ -189,8 +211,10 @@ m.show()
 
 You can continue exploring the dataset in [GRASS and Python tutorial, part B](fast_track_grass_and_python.qmd#b.-use-python-tools-within-grass-workflows).
 
-# Connect Colab with Google Drive
+# Option C: Keep your project in Google Drive
 
+Whichever of the two options above we follow, the project is created in `/content`
+and is lost once the runtime gets disconnected.
 If we do not want to loose our GRASS projects when closing the Colab notebook,
 we can connect Colab with our Google Drive and upload, download or create our
 projects there. To be able to do any of that, we need to mount our drive first
@@ -215,13 +239,23 @@ We can also mount our drive directly from the Colab interface as shown below:
 
 ![](images/colab_mount_gdrive.png){.preview-image}
 
-Once the GDrive is mounted, we can create a new project and start GRASS there.
+Once the GDrive is mounted, we can place our project there instead of in `/content`.
 To stay organized, GRASS projects are often saved under `grassdata` folder.
 
 ```{python}
+# Option A, but persistent: create a new project in Google Drive
 gs.create_project("/content/drive/MyDrive/grassdata/nc_sentinel", epsg="32617")
-gs.init("/content/drive/MyDrive/grassdata/nc_sentinel")
+session = gj.init("/content/drive/MyDrive/grassdata/nc_sentinel")
+
+# Option B, but persistent: unpack the sample project into Google Drive
+# !unzip nc.zip -d /content/drive/MyDrive/grassdata
+# session = gj.init("/content/drive/MyDrive/grassdata/raleigh_northcarolina_usa_epsg6542")
 ```
+
+::: {.callout-tip}
+Reading and writing in the mounted Google Drive is considerably slower than in
+`/content`, so unzipping the sample project there takes noticeably longer.
+:::
 
 Importantly, we can then process and analyse our data so that our data
 will remain in GDrive for the next time.

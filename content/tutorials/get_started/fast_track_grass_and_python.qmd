@@ -95,8 +95,8 @@ This tutorial can be run locally. You need to have **GRASS 8.4+** and
 [Sentinel 2](https://grass.osgeo.org/sampledata/north_carolina/nc_sentinel_utm17n.zip)
 scenes and move the unzipped download into the directory where you are running
 this tutorial.
-For part B, we assume that you have downloaded the North Carolina
-[sample dataset](https://grass.osgeo.org/sampledata/north_carolina/nc_basic_spm_grass7.zip),
+For part B, we assume that you have downloaded the Raleigh, North Carolina
+[sample project](https://grass.osgeo.org/sampledata/raleigh_northcarolina_usa_epsg6542.zip),
 i.e., there's an existing GRASS project.
 Be sure you also have the following Python libraries installed in your
 environment: `folium` or `ipyleaflet`, `numpy`, `seaborn`, `matplotlib`, `pandas`.
@@ -286,10 +286,9 @@ to such a folder.
 
 ```{python}
 # Start GRASS
-session = gj.init("~/grassdata/nc_basic_spm_grass7/PERMANENT")
+session = gj.init("~/grassdata/raleigh_northcarolina_usa_epsg6542/PERMANENT")
 # alternatively
-# session = gj.init("~/grassdata/nc_basic_spm_grass7")
-# session = gj.init("~/grassdata", "nc_basic_spm_grass7", "PERMANENT")
+# session = gj.init("~/grassdata/raleigh_northcarolina_usa_epsg6542")
 ```
 
 We are now within a GRASS project, let's **obtain information** about it, like
@@ -435,8 +434,8 @@ stats = gs.read_command("r.univar",
                         flags="t",
                         map="elevation",
                         zones="landuse",
-                        separator="comma")
-df = pd.read_csv(StringIO(stats))
+                        separator="pipe")
+df = pd.read_csv(StringIO(stats), sep="|")
 
 df
 ```
@@ -454,10 +453,10 @@ plt.show()
 
 Similarly, if we need to do analysis with the attributes of GRASS vector maps,
 it is also possible to read the attribute table as a pandas data frame. Let's
-see an example with the census vector map:
+see an example with the census blocks vector map:
 
 ```{python}
-census = gs.parse_command("v.db.select", map="census", format="json")["records"]
+census = gs.parse_command("v.db.select", map="census_blocks", format="json")["records"]
 df = pd.DataFrame(census)
 df
 ```
@@ -466,11 +465,11 @@ Once the attribute table is a data frame, we can, e.g., filter data by a
 condition and plot the results.
 
 ```{python}
-fam_size_3 = df[df["FAM_SIZE"] > 3.0]
+populated_blocks = df[df["POP20"] > 100]
 ```
 
 ```{python}
-fam_size_3.plot.scatter(x="FAM_SIZE", y="OWNER_U")
+populated_blocks.plot.scatter(x="HOUSING20", y="POP20")
 ```
 
 ## Final remarks
